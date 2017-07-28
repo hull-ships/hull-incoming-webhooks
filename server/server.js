@@ -6,6 +6,7 @@ import express from "express";
 import webhookHandler from "./actions/webhook-handler";
 import computeHandler from "./actions/compute-handler";
 import devMode from "./dev-mode";
+import errorHandler from "./middlewares/error-handler";
 
 export default function Server(connector: Connector, options: Object = {}, app: express) {
   const { hostSecret } = options;
@@ -20,21 +21,7 @@ export default function Server(connector: Connector, options: Object = {}, app: 
 
   if (options.devMode) app.use(devMode());
 
-  app.use((err, req, res) => { // eslint-disable-line no-unused-vars
-    if (err) {
-      const data = {
-        status: err.status,
-        segmentBody: req.segment,
-        method: req.method,
-        headers: req.headers,
-        url: req.url,
-        params: req.params
-      };
-      req.hull.logger.error("Error ----------------", err.message, err.status, data);
-    }
-
-    return res.status(err.status || 500).send({ message: err.message });
-  });
+  errorHandler(app);
 
   return app;
 }
