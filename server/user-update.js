@@ -34,7 +34,6 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
 
       // Update account traits
       if (_.size(changes.account)) {
-
         const flat = {
           ...changes.account.traits,
           ...flatten({}, "", _.omit(changes.account, "traits")),
@@ -48,7 +47,6 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
           }));
         }
       } else if (_.size(accountClaims) && (_.size(account) || !_.isMatch(account, accountClaims))) {
-
         // Link account
         asUser.account(accountClaims).traits({}).then(() =>
           asUser.logger.info("incoming.account.link", { account: _.pick(account, "id"), accountClaims }));

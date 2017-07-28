@@ -32,7 +32,9 @@ module.exports = function compute(message: Object, ship: Object = {}, client: Ob
   const { code = "", sentry_dsn: sentryDsn } = private_settings;
 
   const sandbox = getSandbox(ship);
-  Object.keys(message).forEach(userKey => sandbox[userKey] = message[userKey]);
+  Object.keys(message).forEach(userKey => {
+    sandbox[userKey] = message[userKey];
+  });
 
   sandbox.account_segments = message.account_segments || [];
   sandbox.ship = ship;
@@ -64,7 +66,7 @@ module.exports = function compute(message: Object, ship: Object = {}, client: Ob
   const asUser = (userIdent = {}) => {
     try {
       client.asUser(userIdent);
-      userIdentity = userIdent
+      userIdentity = userIdent;
     } catch (err) {
       errors.push(err);
     }
@@ -119,16 +121,16 @@ module.exports = function compute(message: Object, ship: Object = {}, client: Ob
 
   sandbox.captureException = function captureException(e) {
     if (sentryDsn) {
-      const client = new raven.Client(sentryDsn);
-      client.setExtraContext(message);
-      client.captureException(e);
+      const ravenClient = new raven.Client(sentryDsn);
+      ravenClient.setExtraContext(message);
+      ravenClient.captureException(e);
     }
   };
 
   sandbox.captureMessage = function captureMessage(msg) {
     if (sentryDsn) {
-      const client = new raven.Client(sentryDsn);
-      client.captureMessage(msg);
+      const ravenClient = new raven.Client(sentryDsn);
+      ravenClient.captureMessage(msg);
     }
   };
 
