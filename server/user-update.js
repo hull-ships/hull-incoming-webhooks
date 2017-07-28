@@ -16,7 +16,7 @@ function flatten(obj, key, group) {
 
 module.exports = function handle(message = {}, { ship, client }) {
   // const { user, segments } = message;
-  return compute(message, ship)
+  return compute(message, ship, client)
     .then(({ changes, events, account, accountClaims, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
 

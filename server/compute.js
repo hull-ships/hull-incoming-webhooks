@@ -28,7 +28,7 @@ function getSandbox(ship) {
   return sandboxes[ship.id];
 }
 
-module.exports = function compute(message, ship = {}, options = {}) {
+module.exports = function compute(message, ship = {}, client = {}, options = {}) {
   const { preview } = options;
   const { private_settings = {} } = ship;
   const { code = "", sentry_dsn: sentryDsn } = private_settings;
@@ -54,16 +54,27 @@ module.exports = function compute(message, ship = {}, options = {}) {
   sandbox.results = [];
   sandbox.errors = errors;
   sandbox.logs = logs;
-  sandbox.track = (eventName, properties = {}, context = {}) => {
+
+  const track = (eventName, properties = {}, context = {}) => {
     if (eventName) tracks.push({ eventName, properties, context });
   };
-  sandbox.traits = (properties = {}, context = {}) => {
+
+  const traits = (properties = {}, context = {}) => {
     userTraits.push({ properties, context });
   };
 
-  sandbox.asUser = (userIdent = {}) => {
-    userIdentity = userIdent
+  const asUser = (userIdent = {}) => {
+    try {
+      client.asUser(userIdent);
+      userIdentity = userIdent
+    } catch (err) {
+      errors.push(err);
+    }
   };
+
+  sandbox.track = track;
+  sandbox.traits = traits;
+  sandbox.asUser = asUser;
 
   sandbox.hull = {
     account: (claims = null) => {
@@ -76,15 +87,9 @@ module.exports = function compute(message, ship = {}, options = {}) {
         }
       };
     },
-    traits: (properties = {}, context = {}) => {
-      userTraits.push({ properties, context });
-    },
-    track: (eventName, properties = {}, context = {}) => {
-      if (eventName) tracks.push({ eventName, properties, context });
-    },
-    asUser: (userIdent = {}) => {
-      userIdentity = userIdent
-    }
+    traits,
+    track,
+    asUser
   };
 
   sandbox.request = (opts, callback) => {

@@ -16,7 +16,7 @@ function computeHandler(req, res) {
   res.type("application/json");
 
   if (client && ship && user) {
-    compute(user, ship, { preview: true })
+    compute(user, ship, client, { preview: true })
     .then(result => {
       const logs = result.logs;
       if (logs && logs.length) {

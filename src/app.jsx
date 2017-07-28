@@ -70,6 +70,6 @@ export default class App extends Component {
         </Grid>
       </div>
     }
-    return <div className="text-center pt-2"><h4>Loading....</h4></div>;
+    return <div className="text-center pt-2"><h4>Loading...</h4></div>;
   }
 }
