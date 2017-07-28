@@ -23,10 +23,7 @@ function computeHandler(req, res) {
         logs.map(line => req.hull.client.logger.debug("preview.console.log", line));
       }
       res.send({ ship, user, result }).end();
-    }).catch(error => {
-      console.log(error);
-      res.status(500).json({ error })
-    });
+    }).catch(error => res.status(500).json({ error }));
   } else {
     res
       .status(400)

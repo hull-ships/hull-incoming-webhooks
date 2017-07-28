@@ -1,8 +1,8 @@
 {
-  "name": "hull-processor",
-  "description": "Run code to update User Properties and generate Events",
+  "name": "hull-incoming-webhooks",
+  "description": "Run code to map User Properties and generate Events",
   "version": "0.1.0",
-  "homepage": "https://github.com/hull-ships/hull-processor",
+  "homepage": "https://github.com/hull-ships/hull-incoming-webhooks",
   "license": "MIT",
   "author": {
     "name": "Hull",
@@ -15,10 +15,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/hull-ships/hull-processor"
+    "url": "git://github.com/hull-ships/hull-incoming-webhooks"
   },
   "bugs": {
-    "url": "https://github.com/hull-ships/hull-processor/issues"
+    "url": "https://github.com/hull-ships/hull-incoming-webhooks/issues"
   },
   "scripts": {
     "build": "npm run clean && npm run build:server && npm run build:client",
@@ -26,11 +26,10 @@
     "build:server": "./node_modules/.bin/babel server -d lib",
     "start": "node ./lib",
     "start:dev": "NODE_ENV=development LOG_LEVEL=debug ./node_modules/.bin/nodemon -V -w server -x ./node_modules/.bin/babel-node -- server",
-    "test": "npm run test:lint && npm run test:units && npm run test:specs",
+    "test": "npm run test:lint && flow check && npm run test:unit && npm run test:integration",
     "test:lint": "./node_modules/.bin/eslint server",
-    "test:modules": "npm outdated --depth=0",
-    "test:units": "NODE_ENV=test ./node_modules/.bin/mocha -R spec ./tests/index",
-    "test:specs": "NODE_ENV=test ./node_modules/.bin/mocha -R spec ./specs/index",
+    "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test ./node_modules/.bin/mocha -R spec ./test/integration",
     "clean": "./node_modules/.bin/rimraf dist; ./node_modules/.bin/rimraf lib",
     "update": "./node_modules/.bin/updtr",
     "watch": "./node_modules/.bin/watch 'clear && npm run test:lint -s && npm run test:units -s && npm run build:client -s' server src",

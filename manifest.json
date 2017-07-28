@@ -1,7 +1,7 @@
 {
-  "name": "Processor",
-  "description": "Recompute custom properties and emit events with Javascript logic whenever a user is updated",
-  "tags": ["incoming", "outgoing", "batch", "oneColumn"],
+  "name": "Incoming Webhooks",
+  "description": "Recompute external properties and emit events with Javascript logic whenever user is send to connector by webhook",
+  "tags": ["incoming", "batch", "oneColumn"],
   "picture": "picture.png",
   "ui": false,
   "admin": "admin.html",
