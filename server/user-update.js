@@ -15,7 +15,6 @@ function flatten(obj, key, group) {
 }
 
 module.exports = function handle(message = {}, { ship, client }) {
-  // const { user, segments } = message;
   return compute(message, ship, client)
     .then(({ changes, events, account, accountClaims, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
@@ -24,8 +23,7 @@ module.exports = function handle(message = {}, { ship, client }) {
 
       // Update user traits
       if (_.size(changes)) {
-        asUser.logger.info("compute.user.computed", { ...changes });
-        asUser.traits(...changes);
+        asUser.traits(...changes).then(() => asUser.logger.info("incoming.user.success", { ...changes }));
       }
 
       if (_.size(events)) {
@@ -41,22 +39,21 @@ module.exports = function handle(message = {}, { ship, client }) {
         };
 
         if (_.size(flat)) {
-          asUser.logger.info("compute.account.computed", {
+          asUser.account(accountClaims).traits(flat).then(() => asUser.logger.info("incoming.account.success", {
             account: _.pick(account, "id"),
             accountClaims,
             changes: flat
-          });
-          asUser.account(accountClaims).traits(flat);
+          }));
         }
       } else if (_.size(accountClaims) && (_.size(account) || !_.isMatch(account, accountClaims))) {
 
         // Link account
-        asUser.logger.info("compute.account.link", { account: _.pick(account, "id"), accountClaims });
-        asUser.account(accountClaims).traits({});
+        asUser.account(accountClaims).traits({}).then(() =>
+          asUser.logger.info("incoming.account.link", { account: _.pick(account, "id"), accountClaims }));
       }
 
       if (errors && errors.length > 0) {
-        asUser.logger.info("compute.user.error", { errors });
+        asUser.logger.error("incoming.user.error", { errors });
       }
 
       if (events.length > 0) {
@@ -67,7 +64,7 @@ module.exports = function handle(message = {}, { ship, client }) {
       }
 
       if (errors && errors.length > 0) {
-        asUser.logger.info("compute.user.error", { errors });
+        asUser.logger.error("incoming.user.error", { errors });
       }
 
       if (logs && logs.length) {
@@ -75,6 +72,6 @@ module.exports = function handle(message = {}, { ship, client }) {
       }
     })
     .catch(err => {
-      client.logger.info("compute.error", { err });
+      client.logger.error("incoming.user.error", { errors: err });
     });
 };

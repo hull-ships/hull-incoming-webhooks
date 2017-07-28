@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from "react";
-import SearchForm from "../ui/search-form";
 import { Col } from "react-bootstrap";
 import Area from "../ui/area";
 
