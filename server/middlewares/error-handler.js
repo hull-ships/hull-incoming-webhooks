@@ -1,4 +1,7 @@
-export default function (app) {
+/* @flow */
+import express from "express";
+
+export default function (app: express) {
   app.use((err, req, res) => { // eslint-disable-line no-unused-vars
     if (err) {
       const data = {

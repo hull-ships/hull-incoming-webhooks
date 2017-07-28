@@ -1,3 +1,5 @@
+/* @flow */
+
 import express from "express";
 import Hull from "hull";
 import { Cache } from "hull/lib/infra";

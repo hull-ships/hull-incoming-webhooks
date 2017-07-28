@@ -3,13 +3,11 @@ import _ from "lodash";
 import moment from "moment";
 import urijs from "urijs";
 import raven from "raven";
-import deepDiff from "deep-diff";
 import deepFreeze from "deep-freeze";
-import deepMerge from "deepmerge";
 import request from "request";
 import Promise from "bluebird";
 
-function applyUtils(sandbox = {}) {
+function applyUtils(sandbox: Object = {}) {
   const lodash = _.functions(_).reduce((l, key) => {
     l[key] = (...args) => _[key](...args);
     return l;
@@ -28,7 +26,7 @@ function getSandbox(ship) {
   return sandboxes[ship.id];
 }
 
-module.exports = function compute(message, ship = {}, client = {}, options = {}) {
+module.exports = function compute(message: Object, ship: Object = {}, client: Object = {}, options: Object = {}) {
   const { preview } = options;
   const { private_settings = {} } = ship;
   const { code = "", sentry_dsn: sentryDsn } = private_settings;

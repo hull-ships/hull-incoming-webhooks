@@ -1,10 +1,13 @@
+/* @flow */
+
 import connect from "connect";
-import compute from "../compute";
-import bodyParser from "body-parser";
 import timeout from "connect-timeout";
+import bodyParser from "body-parser";
+import { Request, Response, Next } from "express";
+import compute from "../compute";
 import fetchUser from "../middlewares/fetch-user";
 
-function computeHandler(req, res) {
+function computeHandler(req: Request, res: Response) {
   const { client } = req.hull;
   let { ship = {}, user } = req.body;
   // This condition ensures boot request does work:
@@ -31,11 +34,11 @@ function computeHandler(req, res) {
   }
 }
 
-function haltOnTimedout(req, res, next) {
+function haltOnTimedout(req: Request, res: Response, next: Next) {
   if (!req.timedout) next();
 }
 
-export default function computeHandlerComponent(options) {
+export default function computeHandlerComponent(options: Object) {
   const app = connect();
   const { connector, hostSecret = "" } = options;
 
@@ -48,7 +51,7 @@ export default function computeHandlerComponent(options) {
   app.use(computeHandler);
   app.use(haltOnTimedout);
 
-  return function c(req, res) {
+  return function c(req: Request, res: Response) {
     return app.handle(req, res);
   };
 }

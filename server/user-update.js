@@ -1,8 +1,10 @@
+/* @flow */
+
 import compute from "./compute";
 import _ from "lodash";
 import isGroup from "./is-group-trait";
 
-function flatten(obj, key, group) {
+function flatten(obj: Object, key: string, group: Object) {
   return _.reduce(group, (m, v, k) => {
     const n = (key) ? `${key}/${k}` : k;
     if (isGroup(v)) {
@@ -14,7 +16,7 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
-module.exports = function handle(message = {}, { ship, client }) {
+module.exports = function handle(message: Object = {}, { ship, client }: Object) {
   return compute(message, ship, client)
     .then(({ changes, events, account, accountClaims, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
