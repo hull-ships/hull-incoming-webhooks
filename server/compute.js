@@ -7,7 +7,7 @@ import deepFreeze from "deep-freeze";
 import request from "request";
 import Promise from "bluebird";
 
-function applyUtils(sandbox: Object = {}) {
+function applyUtils(sandbox = {}) {
   const lodash = _.functions(_).reduce((l, key) => {
     l[key] = (...args) => _[key](...args);
     return l;
@@ -26,7 +26,7 @@ function getSandbox(ship) {
   return sandboxes[ship.id];
 }
 
-module.exports = function compute(message: Object, ship: Object = {}, client: Object = {}, options: Object = {}) {
+module.exports = function compute(message, ship = {}, client = {}, options = {}) {
   const { preview } = options;
   const { private_settings = {} } = ship;
   const { code = "", sentry_dsn: sentryDsn } = private_settings;

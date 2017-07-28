@@ -14,7 +14,7 @@ export default (props)=>{
   if (!src) {
     return <i/>;
   }
-  pp.size = pp.size || 16
+  pp.size = pp.size || 16;
 
   const cls = classnames({
     [styles.responsive]: !!pp.responsive,

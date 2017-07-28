@@ -13,10 +13,10 @@ export default class Area extends Component {
     wrap: false,
     javascript: true,
     style: {}
-  }
+  };
   static propTypes = {
     highlight: React.PropTypes.array
-  }
+  };
 
   componentDidUpdate() {
     this.props.highlight.length && this.cm && this.cm.addOverlay({token:this.buildHighlighter()})
@@ -24,8 +24,7 @@ export default class Area extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     const { value } = this.props;
-    if (value === nextProps.value) return false;
-    return true;
+    return value !== nextProps.value;
   }
 
   buildHighlighter(){

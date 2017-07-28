@@ -1,24 +1,15 @@
 import React, { Component, PropTypes } from "react";
 import { Col } from "react-bootstrap";
 import Area from "../ui/area";
+import Header from '../ui/header';
 
 export default class UserPane extends Component {
-
-  static propTypes = {
-    loading: PropTypes.bool.isRequired,
-    onSearch: PropTypes.func,
-    onChange: PropTypes.func,
-    value: PropTypes.object,
-    userSearch: PropTypes.string
-  }
-
   render() {
-    const { className, sm, md, loading, onSearch, onChange, value, userSearch, error } = this.props;
-
-    const search = value && value.user && value.user.email;
-
+    const { className, sm, md, onChange, value } = this.props;
+    const title = "Last Received Webhook";
     return <Col className={className} md={md} sm={sm}>
-      <SearchForm loading={loading} error={error} userSearch={search} onSubmit={onSearch} />
+      <Header title={title}/>
+      <hr/>
       <Area value={value} type="info" onChange={onChange} javascript={false}/>
     </Col>;
   }
