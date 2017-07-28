@@ -3,8 +3,6 @@ import { queryParams } from "./utils";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./app";
-import superagent from "superagent";
-import Promise from "bluebird";
 import Engine from "./engine";
 
 
