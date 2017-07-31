@@ -1,0 +1,26 @@
+{
+  "name": "Hull Incoming Webhooks",
+  "description": "Run code to update User Properties and generate Events",
+  "repository": "https://github.com/hull-ships/hull-incoming-webhooks",
+  "website": "http://www.hull.io",
+  "success_url": "/readme",
+  "env": {
+    "SECRET" : {
+      "description" : "A Secret key",
+      "generator" : "secret"
+    },
+    "NODE_ENV": {
+      "description" : "Node environment level"
+    },
+    "LOG_LEVEL": {
+      "description" : "Log level"
+    },
+    "PORT": {
+      "description" : "Port for application to start."
+    },
+    "OVERRIDE_FIREHOSE_URL": {
+      "description" : "Firehose url."
+    }
+  },
+  "scripts": {}
+}
