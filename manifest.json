@@ -9,18 +9,11 @@
   "version": "0.1.0",
   "private_settings": [
     {
-      "name" : "sentry_dsn",
-      "title" : "Sentry DSN",
-      "description" : "URL of a sentry instance to collect logs and exception notifications",
-      "type" : "string",
-      "format" : "hidden"
-    },
-    {
       "name":"code",
       "title": "Code",
       "description":"Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
       "type": "string",
-      "default":"console.log(`Hello !`);\nhull.asUser({ \"id\":\"123\" });\n// traits({ coconuts: 12 });\n// traits({ coconuts: 13 });\n// traits({ coconuts: 14 }, { source: 'clearbit' });\n// //BEWARE - if you track() without a if() condition you trigger an infinite loop.\n// //if(false) { track('Viewed Monthy Python', { coconuts: 12 });}",
+      "default":"console.log(\"Hello !\");\nhull.asUser({ \"id\":\"123\" });\n// hull.traits({ coconuts: 12 });\n// hull.track(\"sample event\");",
       "format": "hidden"
     }
   ],

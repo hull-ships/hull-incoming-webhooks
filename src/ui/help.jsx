@@ -19,18 +19,10 @@ export default class Help extends Component {
 
   render() {
     const sample = `
-console.log(\`Hello \$\{user.name}\`);
-hull.traits({ coconuts: 12, swallows: 12 });
-hull.traits({ coconuts: 13 });
-hull.traits({ coconuts: 14 }, { source: 'clearbit' });
-
-//BEWARE - if you apply a trait operation (such as 'inc')
-//without a if() condition, you trigger an infinite loop;
-hull.traits({ swallows: { operation: 'inc', value: 2 } });
-
-//BEWARE - if you hull.track() without a if() condition
-//you trigger an infinite loop.
-if(false) { hull.track("Viewed Monthy Python", { coconuts: 12 });}
+console.log("Hello !");
+hull.asUser({ "id":"123" });
+// hull.traits({ coconuts: 12 });
+// hull.track("sample event");
     `;
     return (
       <div>

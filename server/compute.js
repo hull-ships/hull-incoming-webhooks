@@ -29,14 +29,13 @@ function getSandbox(ship) {
 module.exports = function compute(message, ship = {}, client = {}, options = {}) {
   const { preview } = options;
   const { private_settings = {} } = ship;
-  const { code = "", sentry_dsn: sentryDsn } = private_settings;
+  const { code = "" } = private_settings;
 
   const sandbox = getSandbox(ship);
   Object.keys(message).forEach(userKey => {
     sandbox[userKey] = message[userKey];
   });
 
-  sandbox.account_segments = message.account_segments || [];
   sandbox.ship = ship;
   sandbox.payload = {};
 
@@ -119,21 +118,6 @@ module.exports = function compute(message, ship = {}, client = {}, options = {})
   }
   sandbox.console = { log, warn: log, error: logError, debug };
 
-  sandbox.captureException = function captureException(e) {
-    if (sentryDsn) {
-      const ravenClient = new raven.Client(sentryDsn);
-      ravenClient.setExtraContext(message);
-      ravenClient.captureException(e);
-    }
-  };
-
-  sandbox.captureMessage = function captureMessage(msg) {
-    if (sentryDsn) {
-      const ravenClient = new raven.Client(sentryDsn);
-      ravenClient.captureMessage(msg);
-    }
-  };
-
   try {
     const script = new vm.Script(`
       try {
@@ -148,7 +132,6 @@ module.exports = function compute(message, ship = {}, client = {}, options = {})
     script.runInContext(sandbox);
   } catch (err) {
     errors.push(err.toString());
-    sandbox.captureException(err);
   }
 
   if (isAsync && !_.some(_.compact(sandbox.results), (r) => _.isFunction(r.then))) {
@@ -157,13 +140,12 @@ module.exports = function compute(message, ship = {}, client = {}, options = {})
   }
 
   if (_.isEmpty(userIdentity)) {
-    errors.push("You have to call asUser at least once to provide user identity");
+    errors.push("You have to call 'asUser' method with user's identity at least once. Every next invocation will override previous one.");
   }
 
   return Promise.all(sandbox.results)
   .catch((err) => {
     errors.push(err.toString());
-    sandbox.captureException(err);
   })
   .then(() => {
     if (preview && tracks.length > 10) {

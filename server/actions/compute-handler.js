@@ -5,7 +5,7 @@ import timeout from "connect-timeout";
 import bodyParser from "body-parser";
 import { Request, Response, Next } from "express";
 import compute from "../compute";
-import fetchUser from "../middlewares/fetch-user";
+import fetchUser from "../middlewares/get-last-webhook";
 
 function computeHandler(req: Request, res: Response) {
   const { client } = req.hull;
