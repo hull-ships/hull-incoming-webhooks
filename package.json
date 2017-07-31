@@ -4,19 +4,12 @@
   "version": "0.1.0",
   "homepage": "https://github.com/hull-ships/hull-incoming-webhooks",
   "license": "MIT",
-  "author": {
-    "name": "Hull",
-    "email": "contact@hull.io",
-    "url": "https://github.com/hull"
-  },
+  "author": "Hull <contact@hull.io> (https://github.com/hull)",
   "engines": {
     "node": "6.x",
     "npm": "3.x"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/hull-ships/hull-incoming-webhooks"
-  },
+  "repository": "git://github.com/hull-ships/hull-incoming-webhooks",
   "bugs": {
     "url": "https://github.com/hull-ships/hull-incoming-webhooks/issues"
   },
@@ -100,5 +93,6 @@
     "watch": "^0.19.1",
     "webpack": "^1.13.1",
     "webpack-dev-middleware": "^1.6.1"
-  }
+  },
+  "main": "index.js"
 }
