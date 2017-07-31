@@ -2,7 +2,10 @@
 
 import compute from "./compute";
 import _ from "lodash";
-import isGroup from "./is-group-trait";
+
+function isGroup(o) {
+  return _.isPlainObject(o) && !_.isEqual(_.sortBy(_.keys(o)), ["operation", "value"]);
+}
 
 function flatten(obj: Object, key: string, group: Object) {
   return _.reduce(group, (m, v, k) => {

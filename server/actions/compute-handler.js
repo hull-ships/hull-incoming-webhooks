@@ -5,7 +5,7 @@ import timeout from "connect-timeout";
 import bodyParser from "body-parser";
 import { Request, Response, Next } from "express";
 import compute from "../compute";
-import fetchUser from "../middlewares/get-last-webhook";
+import getLastWebhook from "../middlewares/get-last-webhook";
 
 function computeHandler(req: Request, res: Response) {
   const { client } = req.hull;
@@ -46,7 +46,7 @@ export default function computeHandlerComponent(options: Object) {
   app.use(bodyParser.json());
   app.use(haltOnTimedout);
   app.use(connector.clientMiddleware({ hostSecret, fetchShip: true, cacheShip: false }));
-  app.use(fetchUser);
+  app.use(getLastWebhook);
   app.use(haltOnTimedout);
   app.use(computeHandler);
   app.use(haltOnTimedout);
