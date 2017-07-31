@@ -15,11 +15,13 @@ export default function Server(connector: Connector, options: Object = {}, app: 
     res.render("admin.html", { hostname: req.hostname, token: req.hull.token, connectorId: req.hull.ship.id });
   });
 
+  app.post("/webhooks/:connectorId", webhookHandler);
+
   app.post("/compute", computeHandler({ hostSecret, connector }));
 
-  app.use("/webhooks", webhookHandler);
-
-  if (options.devMode) app.use(devMode());
+  if (options.devMode) {
+    app.use(devMode());
+  }
 
   errorHandler(app);
 

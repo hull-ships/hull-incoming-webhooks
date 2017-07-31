@@ -1,17 +1,17 @@
 /* global describe, it, beforeEach, afterEach */
 
 import Minihull from "minihull";
-import assert from "assert";
 import axios from "axios";
-import bootstrap from "./support/bootstrap";
+import assert from "assert";
 import jwt from "jwt-simple";
+import bootstrap from "./support/bootstrap";
 
 describe("Connector for webhooks endpoint", function test() {
   let minihull;
   let server;
 
   const private_settings = {
-
+    code: "hull.asUser({ \"id\": user.id });\nhull.traits(user.traits);\nhull.track(user.eventName);"
   };
 
   beforeEach((done) => {
@@ -19,14 +19,11 @@ describe("Connector for webhooks endpoint", function test() {
     server = bootstrap();
     minihull.listen(8001);
     minihull.stubConnector({ id: "123456789012345678901234", private_settings });
-    minihull.stubSegments([{
-      name: "testSegment",
-      id: "hullSegmentId"
-    }]);
+    minihull.stubSegments([]);
 
     setTimeout(() => {
       done();
-    }, 1000);
+    }, 1500);
   });
 
   afterEach(() => {
@@ -41,6 +38,32 @@ describe("Connector for webhooks endpoint", function test() {
   };
   const token = jwt.encode(config, "1234");
 
+  it("should update user when webhook is sent", (done) => {
+    axios.post(`http://localhost:8000/webhooks/123456789012345678901234?token=${token}`, {
+      user: {
+        id: "123",
+        eventName: "test",
+        traits: {
+          customerioid: "321"
+        }
+      }
+    }).then(() => {
+      minihull.on("incoming.request", (req) => {
+        const batch = req.body.batch;
+
+        batch.forEach(incoming => {
+          if (incoming.type === "traits") {
+            assert.equal(incoming.body.customerioid, "321");
+          } else {
+            assert.equal(event.eventName, "test");
+          }
+        });
+      });
+    });
 
 
+    setTimeout(() => {
+      done()
+    }, 1500);
+  });
 });

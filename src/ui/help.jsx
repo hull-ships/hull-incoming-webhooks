@@ -65,9 +65,9 @@ hull.asUser({ "id":"123" });
                     </pre>
                     <p>
                       <small>
-                        You have to call asUser method to provide user identity.
+                        You have to call asUser method to provide user identity.<br/>
                         Invoking this method requires to pass as argument at least on of the following properties:<br/>
-                        <code></code>,<code></code>,<code></code>,<code></code>
+                        <code>external_id</code>, <code>anonymous_id</code>, <code>email</code>, <code>id (which is id in hull)</code>.
                       </small>
                       <small>
                         You can apply <a target="_blank" href="http://www.hull.io/docs/references/hull_js#traits">Traits operations</a>.
@@ -82,11 +82,11 @@ hull.asUser({ "id":"123" });
                   <Col sm={4}>
                     <Col sm={12}>
                       <p><Icon name='rocker' large/></p>
-                      <p>On the <strong>left</strong>, is a sample user with all his/her properties, segments, account, latest events and changes since last recompute. You can search for a specific user. </p>
+                      <p>On the <strong>left</strong>, is last received webhook with all properties. </p>
                     </Col>
                     <Col sm={12}>
                       <p><Icon name='punker' large/></p>
-                      <p>On the <strong>right</strong>, a preview of the updated user, a summary of the changes that would be applied and eventual logs and errors from the console</p>
+                      <p>On the <strong>right</strong>, a preview of the summary of the changes that would be applied and eventual logs and errors from the console</p>
 
                       <p>When you're satisfied, click <strong>Save</strong></p>
                     </Col>
@@ -107,30 +107,6 @@ hull.asUser({ "id":"123" });
                     <tr>
                       <td><code>ship</code></td>
                       <td><p><small>The Ship's data. Can be used to store additional data</small></p></td>
-                    </tr>
-                    <tr>
-                      <td><code>user</code></td>
-                      <td><p><small>The User data (as seen on the left side)</small></p></td>
-                    </tr>
-                    <tr>
-                      <td><code>account</code></td>
-                      <td><p><small>The User Account data (as seen on the left column)</small></p></td>
-                    </tr>
-                    <tr>
-                      <td><code>changes</code></td>
-                      <td><p><small>An object of all the changed properties since last recompute</small></p></td>
-                    </tr>
-                    <tr>
-                      <td><code>events</code></td>
-                      <td><p><small>An array of all the events since last recompute</small></p></td>
-                    </tr>
-                    <tr>
-                      <td><code>segments</code></td>
-                      <td><p><small>The segments the user belongs to. </small></p></td>
-                    </tr>
-                    <tr>
-                      <td><code>account_segments</code></td>
-                      <td><p><small>An Array of the segments the user's account belongs to. </small></p></td>
                     </tr>
 
                     <tr>
@@ -154,14 +130,10 @@ hull.asUser({ "id":"123" });
                     </tr>
 
                     <tr>
-                      <td><code>hull.account(claims).track('Event Name', properties)</code></td>
-                      <td><p><small>A method to generate new Events for the Account. If <code>claims</code> is defined, the claimed Account will be created/updated and linked to the User, else if <code>claims</code> is <code>null</code>, the Account belonging to this User will be updated. Can be used at most 10 times in a single run of the processor. </small></p></td>
+                      <td><code>hull.asUser(userIdentity)</code></td>
+                      <td><p><small>A method to provide user's identity. Every invocation will override previous one.</small></p></td>
                     </tr>
 
-                    <tr>
-                      <td><code>isInSegment('Segment')</code></td>
-                      <td><p><small>A convenience method allowing you to quickly define if the user is a member of a given segment.</small></p></td>
-                    </tr>
                     <tr>
                       <td><code>moment()</code></td>
                       <td><p><small>The <a href="http://momentjs.com/" target='_blank'>Moment.js</a> library.</small></p></td>

@@ -2,7 +2,7 @@
 import express from "express";
 
 export default function (app: express) {
-  app.use((err, req, res) => { // eslint-disable-line no-unused-vars
+  app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     if (err) {
       const data = {
         status: err.status,
@@ -12,7 +12,7 @@ export default function (app: express) {
         url: req.url,
         params: req.params
       };
-      req.hull.logger.error("Error ----------------", err.message, err.status, data);
+      req.hull.client.logger.error("Error ----------------", err.message, err.status, data);
     }
 
     return res.status(err.status || 500).send({ message: err.message });

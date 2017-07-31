@@ -19,8 +19,8 @@ function flatten(obj: Object, key: string, group: Object) {
   }, obj);
 }
 
-module.exports = function handle(message: Object = {}, { ship, client }: Object) {
-  return compute(message, ship, client)
+module.exports = function handle(message: Object = {}, headers, { ship, client }: Object) {
+  return compute(message, headers, ship, client)
     .then(({ changes, events, account, accountClaims, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
 
