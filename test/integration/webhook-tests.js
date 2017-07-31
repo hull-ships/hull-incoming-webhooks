@@ -61,7 +61,6 @@ describe("Connector for webhooks endpoint", function test() {
       });
     });
 
-
     setTimeout(() => {
       done()
     }, 1500);

@@ -25,17 +25,14 @@ function getSandbox(ship) {
   return sandboxes[ship.id];
 }
 
-module.exports = function compute(webhook, headers, ship = {}, client = {}, options = {}) {
+module.exports = function compute(webhookRequest, ship = {}, client = {}, options = {}) {
   const { preview } = options;
   const { private_settings = {} } = ship;
   const { code = "" } = private_settings;
 
   const sandbox = getSandbox(ship);
-  Object.keys(webhook).forEach(webhookKey => {
-    sandbox[webhookKey] = webhook[webhookKey];
-  });
 
-  sandbox.headers = headers;
+  sandbox.req = webhookRequest;
 
   sandbox.ship = ship;
   sandbox.payload = {};

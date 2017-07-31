@@ -19,12 +19,12 @@ function flatten(obj: Object, key: string, group: Object) {
   }, obj);
 }
 
-module.exports = function handle(message: Object = {}, headers, { ship, client }: Object) {
-  return compute(message, headers, ship, client)
-    .then(({ changes, events, account, accountClaims, logs, errors, userIdentity }) => {
+module.exports = function handle(message: Object = {}, { ship, client }: Object) {
+  return compute(message, ship, client)
+    .then(({ changes, events, accountIdentity, accountTraits, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
 
-      asUser.logger.info("compute.user.debug", { changes, accountClaims });
+      asUser.logger.info("compute.user.debug", { changes, accountTraits });
 
       // Update user traits
       if (_.size(changes)) {
@@ -43,16 +43,16 @@ module.exports = function handle(message: Object = {}, headers, { ship, client }
         };
 
         if (_.size(flat)) {
-          asUser.account(accountClaims).traits(flat).then(() => asUser.logger.info("incoming.account.success", {
-            account: _.pick(account, "id"),
-            accountClaims,
+          asUser.account(accountTraits).traits(flat).then(() => asUser.logger.info("incoming.account.success", {
+            account: _.pick(accountIdentity, "id"),
+            accountTraits,
             changes: flat
           }));
         }
-      } else if (_.size(accountClaims) && (_.size(account) || !_.isMatch(account, accountClaims))) {
+      } else if (_.size(accountTraits) && (_.size(account) || !_.isMatch(accountIdentity, accountTraits))) {
         // Link account
-        asUser.account(accountClaims).traits({}).then(() =>
-          asUser.logger.info("incoming.account.link", { account: _.pick(account, "id"), accountClaims }));
+        asUser.account(accountTraits).traits({}).then(() =>
+          asUser.logger.info("incoming.account.link", { account: _.pick(accountIdentity, "id"), accountTraits }));
       }
 
       if (errors && errors.length > 0) {
