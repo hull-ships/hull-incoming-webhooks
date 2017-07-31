@@ -44,13 +44,10 @@ hull.asUser({ "id":"123" });
                   <Col xs={9} sm={10}>
                     <p>
                       <strong>This ship lets you process user data</strong>, add & edit properties and emit new events.
-                      Users will pass through this code everytime they are updated or generate events.
+                      Users will pass through this code everytime user is send to this connector by webhook.
                     </p><p>
-                      <strong>Actions are micro-batched:</strong> The code will <i>not</i> run every time an Event is recorded, but rather wait and receive <strong>several events at once</strong>. When a User is recomputed, the Ship will receive it along with all the events performed since the last batch. Events are sent exactly once.
+                      <strong>Actions are micro-batched:</strong> The code will <i>not</i> run every time an User is send, but rather wait and receive <strong>several events at once</strong>. When a User is recomputed, the Ship will receive it along with all the events performed since the last batch. Events are sent exactly once.
                     </p>
-                    <Alert bsStyle="danger">
-                      It is up to you to avoid infinite loops: Those calls count against your quotas and can burn through it pretty quickly.
-                    </Alert>
                   </Col>
                 </Row>
 
@@ -59,7 +56,7 @@ hull.asUser({ "id":"123" });
                 <Row>
                   <Col sm={8}>
                     <p><Icon name='compute' large/></p>
-                    <p>On the <strong>Sidebar</strong>, Write Javascript code to manipulate data, call <code>hull.track()</code> and <code>hull.traits()</code> to update User. ES6 is supported. You can't use asynchronous code and external libraries.</p>
+                    <p>On the <strong>Sidebar</strong>, Write Javascript code to manipulate data, call <code>hull.asUser()</code> to identify user and then <code>hull.track()</code> and <code>hull.traits()</code> to update his traits. ES6 is supported. You can use asynchronous code but You can't use external libraries.</p>
                     <h6>Example: </h6>
                     <pre>
                       <small>
@@ -68,14 +65,17 @@ hull.asUser({ "id":"123" });
                     </pre>
                     <p>
                       <small>
+                        You have to call asUser method to provide user identity.
+                        Invoking this method requires to pass as argument at least on of the following properties:<br/>
+                        <code></code>,<code></code>,<code></code>,<code></code>
+                      </small>
+                      <small>
                         You can apply <a target="_blank" href="http://www.hull.io/docs/references/hull_js#traits">Traits operations</a>.
-                        <Alert bsStyle="danger">Be careful to not apply trait operations unconditionally otherwise you'll end up with an infinite increment loop.</Alert>
                       </small>
                     </p>
                     <p>
                       <small>
                         You can emit up to 10 events with <a target="_blank" href="http://www.hull.io/docs/references/hull_js#track">hull.track()</a>.
-                        <Alert bsStyle="danger">Be careful to not generate events unconditionally otherwise you'll end up with an infinite loop of events and recomputations.</Alert>
                       </small>
                     </p>
                   </Col>
