@@ -43,7 +43,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   let tracks = [];
   const userTraits = [];
   const accountTraits = [];
-  let accountIdentity = {};
+  let accountClaims = {};
   const logs = [];
   const errors = [];
   let isAsync = false;
@@ -74,9 +74,9 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   sandbox.asUser = asUser;
 
   sandbox.hull = {
-    account: (identity = null) => {
-      if (identity) {
-        accountIdentity = identity;
+    account: (claims = null) => {
+      if (claims) {
+        accountClaims = claims;
       }
       return {
         traits: (properties = {}, context = {}) => {
@@ -160,7 +160,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
       changes: _.map(userTraits, trait => trait.properties),
       events: tracks,
       payload: sandbox.payload,
-      accountIdentity
+      accountClaims
     };
   });
 };
