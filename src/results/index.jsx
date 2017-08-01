@@ -17,7 +17,7 @@ export default class Results extends Component {
 
   render() {
     const {
-      changes = {},
+      userTraits = {},
       errors = [],
       events = [],
       accountClaims = {},
@@ -28,7 +28,7 @@ export default class Results extends Component {
       sm, md
      } = this.props;
     const ActivePane = (errors && errors.length) ? Errors : Output;
-    const highlight = ((errors && errors.length) ? [] : _.map(_.keys(changes), k => `traits_${k}`) || []);
+    const highlight = ((errors && errors.length) ? [] : _.map(_.keys(userTraits), k => `traits_${k}`) || []);
     const codeIsEmpty = code === "return {};" || code === "";
 
     const logOutput = logs.map(l => {
@@ -38,8 +38,8 @@ export default class Results extends Component {
     }).join("\n");
 
     let output = "";
-    if (_.size(changes)) {
-      const traits = JSON.stringify(changes, null, 2);
+    if (_.size(userTraits)) {
+      const traits = JSON.stringify(userTraits, null, 2);
       output = `/* TRAITS */
 ${traits}
 `;
@@ -66,7 +66,7 @@ ${eventString}`;
       </Header>
       <hr/>
       <ActivePane
-        changes={output}
+        userTraits={output}
         logs={logOutput}
         errors={errors}
         payload={payload}

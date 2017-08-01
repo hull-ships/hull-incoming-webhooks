@@ -16,8 +16,8 @@ export default class Engine extends EventEmitter {
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
 
-  setState(changes) {
-    this.state = { ...this.state, ...changes };
+  setState(userTraits) {
+    this.state = { ...this.state, ...userTraits };
     this.emitChange();
     return this.state;
   }
