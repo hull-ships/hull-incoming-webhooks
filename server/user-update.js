@@ -38,7 +38,7 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
       // Update account traits
       if (_.size(accountTraits)) {
         asUser.account(accountIdentity).traits(...flatten({}, "", accountTraits)).then(() => asUser.logger.info("incoming.account.success", {
-          accountTraits,
+          accountTraits: flatten({}, "", accountTraits),
           accountIdentity
         }));
       } else if (_.size(accountIdentity) || !_.isMatch(accountTraits, accountIdentity)) {
