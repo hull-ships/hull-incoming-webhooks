@@ -162,6 +162,6 @@ hull.asUser({ "id":"123" });
           </Modal.Footer>
         </Modal>
       </div>
-    )
+    );
   }
 }
