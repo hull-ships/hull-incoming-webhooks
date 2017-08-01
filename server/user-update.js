@@ -21,10 +21,10 @@ function flatten(obj: Object, key: string, group: Object) {
 
 module.exports = function handle(message: Object = {}, { ship, client }: Object) {
   return compute(message, ship, client)
-    .then(({ changes, events, accountIdentity, accountClaims, logs, errors, userIdentity }) => {
+    .then(({ changes, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
 
-      asUser.logger.info("compute.user.debug", { changes, accountClaims });
+      asUser.logger.info("compute.user.debug", { changes, accountIdentity });
 
       // Update user traits
       if (_.size(changes)) {
@@ -36,23 +36,15 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
       }
 
       // Update account traits
-      if (_.size(changes.account)) {
-        const flat = {
-          ...changes.account.traits,
-          ...flatten({}, "", _.omit(changes.account, "traits")),
-        };
-
-        if (_.size(flat)) {
-          asUser.account(accountClaims).traits(flat).then(() => asUser.logger.info("incoming.account.success", {
-            account: _.pick(accountIdentity, "id"),
-            accountClaims,
-            changes: flat
-          }));
-        }
-      } else if (_.size(accountClaims) && (_.size(account) || !_.isMatch(accountIdentity, accountClaims))) {
+      if (_.size(accountTraits)) {
+        asUser.account(accountIdentity).traits(accountTraits).then(() => asUser.logger.info("incoming.account.success", {
+          accountTraits,
+          accountIdentity
+        }));
+      } else if (_.size(accountIdentity) && (_.size(accountTraits) || !_.isMatch(accountTraits, accountIdentity))) {
         // Link account
-        asUser.account(accountClaims).traits({}).then(() =>
-          asUser.logger.info("incoming.account.link", { account: _.pick(accountIdentity, "id"), accountClaims }));
+        asUser.account(accountIdentity).traits({}).then(() =>
+          asUser.logger.info("incoming.account.link", { accountTraits, accountIdentity }));
       }
 
       if (errors && errors.length > 0) {
