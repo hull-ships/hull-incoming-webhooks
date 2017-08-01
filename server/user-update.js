@@ -41,7 +41,7 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
           accountTraits,
           accountIdentity
         }));
-      } else if (_.size(accountIdentity) && (_.size(accountTraits) || !_.isMatch(accountTraits, accountIdentity))) {
+      } else if (_.size(accountIdentity) || !_.isMatch(accountTraits, accountIdentity)) {
         // Link account
         asUser.account(accountIdentity).traits({}).then(() =>
           asUser.logger.info("incoming.account.link", { accountTraits, accountIdentity }));
