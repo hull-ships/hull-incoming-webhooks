@@ -43,10 +43,7 @@ hull.asUser({ "id":"123" });
                   </Col>
                   <Col xs={9} sm={10}>
                     <p>
-                      <strong>This ship lets you process user data</strong>, add & edit properties and emit new events.
-                      Users will pass through this code everytime user is send to this connector by webhook.
-                    </p><p>
-                      <strong>Actions are micro-batched:</strong> The code will <i>not</i> run every time an User is send, but rather wait and receive <strong>several events at once</strong>. When a User is recomputed, the Ship will receive it along with all the events performed since the last batch. Events are sent exactly once.
+                      <strong>This ship lets you process data coming from any incoming webhook</strong>, add & edit User and Account properties and emit new events.
                     </p>
                   </Col>
                 </Row>
@@ -82,13 +79,16 @@ hull.asUser({ "id":"123" });
                   <Col sm={4}>
                     <Col sm={12}>
                       <p><Icon name='rocker' large/></p>
-                      <p>On the <strong>left</strong>, is last received webhook with all properties. </p>
+                      <p>
+                        On the <strong>left</strong>, is last received webhook request with the following properties:
+                        <strong>body</strong>, <strong>headers</strong>, <strong>ip</strong>, <strong>method</strong>, <strong>params</strong>, <strong>query</strong>
+                      </p>
                     </Col>
                     <Col sm={12}>
                       <p><Icon name='punker' large/></p>
                       <p>On the <strong>right</strong>, a preview of the summary of the changes that would be applied and eventual logs and errors from the console</p>
 
-                      <p>When you're satisfied, click <strong>Save</strong></p>
+                      <p>When you're satisfied with the result, click <strong>Save</strong></p>
                     </Col>
                   </Col>
                 </Row>
@@ -98,15 +98,20 @@ hull.asUser({ "id":"123" });
                 <Row>
                   <Col sm={12}>
                     <h4>Variables and libraries you can access</h4>
-                    <p>The code will run once saved. It will not back-process users who don't change. You can trigger a batch from the dashboard. Events won't be sent in Batches.</p>
+                    <p>The code will run once saved.</p>
 
                   </Col>
                 </Row>
                 <Table striped bordered condensed hover className='mt-1'>
                   <tbody>
                     <tr>
+                      <td><code>req</code></td>
+                      <td><p><small>The webhook's request. By default the preview displays the last request received.</small></p></td>
+                    </tr>
+
+                    <tr>
                       <td><code>ship</code></td>
-                      <td><p><small>The Ship's data. Can be used to store additional data</small></p></td>
+                      <td><p><small>The Connectors's data. Can be used to store additional data</small></p></td>
                     </tr>
 
                     <tr>
