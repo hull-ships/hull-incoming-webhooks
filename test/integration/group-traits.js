@@ -13,8 +13,7 @@ describe("Connector for webhooks endpoint", function test() {
 
   const private_settings = {
     code: "hull.asUser({ \"id\": req.body.user.id });\n\
-    hull.traits(req.body.user.traits);\n\ \
-    hull.track(req.body.user.eventName);"
+    hull.traits(req.body.user.traits, { source: \"my-group\" });"
   };
 
   beforeEach((done) => {
@@ -42,13 +41,11 @@ describe("Connector for webhooks endpoint", function test() {
   const token = jwt.encode(config, "1234");
 
   it("should update user when webhook is sent", (done) => {
-    let firstCheck = false;
-    let secondCheck = false;
+    let check = false;
 
     axios.post(`http://localhost:8000/webhooks/123456789012345678901234?token=${token}`, {
       user: {
         id: "123",
-        eventName: "test",
         traits: {
           customerioid: "321"
         }
@@ -59,20 +56,15 @@ describe("Connector for webhooks endpoint", function test() {
 
         batch.forEach(incoming => {
           if (incoming.type === "traits") {
-            assert.equal(_.get(incoming.body, "traits/customerioid"), "321");
-            firstCheck = true;
-          } else {
-            assert.equal(incoming.body.event.eventName, "test");
-            secondCheck = true;
+            assert.equal(_.get(incoming.body, "my-group/customerioid"), "321");
+            check = true;
           }
         });
       });
 
       setTimeout(() => {
-        if (!firstCheck) {
-          done(Error("first check not satisfied"))
-        } else if (!secondCheck) {
-          done(Error("second check not satisfied"))
+        if (!check) {
+          done(Error("check not satisfied"))
         } else {
           done();
         }

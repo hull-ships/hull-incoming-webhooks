@@ -6,6 +6,8 @@ import deepFreeze from "deep-freeze";
 import request from "request";
 import Promise from "bluebird";
 
+const TOP_LEVEL_FIELDS = ["tags", "name", "description", "extra", "picture", "settings", "username", "email", "contact_email", "image", "first_name", "last_name", "address", "created_at", "phone", "domain", "accepts_marketing"];
+
 function applyUtils(sandbox = {}) {
   const lodash = _.functions(_).reduce((l, key) => {
     l[key] = (...args) => _[key](...args);
@@ -17,6 +19,30 @@ function applyUtils(sandbox = {}) {
   sandbox._ = deepFreeze(lodash);
 }
 
+const buildPayload = (pld, traitsCall = {}) => {
+  const { properties, context = {} } = traitsCall;
+  if (properties) {
+    const { source } = context;
+    if (source) {
+      pld[source] = { ...pld[source], ...properties };
+    } else {
+      _.map(properties, (v, k) => {
+        const path = k.replace("/", ".");
+        if (path.indexOf(".") > -1) {
+          _.setWith(pld, path, v, Object);
+        } else if (_.includes(TOP_LEVEL_FIELDS, k)) {
+          pld[k] = v;
+        } else {
+          pld.traits = {
+            ...pld.traits,
+            [k]: v
+          };
+        }
+      });
+    }
+  }
+  return pld;
+};
 
 const sandboxes = {};
 function getSandbox(ship) {
@@ -157,11 +183,11 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
       userIdentity,
       logs,
       errors,
-      changes: _.map(userTraits, trait => trait.properties),
+      userTraits: _.reduce(userTraits, buildPayload, {}),
       events: tracks,
       payload: sandbox.payload,
       accountIdentity,
-      accountTraits
+      accountTraits: _.reduce(accountTraits, buildPayload, {})
     };
   });
 };
