@@ -11,7 +11,7 @@ export default function webhookHandler(req: Request, res: Response) {
   res.send();
   const ttl = 1440000000;
   const payload = pickValuesFromRequest(req);
-  // req.hull.client.logger.debug("incoming.webhook", req);
+  console.warn("incoming.webhook", req);
   return req.hull.cache
     .set("webhookRequest", payload, { ttl })
     .then(cachedValue => updateUser(cachedValue, req.hull));
