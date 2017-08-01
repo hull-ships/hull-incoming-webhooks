@@ -9,7 +9,11 @@ function pickValuesFromRequest(req: Request) {
 
 export default function webhookHandler(req: Request, res: Response) {
   res.send();
-  return req.hull.cache.set("webhookRequest", pickValuesFromRequest(req), { ttl: 1440000000 }).then((cachedValue) => {
-    updateUser(cachedValue, req.hull);
-  });
+
+  const ttl = 1440000000;
+  const payload = pickValuesFromRequest(req);
+  console.warn("incoming.webhook", req);
+  return req.hull.cache
+    .set("webhookRequest", payload, { ttl })
+    .then(cachedValue => updateUser(cachedValue, req.hull));
 }

@@ -3,22 +3,6 @@
 import compute from "./compute";
 import _ from "lodash";
 
-function isGroup(o) {
-  return _.isPlainObject(o) && !_.isEqual(_.sortBy(_.keys(o)), ["operation", "value"]);
-}
-
-function flatten(obj: Object, key: string, group: Object) {
-  return _.reduce(group, (m, v, k) => {
-    const n = (key) ? `${key}/${k}` : k;
-    if (isGroup(v)) {
-      flatten(m, n, v);
-    } else {
-      m[n] = v;
-    }
-    return m;
-  }, obj);
-}
-
 module.exports = function handle(message: Object = {}, { ship, client }: Object) {
   return compute(message, ship, client)
     .then(({ userTraits, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
