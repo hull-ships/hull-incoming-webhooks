@@ -9,6 +9,7 @@ function pickValuesFromRequest(req: Request) {
 
 export default function webhookHandler(req: Request, res: Response) {
   res.send();
+
   const ttl = 1440000000;
   const payload = pickValuesFromRequest(req);
   console.warn("incoming.webhook", req);

@@ -5,14 +5,14 @@ import _ from "lodash";
 
 module.exports = function handle(message: Object = {}, { ship, client }: Object) {
   return compute(message, ship, client)
-    .then(({ changes, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
+    .then(({ userTraits, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
 
-      asUser.logger.info("compute.user.debug", { changes, accountIdentity });
+      asUser.logger.info("compute.user.debug", { userTraits, accountIdentity });
 
       // Update user traits
-      if (_.size(changes)) {
-        asUser.traits(...changes).then(() => asUser.logger.info("incoming.user.success", { ...changes }));
+      if (_.size(userTraits)) {
+        asUser.traits(flatten({}, "", userTraits)).then(() => asUser.logger.info("incoming.user.success", { ...flatten({}, "", userTraits) }));
       }
 
       if (_.size(events)) {
@@ -21,8 +21,8 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
 
       // Update account traits
       if (_.size(accountTraits)) {
-        asUser.account(accountIdentity).traits(accountTraits).then(() => asUser.logger.info("incoming.account.success", {
-          accountTraits,
+        asUser.account(accountIdentity).traits(...flatten({}, "", accountTraits)).then(() => asUser.logger.info("incoming.account.success", {
+          accountTraits: flatten({}, "", accountTraits),
           accountIdentity
         }));
       } else if (_.size(accountIdentity) || !_.isMatch(accountTraits, accountIdentity)) {
