@@ -46,7 +46,7 @@
     "body-parser": "^1.15.2",
     "classnames": "^2.2.5",
     "codemirror": "^5.16.0",
-    "connect": "^3.4.1",
+    "connect": "^3.6.3",
     "connect-timeout": "^1.7.0",
     "css-loader": "^0.23.1",
     "deep-diff": "^0.3.4",
@@ -54,6 +54,7 @@
     "deepmerge": "^1.3.2",
     "event-stream": "^3.3.3",
     "express": "^4.14.0",
+    "fifo-array": "^0.1.2",
     "hull": "0.12.2",
     "json-stable-stringify": "^1.0.1",
     "jwt-simple": "^0.5.1",
@@ -64,6 +65,7 @@
     "react": "^15.1.0",
     "react-bootstrap": "^0.29.5",
     "react-dom": "^15.1.0",
+    "react-select-plus": "^1.0.0-rc.5",
     "request": "^2.74.0",
     "response-time": "^2.3.1",
     "rimraf": "^2.5.2",
@@ -73,7 +75,6 @@
     "svg-inline-react": "^1.0.1",
     "urijs": "^1.18.1",
     "webpack": "^1.13.1",
-    "webpack-dev-middleware": "^1.6.1",
     "winston-logstash": "^0.2.11"
   },
   "devDependencies": {
@@ -96,7 +97,7 @@
     "updtr": "^0.1.15",
     "watch": "^0.19.1",
     "webpack": "^1.13.1",
-    "webpack-dev-middleware": "^1.6.1"
+    "webpack-dev-middleware": "^1.12.0"
   },
   "main": "index.js"
 }

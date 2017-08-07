@@ -6,12 +6,10 @@ const EVENT = "CHANGE";
 
 export default class Engine extends EventEmitter {
 
-  constructor(config, { ship, currentUser }) {
+  constructor(config, { ship }) {
     super();
     this.config = config;
-    const userId = currentUser && currentUser.id;
     this.state = { ship, loading: false };
-    this.compute({ ship, userId });
     this.compute = _.debounce(this.compute, 1000);
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
@@ -38,12 +36,8 @@ export default class Engine extends EventEmitter {
     this.emit(EVENT);
   }
 
-  searchUser(userSearch) {
-    this.compute({ userSearch, ship: this.state.ship });
-  }
-
   updateShip(ship) {
-    this.compute({ ship, user: this.state.user });
+    this.compute({ ship, webhook: this.state.currentWebhook || {} });
   }
 
   updateParent(code) {
@@ -55,6 +49,7 @@ export default class Engine extends EventEmitter {
       }), "*");
     }
   }
+
   updateCode(code) {
     const { ship } = this.state || {};
     if (!ship || !ship.id) return;
@@ -69,7 +64,14 @@ export default class Engine extends EventEmitter {
     this.setState({ ship: newShip });
     this.compute({
       ship: newShip,
-      user: this.state.user
+      webhook: this.state.currentWebhook
+    });
+  }
+
+  setLastWebhook(webhook) {
+    this.setState({ currentWebhook: webhook });
+    this.compute({
+      webhook: this.state.currentWebhook
     });
   }
 
@@ -94,7 +96,7 @@ export default class Engine extends EventEmitter {
               initialized: true
             });
           } else {
-            const { ship, user, took, result } = body || {};
+            const { ship, lastWebhooks, result } = body || {};
 
             // Don't kill user code
             if (this && this.state && this.state.ship && this.state.ship.private_settings) {
@@ -105,7 +107,7 @@ export default class Engine extends EventEmitter {
               loading: false,
               initialized: true,
               error: null,
-              ship, user, result, took
+              ship, lastWebhooks, result
             });
           }
         } catch (err) {

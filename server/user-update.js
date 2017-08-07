@@ -19,8 +19,8 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
-module.exports = function handle(message: Object = {}, { ship, client }: Object) {
-  return compute(message, ship, client)
+module.exports = function handle(payload: Object = {}, { ship, client }: Object) {
+  return compute(payload, ship, client)
     .then(({ userTraits, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
       const asUser = client.asUser(userIdentity);
 
@@ -54,7 +54,7 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
       if (events.length > 0) {
         events.map(({ eventName, properties, context }) => asUser.track(eventName, properties, {
           ip: "0",
-          source: "incoming-webhook", ...context
+          source: "incoming-user", ...context
         }));
       }
 
