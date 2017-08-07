@@ -16,7 +16,7 @@ function computeHandler(req: Request, res: Response) {
   ship = (ship.private_settings) ? ship : req.hull.ship;
 
   res.type("application/json");
-  console.log(webhook);
+
   if (client && ship && webhook) {
     compute(webhook, ship, client, { preview: true })
     .then(result => {

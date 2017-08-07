@@ -40,7 +40,7 @@ describe("Connector for webhooks endpoint", function test() {
   };
   const token = jwt.encode(config, "1234");
 
-  it("should update user when user is sent", (done) => {
+  it("should update user when webhook is sent", (done) => {
     let check = false;
 
     axios.post(`http://localhost:8000/webhooks/123456789012345678901234?token=${token}`, {

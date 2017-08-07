@@ -41,7 +41,7 @@ describe("Connector for webhooks endpoint", function test() {
   };
   const token = jwt.encode(config, "1234");
 
-  it("should update user when user is sent", (done) => {
+  it("should update user when webhook is sent", (done) => {
     let firstCheck = false;
     let secondCheck = false;
 

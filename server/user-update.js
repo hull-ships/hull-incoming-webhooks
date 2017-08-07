@@ -54,7 +54,7 @@ module.exports = function handle(payload: Object = {}, { ship, client }: Object)
       if (events.length > 0) {
         events.map(({ eventName, properties, context }) => asUser.track(eventName, properties, {
           ip: "0",
-          source: "incoming-user", ...context
+          source: "incoming-webhook", ...context
         }));
       }
 
