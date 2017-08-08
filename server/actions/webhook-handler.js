@@ -14,7 +14,7 @@ export default function webhookHandler(req: Request, res: Response) {
   const ttl = 1440000000;
   const payload = { webhookData: pickValuesFromRequest(req), date: new Date().toLocaleString() };
   const { cache, client } = req.hull;
-  client.logger.warn("incoming.user", req);
+  client.logger.debug("incoming.user", payload.webhookData);
 
   return cache.get("webhookRequests")
     .then(requests => {

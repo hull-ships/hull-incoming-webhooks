@@ -10,7 +10,7 @@ export default class WebhookPane extends Component {
     if (currentWebhook) {
       return _.find(webhooks, webhook => _.isEqual(webhook.webhookData, currentWebhook));
     }
-    return _.get(webhooks, "[0]", {});
+    return _.last(webhooks) || {};
   }
 
   getTitle(webhooks, currentWebhook) {
@@ -28,14 +28,14 @@ export default class WebhookPane extends Component {
     const { className, sm, md, onChange, lastWebhooks, currentWebhook } = this.props;
     const title = "Last Received Webhooks";
 
-    const lastReceivedWebhooks = lastWebhooks.reverse();
-    const webhooksToDisplay = lastReceivedWebhooks.map(webhook => <MenuItem eventKey={webhook.date}>{webhook.date}</MenuItem>);
+    // const lastReceivedWebhooks = lastWebhooks.reverse();
+    const webhooksToDisplay = lastWebhooks.map(webhook => <MenuItem eventKey={webhook.date}>{webhook.date}</MenuItem>);
 
     return <Col className={className} md={md} sm={sm}>
       <Header title={title}>
         <DropdownButton
           bsSize="small"
-          title={this.getTitle(lastReceivedWebhooks, currentWebhook)}
+          title={this.getTitle(lastWebhooks, currentWebhook)}
           disabled={_.size(lastWebhooks) === 0}
           id="last-webhook"
           onSelect={onChange} >
@@ -43,7 +43,7 @@ export default class WebhookPane extends Component {
         </DropdownButton>
       </Header>
       <hr/>
-      <Area value={this.getWebhookData(lastReceivedWebhooks, currentWebhook)} type="info" onChange={onChange} javascript={false}/>
+      <Area value={this.getWebhookData(lastWebhooks, currentWebhook)} type="info" onChange={onChange} javascript={false}/>
     </Col>;
   }
 }
