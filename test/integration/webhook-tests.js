@@ -62,7 +62,7 @@ describe("Connector for webhooks endpoint", function test() {
             assert.equal(_.get(incoming.body, "traits/customerioid"), "321");
             firstCheck = true;
           } else {
-            assert.equal(incoming.body.event.eventName, "test");
+            assert.equal(incoming.body.event, "test");
             secondCheck = true;
           }
         });

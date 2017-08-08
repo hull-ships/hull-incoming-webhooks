@@ -32,7 +32,10 @@ module.exports = function handle(payload: Object = {}, { ship, client }: Object)
       }
 
       if (_.size(events)) {
-        events.map(asUser.track);
+        events.map(event => asUser.track(event.eventName, event.properties, event.context).then(
+          () => asUser.logger.info("incoming.event.success"),
+          (err) => asUser.logger.error("incoming.event.error", { errors: err })
+        ));
       }
 
       // Update account traits
