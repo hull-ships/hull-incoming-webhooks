@@ -6,18 +6,16 @@ const EVENT = "CHANGE";
 
 export default class Engine extends EventEmitter {
 
-  constructor(config, { ship, currentUser }) {
+  constructor(config, { ship }) {
     super();
     this.config = config;
-    const userId = currentUser && currentUser.id;
-    this.state = { ship, loading: false };
-    this.compute({ ship, userId });
+    this.state = { ship };
     this.compute = _.debounce(this.compute, 1000);
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
 
-  setState(userTraits) {
-    this.state = { ...this.state, ...userTraits };
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
     this.emitChange();
     return this.state;
   }
@@ -38,12 +36,8 @@ export default class Engine extends EventEmitter {
     this.emit(EVENT);
   }
 
-  searchUser(userSearch) {
-    this.compute({ userSearch, ship: this.state.ship });
-  }
-
-  updateShip(ship) {
-    this.compute({ ship, user: this.state.user });
+  setupShip(ship) {
+    this.compute({ ship, webhook: this.state.currentWebhook || {} });
   }
 
   updateParent(code) {
@@ -55,6 +49,7 @@ export default class Engine extends EventEmitter {
       }), "*");
     }
   }
+
   updateCode(code) {
     const { ship } = this.state || {};
     if (!ship || !ship.id) return;
@@ -69,14 +64,19 @@ export default class Engine extends EventEmitter {
     this.setState({ ship: newShip });
     this.compute({
       ship: newShip,
-      user: this.state.user
+      webhook: this.state.currentWebhook
+    });
+  }
+
+  setLastWebhook(webhook) {
+    this.setState({ currentWebhook: webhook });
+    this.compute({
+      code: _.get(this.state, "ship.private_settings.code"),
+      webhook: this.state.currentWebhook
     });
   }
 
   compute(params) {
-    if (this.state.loading) return false;
-    this.setState({ loading: true });
-
     if (this.computing) {
       this.computing.abort();
     }
@@ -90,27 +90,36 @@ export default class Engine extends EventEmitter {
           if (error) {
             this.setState({
               error: { ...body, status },
-              loading: false,
               initialized: true
             });
           } else {
-            const { ship, user, took, result } = body || {};
+            const { ship, lastWebhooks, result } = body || {};
 
             // Don't kill user code
             if (this && this.state && this.state.ship && this.state.ship.private_settings) {
               ship.private_settings.code = this.state.ship.private_settings.code;
             }
 
+            if (this.state.lastWebhooks) {
+              this.setState({
+                initialized: true,
+                dashboardReady: true
+              })
+            }
+
             this.setState({
-              loading: false,
-              initialized: true,
               error: null,
-              ship, user, result, took
+              ship, lastWebhooks, result, fetchedWebhooks: true
             });
+
+            if (this.state.fetchedWebhooks && !this.state.dashboardReady) {
+              this.state.currentWebhook = _.get(_.last(this.state.lastWebhooks), "webhookData", {});
+              this.setupShip(this.state.ship);
+            }
           }
         } catch (err) {
           this.computing = false;
-          this.setState({ loading: false, error: err });
+          this.setState({ error: err });
         }
       });
     return this.computing;

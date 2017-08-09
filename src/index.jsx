@@ -16,9 +16,9 @@ import Engine from "./engine";
 
   Hull.ready((hull, currentUser, app) => {
     const root = document.getElementById("app");
-    const engine = new Engine({ ship, organization, secret }, { ship: app, currentUser });
+    const engine = new Engine({ ship, organization, secret }, { ship: app });
 
-    engine.updateShip(ship);
+    engine.setupShip(app);
 
     ReactDOM.render(<App engine={engine} />, root);
   });

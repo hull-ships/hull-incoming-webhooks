@@ -1,7 +1,8 @@
 /* @flow */
 import { Request, Response } from "express";
-import updateUser from "../user-update";
 import _ from "lodash";
+import RequestsQueue from "fifo-array";
+import updateUser from "../user-update";
 
 function pickValuesFromRequest(req: Request) {
   return _.pick(req, ["body", "headers", "cookies", "ip", "method", "params", "query"]);
@@ -11,9 +12,22 @@ export default function webhookHandler(req: Request, res: Response) {
   res.send();
 
   const ttl = 1440000000;
-  const payload = pickValuesFromRequest(req);
-  console.warn("incoming.webhook", req);
-  return req.hull.cache
-    .set("webhookRequest", payload, { ttl })
-    .then(cachedValue => updateUser(cachedValue, req.hull));
+  const payload = { webhookData: pickValuesFromRequest(req), date: new Date().toLocaleString() };
+  const { cache, client } = req.hull;
+  client.logger.debug("incoming.user", payload.webhookData);
+
+  return cache.get("webhookRequests")
+    .then(requests => {
+      if (requests) {
+        requests.push(payload);
+      }
+      return requests;
+    })
+    .then(requests => {
+      if (requests) {
+        return cache.set("webhookRequests", requests, { ttl });
+      }
+      return cache.set("webhookRequests", new RequestsQueue(10, [payload]), { ttl });
+    })
+    .then(() => updateUser(payload.webhookData, req.hull));
 }

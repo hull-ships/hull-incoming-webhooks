@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Grid, Col, Row, Button } from "react-bootstrap";
+import { Grid, Row } from "react-bootstrap";
+import _ from "lodash";
 
-import UserPane from "./user";
+import UserPane from "./webhook";
 import CodePane from "./code";
 import ResultsPane from "./results";
 
@@ -25,18 +26,16 @@ export default class App extends Component {
     this.setState(state);
   };
 
-  handleSearch(userSearch) {
-    if (userSearch && !this.state.loading) {
-      this.props.engine.searchUser(userSearch);
-    }
-  }
-
   handleCodeUpdate(code) {
     this.props.engine.updateCode(code);
   }
 
+  handleWebhookChange(date) {
+    this.props.engine.setLastWebhook(_.get(_.find(this.state.lastWebhooks, webhook => webhook.date === date), "webhookData"));
+  }
+
   render() {
-    const { user, loading, userSearch, initialized, error, ship = {} } = this.state;
+    const { lastWebhooks, currentWebhook, loading, initialized, error, ship = {} } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
     if (initialized) {
@@ -47,11 +46,9 @@ export default class App extends Component {
               className="flexColumn userPane"
               sm={4}
               md={4}
-              loading={loading}
-              onSearch={this.handleSearch.bind(this)}
-              value={user}
-              error={error}
-              userSearch={userSearch}/>
+              lastWebhooks={lastWebhooks}
+              currentWebhook={currentWebhook}
+              onChange={this.handleWebhookChange.bind(this)}/>
             <CodePane
               className="flexColumn userPane"
               onChange={this.handleCodeUpdate.bind(this)}

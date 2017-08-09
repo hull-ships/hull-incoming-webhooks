@@ -19,20 +19,37 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
-module.exports = function handle(message: Object = {}, { ship, client }: Object) {
-  return compute(message, ship, client)
+module.exports = function handle(payload: Object = {}, { ship, client, metric }: Object) {
+  return compute(payload, ship, client)
     .then(({ userTraits, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
-      const asUser = client.asUser(userIdentity);
+      let asUser;
+      try {
+        asUser = client.asUser(userIdentity);
+      } catch (err) {
+        return client.logger.info("incoming.user.skip", { reason: "missing user ident." });
+      }
 
-      asUser.logger.info("compute.user.debug", { userTraits, accountIdentity });
+      asUser.logger.info("compute.user.debug", { userTraits, accountTraits });
 
       // Update user traits
       if (_.size(userTraits)) {
         asUser.traits(flatten({}, "", userTraits)).then(() => asUser.logger.info("incoming.user.success", { ...flatten({}, "", userTraits) }));
+        metric.increment("ship.incoming.users", 1);
       }
 
       if (_.size(events)) {
-        events.map(asUser.track);
+        let succeededEvents = 0;
+        events.map(({ eventName, properties, context}) => asUser.track(eventName, properties, {
+          ip: "0",
+          source: "incoming-webhook", ...context
+        }).then(
+          () => {
+            asUser.logger.info("incoming.event.success");
+            succeededEvents++;
+          },
+          (err) => asUser.logger.error("incoming.event.error", { errors: err })
+        ));
+        metric.increment("ship.incoming.events", succeededEvents);
       }
 
       // Update account traits
@@ -41,21 +58,12 @@ module.exports = function handle(message: Object = {}, { ship, client }: Object)
           accountTraits: flatten({}, "", accountTraits),
           accountIdentity
         }));
+        metric.increment("ship.incoming.accounts", 1);
       } else if (_.size(accountIdentity) || !_.isMatch(accountTraits, accountIdentity)) {
         // Link account
-        asUser.account(accountIdentity).traits({}).then(() =>
-          asUser.logger.info("incoming.account.link", { accountTraits, accountIdentity }));
-      }
-
-      if (errors && errors.length > 0) {
-        asUser.logger.error("incoming.user.error", { errors });
-      }
-
-      if (events.length > 0) {
-        events.map(({ eventName, properties, context }) => asUser.track(eventName, properties, {
-          ip: "0",
-          source: "incoming-webhook", ...context
-        }));
+        asUser.account(accountIdentity).traits({}).then(() => {
+          asUser.logger.info("incoming.account.link", { accountTraits, accountIdentity });
+        });
       }
 
       if (errors && errors.length > 0) {
