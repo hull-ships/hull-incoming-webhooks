@@ -1,7 +1,7 @@
 {
   "name": "hull-incoming-webhooks",
   "description": "Run code to map User Properties and generate Events",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/hull-ships/hull-incoming-webhooks",
   "license": "MIT",
   "author": "Hull <contact@hull.io> (https://github.com/hull)",
