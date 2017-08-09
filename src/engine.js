@@ -9,13 +9,13 @@ export default class Engine extends EventEmitter {
   constructor(config, { ship }) {
     super();
     this.config = config;
-    this.state = { ship, loading: false };
+    this.state = { ship };
     this.compute = _.debounce(this.compute, 1000);
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
 
-  setState(userTraits) {
-    this.state = { ...this.state, ...userTraits };
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
     this.emitChange();
     return this.state;
   }
@@ -36,7 +36,7 @@ export default class Engine extends EventEmitter {
     this.emit(EVENT);
   }
 
-  updateShip(ship) {
+  setupShip(ship) {
     this.compute({ ship, webhook: this.state.currentWebhook || {} });
   }
 
@@ -71,14 +71,12 @@ export default class Engine extends EventEmitter {
   setLastWebhook(webhook) {
     this.setState({ currentWebhook: webhook });
     this.compute({
+      code: _.get(this.state, "ship.private_settings.code"),
       webhook: this.state.currentWebhook
     });
   }
 
   compute(params) {
-    if (this.state.loading) return false;
-    this.setState({ loading: true });
-
     if (this.computing) {
       this.computing.abort();
     }
@@ -92,7 +90,6 @@ export default class Engine extends EventEmitter {
           if (error) {
             this.setState({
               error: { ...body, status },
-              loading: false,
               initialized: true
             });
           } else {
@@ -103,16 +100,26 @@ export default class Engine extends EventEmitter {
               ship.private_settings.code = this.state.ship.private_settings.code;
             }
 
+            if (this.state.lastWebhooks) {
+              this.setState({
+                initialized: true,
+                dashboardReady: true
+              })
+            }
+
             this.setState({
-              loading: false,
-              initialized: true,
               error: null,
-              ship, lastWebhooks, result
+              ship, lastWebhooks, result, fetchedWebhooks: true
             });
+
+            if (this.state.fetchedWebhooks && !this.state.dashboardReady) {
+              this.state.currentWebhook = _.get(_.last(this.state.lastWebhooks), "webhookData", {});
+              this.setupShip(this.state.ship);
+            }
           }
         } catch (err) {
           this.computing = false;
-          this.setState({ loading: false, error: err });
+          this.setState({ error: err });
         }
       });
     return this.computing;

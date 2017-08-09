@@ -10,7 +10,7 @@ import getLastWebhooks from "../middlewares/get-last-webhooks";
 function computeHandler(req: Request, res: Response) {
   const { client } = req.hull;
   let { ship = {} } = req.body;
-  const { webhook } = req.body;
+  const { webhook, code } = req.body;
 // This condition ensures boot request does work:
   // When loading the page, the ship is client-side so what's passed to remote
   // doesn't have private_settings embedded
@@ -19,7 +19,7 @@ function computeHandler(req: Request, res: Response) {
   res.type("application/json");
 
   if (client && ship && webhook) {
-    compute(webhook, ship, client, { preview: true })
+    compute(webhook, ship, client, { code, preview: true })
     .then(result => {
       const logs = result.logs;
       if (logs && logs.length) {

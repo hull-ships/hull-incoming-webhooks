@@ -54,7 +54,8 @@ function getSandbox(ship) {
 module.exports = function compute(webhookRequest, ship = {}, client = {}, options = {}) {
   const { preview } = options;
   const { private_settings = {} } = ship;
-  const { code = "" } = private_settings;
+  const code = _.get(options, "code", _.get(private_settings, "code", ""));
+  console.log(webhookRequest);
 
   const sandbox = getSandbox(ship);
 
@@ -151,7 +152,6 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
         }());
       } catch (err) {
         errors.push(err.toString());
-        captureException(err);
       }`);
     script.runInContext(sandbox);
   } catch (err) {
