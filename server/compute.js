@@ -55,7 +55,6 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   const { preview } = options;
   const { private_settings = {} } = ship;
   const code = _.get(options, "code", _.get(private_settings, "code", ""));
-  console.log(webhookRequest);
 
   const sandbox = getSandbox(ship);
 
@@ -90,10 +89,10 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   const asUser = (userIdent = {}) => {
     try {
       client.asUser(userIdent);
-      userIdentity = userIdent;
     } catch (err) {
-      errors.push(err);
+      errors.push(`Encountered error while calling asUser : ${_.get(err, "message", "")}`);
     }
+    userIdentity = userIdent;
   };
 
   sandbox.track = track;
@@ -164,7 +163,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   }
 
   if (_.isEmpty(userIdentity)) {
-    errors.push("You have to call 'asUser' method with user's identity at least once. Every next invocation will override previous one.");
+    errors.push("You have to call 'asUser' method with user's identity. Every next invocation will override previous one.");
   }
 
   return Promise.all(sandbox.results)

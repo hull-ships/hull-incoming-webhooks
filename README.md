@@ -20,3 +20,4 @@ If you want your own instance: [![Deploy]()
     info :
       * incoming.account.link - logged after successful linking for account
       * compute.console.log - these are additional logs that should be displayed after compute
+      * compute.user.debug - every user/account update will trigger logging of user and account traits that are going to be updated
