@@ -22,11 +22,11 @@ function flatten(obj, key, group) {
 module.exports = function handle(payload: Object = {}, { ship, client, metric }: Object) {
   return compute(payload, ship, client)
     .then(({ userTraits, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
-      let asUser;
+      let asUser = {};
       try {
         asUser = client.asUser(userIdentity);
       } catch (err) {
-        return client.logger.info("incoming.user.skip", { reason: "missing user ident." });
+        client.logger.info("incoming.user.skip", { reason: "missing user ident." });
       }
 
       asUser.logger.info("compute.user.debug", { userTraits, accountTraits });
@@ -39,7 +39,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric }:
 
       if (_.size(events)) {
         let succeededEvents = 0;
-        events.map(({ eventName, properties, context}) => asUser.track(eventName, properties, {
+        events.map(({ eventName, properties, context }) => asUser.track(eventName, properties, {
           ip: "0",
           source: "incoming-webhook", ...context
         }).then(
