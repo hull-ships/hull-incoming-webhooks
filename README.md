@@ -21,3 +21,7 @@ If you want your own instance: [![Deploy]()
       * incoming.account.link - logged after successful linking for account
       * compute.console.log - these are additional logs that should be displayed after compute
       * compute.user.debug - every user/account update will trigger logging of user and account traits that are going to be updated
+
+### Status
+  * `Settings are empty` - `error` - returned when we have no script code saved in the settings
+  * `Settings are referencing invalid values` - `error` - returned when we have a script with syntax error
