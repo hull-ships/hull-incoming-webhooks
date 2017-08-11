@@ -23,7 +23,7 @@
     {
       "url": "/status",
       "type": "cron",
-      "value": "*/2 * * * *"
+      "value": "*/30 * * * *"
     }
   ]
 }
