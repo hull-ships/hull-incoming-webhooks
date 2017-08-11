@@ -18,5 +18,12 @@
     }
   ],
   "resources": [],
-  "subscriptions" : []
+  "subscriptions" : [],
+  "schedules": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/2 * * * *"
+    }
+  ]
 }

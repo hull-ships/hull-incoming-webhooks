@@ -23,5 +23,6 @@ If you want your own instance: [![Deploy]()
       * compute.user.debug - every user/account update will trigger logging of user and account traits that are going to be updated
 
 ### Status
+
   * `Settings are empty` - `error` - returned when we have no script code saved in the settings
   * `Settings are referencing invalid values` - `error` - returned when we have a script with syntax error
