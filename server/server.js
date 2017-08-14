@@ -20,7 +20,7 @@ export default function Server(connector: Connector, options: Object = {}, app: 
 
   app.post("/compute", computeHandler({ hostSecret, connector }));
 
-  app.get("/status", statusCheck);
+  app.all("/status", statusCheck);
 
   if (options.devMode) {
     app.use(devMode());
