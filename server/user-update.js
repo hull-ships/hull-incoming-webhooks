@@ -67,7 +67,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric }:
       }
 
       if (errors && errors.length > 0) {
-        asUser.logger.error("incoming.user.error", { errors });
+        asUser.logger.error("incoming.user.error", { hull_summary: `Error Processing user: ${errors.join(", ")}`, errors });
       }
 
       if (logs && logs.length) {
@@ -75,6 +75,6 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric }:
       }
     })
     .catch(err => {
-      client.logger.error("incoming.user.error", { errors: err });
+      client.logger.error("incoming.user.error", { hull_summary: `Error Processing user: ${_.get(err, "message", "Unexpected error")}`, errors: err });
     });
 };
