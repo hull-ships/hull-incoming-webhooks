@@ -7,6 +7,7 @@ import webhookHandler from "./actions/webhook-handler";
 import computeHandler from "./actions/compute-handler";
 import devMode from "./dev-mode";
 import errorHandler from "./middlewares/error-handler";
+import statusCheck from "./actions/status-check";
 
 export default function Server(connector: Connector, options: Object = {}, app: express) {
   const { hostSecret } = options;
@@ -18,6 +19,8 @@ export default function Server(connector: Connector, options: Object = {}, app: 
   app.post("/webhooks/:connectorId", webhookHandler);
 
   app.post("/compute", computeHandler({ hostSecret, connector }));
+
+  app.all("/status", statusCheck);
 
   if (options.devMode) {
     app.use(devMode());
