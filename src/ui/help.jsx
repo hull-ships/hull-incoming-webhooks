@@ -107,15 +107,8 @@ hull.asUser({ "id":"123" });
                 <Table striped bordered condensed hover className='mt-1'>
                   <tbody>
                     <tr>
-                      <td><code>req</code></td>
-                      <td><p><small>The webhook's request object. You can access request data calling, e.g. `req.body`. All available properties:
-                        <code>body</code>, <code>headers</code>,<code>cookies</code>,<code>ip</code>,<code>method</code>,<code>params</code>,<code>query</code>.
-                      </small></p></td>
-                    </tr>
-
-                    <tr>
                       <td><code>ship</code></td>
-                      <td><p><small>The Connectors's data. Can be used to store additional data</small></p></td>
+                      <td><p><small>The Connectors's data. Can be used to store additional details.</small></p></td>
                     </tr>
 
                     <tr>
@@ -141,6 +134,41 @@ hull.asUser({ "id":"123" });
                     <tr>
                       <td><code>hull.asUser(userIdentity)</code></td>
                       <td><p><small>A method to provide user's <a href="https://github.com/hull/hull-client-node#impersonating-a-user---clientasuser" target="_blank">identity</a>. Every invocation will override previous one.</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>body</code></td>
+                      <td><p><small>The Webhook's Body</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>headers</code></td>
+                      <td><p><small>The Webhook's Headers</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>cookies</code></td>
+                      <td><p><small>The Webhook's Cookies</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>ip</code></td>
+                      <td><p><small>The webhook's ip</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>method</code></td>
+                      <td><p><small>The Webhook's Method</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>params</code></td>
+                      <td><p><small>The Webhook's Params</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>queyr</code></td>
+                      <td><p><small>The Webhook's Query</small></p></td>
                     </tr>
 
                     <tr>

@@ -58,7 +58,8 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
 
   const sandbox = getSandbox(ship);
 
-  sandbox.req = webhookRequest;
+  // sandbox.req = webhookRequest;
+  Object.keys(webhookRequest).forEach(userKey => sandbox[userKey] = webhookRequest[userKey]);
 
   sandbox.ship = ship;
   sandbox.payload = {};
