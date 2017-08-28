@@ -66,6 +66,8 @@ hull.asUser({ "id":"123" });
                         Invoking this method requires to pass as argument at least on of the following properties:<br/>
                         <code>external_id</code>, <code>anonymous_id</code>, <code>email</code>, <code>id (which is id in hull)</code>.
                       </small>
+                    </p>
+                    <p>
                       <small>
                         You can apply <a target="_blank" href="https://github.com/hull/hull-client-node#usertraitsproperties-context">Traits operations</a>.
                       </small>
@@ -173,7 +175,7 @@ hull.asUser({ "id":"123" });
 
                     <tr>
                       <td><code>request(options, callback)</code></td>
-                      <td><p><small>The <a href="https://github.com/request/request" target='_blank'>request</a> library. Jump to <strong>Instructions</strong>` page to find out how to use it.</small></p></td>
+                      <td><p><small>The <a href="https://github.com/request/request" target='_blank'>request</a> library. Jump to <strong>Instructions</strong> page to find out how to use it.</small></p></td>
                     </tr>
 
                     <tr>
