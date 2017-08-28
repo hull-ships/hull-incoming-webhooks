@@ -30,7 +30,7 @@ hull.asUser({ "id":"123" });
 
         <Modal show={this.state.showModal} bsSize='large' onHide={this.close.bind(this)}>
           <Modal.Header closeButton>
-            <Modal.Title><div className='text-center'>Data Processor</div></Modal.Title>
+            <Modal.Title><div className='text-center'>Incoming Webhook Processor</div></Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Row>
@@ -53,7 +53,7 @@ hull.asUser({ "id":"123" });
                 <Row>
                   <Col sm={8}>
                     <p><Icon name='compute' large/></p>
-                    <p>On the <strong>Sidebar</strong>, Write Javascript code to manipulate data, call <code>hull.asUser()</code> to identify user and then <code>hull.track()</code> and <code>hull.traits()</code> to update his traits. ES6 is supported. You can use asynchronous code but You can't use external libraries.</p>
+                    <p>On the <strong>Sidebar</strong>, Write Javascript code to manipulate data, call <code>hull.asUser()</code> to identify user and then <code>hull.traits()</code> and <code>hull.track()</code> to update his traits and emit new events. ES6 is supported. You can't use asynchronous code (only `request` method is available) and you can't use external libraries.</p>
                     <h6>Example: </h6>
                     <pre>
                       <small>
@@ -62,17 +62,19 @@ hull.asUser({ "id":"123" });
                     </pre>
                     <p>
                       <small>
-                        You have to call asUser method to provide user identity.<br/>
+                        You have to call <a target="_blank" href="https://github.com/hull/hull-client-node#impersonating-a-user---clientasuser">asUser</a> method to provide user identity.<br/>
                         Invoking this method requires to pass as argument at least on of the following properties:<br/>
                         <code>external_id</code>, <code>anonymous_id</code>, <code>email</code>, <code>id (which is id in hull)</code>.
-                      </small>
-                      <small>
-                        You can apply <a target="_blank" href="http://www.hull.io/docs/references/hull_js#traits">Traits operations</a>.
                       </small>
                     </p>
                     <p>
                       <small>
-                        You can emit up to 10 events with <a target="_blank" href="http://www.hull.io/docs/references/hull_js#track">hull.track()</a>.
+                        You can apply <a target="_blank" href="https://github.com/hull/hull-client-node#usertraitsproperties-context">Traits operations</a>.
+                      </small>
+                    </p>
+                    <p>
+                      <small>
+                        You can emit up to 10 events with <a target="_blank" href="https://github.com/hull/hull-client-node#usertrackevent-props-context">hull.track()</a>.
                       </small>
                     </p>
                   </Col>
@@ -83,10 +85,13 @@ hull.asUser({ "id":"123" });
                         On the <strong>left</strong>, is last received webhook request with the following properties:
                         <strong>body</strong>, <strong>headers</strong>, <strong>ip</strong>, <strong>method</strong>, <strong>params</strong>, <strong>query</strong>
                       </p>
+                      <p>
+                        For preview you can choose one of last ten received webhooks from dropdown (select by date of receipt).
+                      </p>
                     </Col>
                     <Col sm={12}>
                       <p><Icon name='punker' large/></p>
-                      <p>On the <strong>right</strong>, a preview of the summary of the changes that would be applied and eventual logs and errors from the console</p>
+                      <p>On the <strong>right</strong>, a preview of the summary of the changes that would be applied to user/accounts and eventual logs and errors from the console</p>
 
                       <p>When you're satisfied with the result, click <strong>Save</strong></p>
                     </Col>
@@ -98,30 +103,24 @@ hull.asUser({ "id":"123" });
                 <Row>
                   <Col sm={12}>
                     <h4>Variables and libraries you can access</h4>
-                    <p>The code will run once saved.</p>
 
                   </Col>
                 </Row>
                 <Table striped bordered condensed hover className='mt-1'>
                   <tbody>
                     <tr>
-                      <td><code>req</code></td>
-                      <td><p><small>The webhook's request. By default the preview displays the last request received.</small></p></td>
-                    </tr>
-
-                    <tr>
                       <td><code>ship</code></td>
-                      <td><p><small>The Connectors's data. Can be used to store additional data</small></p></td>
+                      <td><p><small>The Connectors's data. Can be used to store additional details.</small></p></td>
                     </tr>
 
                     <tr>
                       <td><code>hull.traits(properties, context)</code></td>
-                      <td><p><small><a href="http://www.hull.io/docs/references/hull_js#traits" target="_blank">Update User Traits</a>. Optionally define a context with a <code>source</code> key to save in a custom group</small></p></td>
+                      <td><p><small><a href="https://github.com/hull/hull-client-node#usertraitsproperties-context" target="_blank">Update User Traits</a>. Optionally define a context with a <code>source</code> key to save in a custom group</small></p></td>
                     </tr>
 
                     <tr>
                       <td><code>hull.track('Event Name', properties)</code></td>
-                      <td><p><small>Lets you <a href="http://www.hull.io/docs/references/hull_js#track" target="_blank">generate new Events</a> for the user.</small></p></td>
+                      <td><p><small>Lets you <a href="https://github.com/hull/hull-client-node#usertrackevent-props-context" target="_blank"> generate new Events</a> for the user.</small></p></td>
                     </tr>
 
                     <tr>
@@ -136,17 +135,54 @@ hull.asUser({ "id":"123" });
 
                     <tr>
                       <td><code>hull.asUser(userIdentity)</code></td>
-                      <td><p><small>A method to provide user's identity. Every invocation will override previous one.</small></p></td>
+                      <td><p><small>A method to provide user's <a href="https://github.com/hull/hull-client-node#impersonating-a-user---clientasuser" target="_blank">identity</a>. Every invocation will override previous one.</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>body</code></td>
+                      <td><p><small>The Webhook's Body</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>headers</code></td>
+                      <td><p><small>The Webhook's Headers</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>cookies</code></td>
+                      <td><p><small>The Webhook's Cookies</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>ip</code></td>
+                      <td><p><small>The webhook's ip</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>method</code></td>
+                      <td><p><small>The Webhook's Method</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>params</code></td>
+                      <td><p><small>The Webhook's Params</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>query</code></td>
+                      <td><p><small>The Webhook's Query</small></p></td>
+                    </tr>
+
+                    <tr>
+                      <td><code>request(options, callback)</code></td>
+                      <td><p><small>The <a href="https://github.com/request/request" target='_blank'>request</a> library. Jump to <strong>Instructions</strong> page to find out how to use it.</small></p></td>
                     </tr>
 
                     <tr>
                       <td><code>moment()</code></td>
                       <td><p><small>The <a href="http://momentjs.com/" target='_blank'>Moment.js</a> library.</small></p></td>
                     </tr>
-                    <tr>
-                      <td><code>URI()</code></td>
-                      <td><p><small>The <a href="https://medialize.github.io/URI.js/" target='_blank'>URI.js</a> library.</small></p></td>
-                    </tr>
+
                     <tr>
                       <td><code>_</code></td>
                       <td><p><small>The <a href="https://lodash.com/" target='_blank'>lodash</a> library.</small></p></td>

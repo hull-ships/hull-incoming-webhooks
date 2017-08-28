@@ -58,7 +58,8 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
 
   const sandbox = getSandbox(ship);
 
-  sandbox.req = webhookRequest;
+  // sandbox.req = webhookRequest;
+  Object.keys(webhookRequest).forEach(userKey => sandbox[userKey] = webhookRequest[userKey]);
 
   sandbox.ship = ship;
   sandbox.payload = {};
@@ -157,13 +158,13 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     errors.push(err.toString());
   }
 
-  if (isAsync && !_.some(_.compact(sandbox.results), (r) => _.isFunction(r.then))) {
+  if (sandbox.results.length && isAsync && !_.some(_.compact(sandbox.results), (r) => _.isFunction(r.then))) {
     errors.push("It seems you’re using 'request' which is asynchronous.");
     errors.push("You need to return a 'new Promise' and 'resolve' or 'reject' it in you 'request' callback.");
   }
 
   if (_.isEmpty(userIdentity)) {
-    errors.push("You have to call 'asUser' method with user's identity. Every next invocation will override previous one.");
+    errors.push("You have to call 'asUser' method with user's identity. Remember that every next invocation will override previous one.");
   }
 
   return Promise.all(sandbox.results)
