@@ -2,12 +2,12 @@ import React, { Component } from "react";
 import { Grid, Row } from "react-bootstrap";
 import _ from "lodash";
 
-import UserPane from "./webhook";
-import CodePane from "./code";
-import ResultsPane from "./results";
+import Help from "./ui/help";
+import WebhookPane from "./webhook";
+import Payload from "./payload";
+import Preview from "./preview";
 
 export default class App extends Component {
-
   constructor(props) {
     super(props);
     this.state = {};
@@ -31,38 +31,54 @@ export default class App extends Component {
   }
 
   handleWebhookChange(date) {
-    this.props.engine.setLastWebhook(_.get(_.find(this.state.lastWebhooks, webhook => webhook.date === date), "webhookData"));
+    this.props.engine.setLastWebhook(_.find(this.state.lastWebhooks, webhook => webhook.date === date));
   }
 
   render() {
-    const { lastWebhooks, currentWebhook, loading, initialized, error, ship = {} } = this.state;
+    const { lastWebhooks, currentWebhook, loading, initialized, error, ship = {}, result } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
+    const codeIsEmpty = code === "return {};" || code === "";
+
     if (initialized) {
       return <div>
-        <Grid fluid={true} className="pt-1">
+        <Grid className="pt-1">
+          <Row className="flexRow help">
+            <Help className="text-right" showModal={codeIsEmpty}/>
+          </Row>
           <Row className="flexRow">
-            <UserPane
-              className="flexColumn userPane"
-              sm={4}
-              md={4}
+            <WebhookPane
+              className="flexColumn webhookPane"
+              sm={3}
+              md={3}
+              lg={3}
+              xs={3}
               lastWebhooks={lastWebhooks}
               currentWebhook={currentWebhook}
-              onChange={this.handleWebhookChange.bind(this)}/>
-            <CodePane
-              className="flexColumn userPane"
-              onChange={this.handleCodeUpdate.bind(this)}
-              value={code}
-              sm={4}
-              md={5}
+              onChange={this.handleWebhookChange.bind(this)}
             />
-            <ResultsPane
-              className="flexColumn pl-1 resultPane"
-              sm={4}
+
+            <Payload
+              className="flexColumn payloadPane"
+              currentWebhook={currentWebhook}
+              sm={3}
               md={3}
-              loading={loading}
+              lg={3}
+              xs={3}
+            />
+
+            <Preview
+              sm={6}
+              md={6}
+              lg={6}
+              xs={6}
+              result={result}
               error={error}
-              {...this.state.result} />
+              loading={loading}
+              onCodeUpdate={this.handleCodeUpdate.bind(this)}
+              code={code}
+              currentWebhook={currentWebhook}
+            />
           </Row>
         </Grid>
       </div>

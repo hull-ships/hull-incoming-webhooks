@@ -11,19 +11,67 @@
       height: auto;
       font-size: 12px;
     }
-    .userPane .CodeMirror{
-      height: calc( 100% - 80px );
+
+    .last-webhook-icon {
+      position: relative;
+    }
+
+    .resultPane {
+      height: 90%;
+    }
+
+    .webhookPane {
+      overflow-y: hidden;
+    }
+
+    .custom-icon {
+      float: right;
+    }
+
+    .custom-icon svg {
+      height: 1.5em;
+      position: absolute;
+      right: 0;
+    }
+
+    .codePane {
+      height: auto;
+      width: 100%;
+      margin: 5px;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .help {
+      float: right;
+    }
+
+    .output {
+      height: 50%;
+      width: 100%;
+      margin: 5px;
+    }
+
+    .half-row {
+      height: 50%;
+    }
+
+    .last-received-webhooks {
+      height: 100%;
+      overflow-y: scroll;
     }
 
     .resultPane .ReactCodeMirror {
       min-height: 60px;
       height: 50%;
     }
-    .fieldPillContainer{
+    .output {
       position: relative;
-      height: calc(100vh - 82px);
+      overflow-x: auto;
+      overflow-y: hidden;
     }
-    .fieldPill {
+
+    .outputContent {
       opacity: .6;
       position: absolute;
       right: 16px;
@@ -33,39 +81,39 @@
       color: #3f4654;
       border-radius: 20px;
     }
-    hr{
+    hr {
       margin: 10px 0;
     }
-    body{
+    body {
       background-color: white;
       height: 100%;
     }
-    pre{
+    pre {
       margin:0;
     }
-    .well{
+    .well {
       padding:0;
     }
     @media (min-width: 768px) {
-      .flexRow{
+      .flexRow {
         flex-direction: row;
         display: flex;
       }
-      .flexColumn{
+      .flexColumn {
         display: flex;
         flex-direction: column;
-        flex: 1 1 0;
+        flex: auto;
         padding: 0 10px;
       }
     }
-    .flexGrow{
+    .flexGrow {
       flex-grow:1;
     }
     .input-group-btn,
-    .input-group-addon{
+    .input-group-addon {
       vertical-align: top;
     }
-    .input-group input.form-control-sm[type='text'].form-control{
+    .input-group input.form-control-sm[type='text'].form-control {
       padding-top: 0;
       padding-bottom: 11px;
     }
@@ -73,7 +121,7 @@
       font-size: 11px;
       line-height:1.2;
     }
-    .grid{
+    .grid {
       height: 100vh;
     }
   </style>
@@ -94,7 +142,7 @@
       </div>
     </div>
   </div>
-  <div id="app"><div class='text-center pt-2'><h4>Loading...</h4>
+  <div id="app"><div class='text-center pt-2'><h4>Loading...</h4></div></div>
 </div>
 </body>
 </html>

@@ -1,23 +1,9 @@
 import _ from "lodash";
-import React, { Component, PropTypes } from "react";
+import React, { Component } from "react";
 import Codemirror from "./react-codemirror";
 import stringify from "json-stable-stringify";
 
-const nop = function nop() { };
-
 export default class Area extends Component {
-
-  static defaultProps = {
-    highlight: [],
-    onChange: nop,
-    wrap: false,
-    javascript: true,
-    style: {}
-  };
-  static propTypes = {
-    highlight: React.PropTypes.array
-  };
-
   componentDidUpdate() {
     this.props.highlight.length && this.cm && this.cm.addOverlay({token:this.buildHighlighter()})
   }

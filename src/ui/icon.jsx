@@ -1,15 +1,13 @@
-'use strict';
-/* global module,import */
-
-import React, { Component } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 import SVGIcon from 'svg-inline-react';
+import _ from "lodash";
 import styles from './icon.css';
 import icons from './icon_list';
 
 export default (props)=>{
   const pp = _.omit(props, 'styles');
-  const { name , color, style, colorize, className } = pp;
+  const { name, colorize, className } = pp;
   const src = icons[name];
   if (!src) {
     return <i/>;

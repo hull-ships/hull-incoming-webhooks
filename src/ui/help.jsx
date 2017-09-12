@@ -3,7 +3,6 @@ import { Alert, Modal, Tooltip, Button, Popover, OverlayTrigger, Row, Col, Table
 import Icon from './icon';
 
 export default class Help extends Component {
-
   constructor(props) {
     super(props);
     this.state = { showModal: false, ...props };
@@ -26,7 +25,7 @@ hull.asUser({ "id":"123" });
     `;
     return (
       <div>
-        <Button bsStyle="warning" bsSize="sm" clasName='btn-pill btn-rounded' onClick={this.open.bind(this)} > Help </Button>
+        <Button bsStyle="warning" bsSize="sm" className='btn-pill btn-rounded' onClick={this.open.bind(this)} > Help </Button>
 
         <Modal show={this.state.showModal} bsSize='large' onHide={this.close.bind(this)}>
           <Modal.Header closeButton>

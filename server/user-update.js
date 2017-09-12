@@ -1,5 +1,4 @@
 /* @flow */
-
 import compute from "./compute";
 import _ from "lodash";
 
@@ -19,9 +18,10 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
-module.exports = function handle(payload: Object = {}, { ship, client, metric }: Object) {
+module.exports = function handle(payload: Object = {}, { ship, client, metric, cache }: Object) {
   return compute(payload, ship, client)
-    .then(({ userTraits, events, accountTraits, accountIdentity, logs, errors, userIdentity }) => {
+    .then(result => {
+      const { userTraits, events, accountTraits, accountIdentity, logs, errors, userIdentity } = result;
       let asUser = {};
       try {
         asUser = client.asUser(userIdentity);
@@ -73,6 +73,14 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric }:
       if (logs && logs.length) {
         logs.map(log => asUser.logger.info("compute.console.log", { log }));
       }
+
+      return cache.get("webhookRequests")
+        .then(requests => {
+            const request = _.find(requests, request => _.isEqual(request.webhookData, payload));
+            request.result = result;
+            return requests;
+        })
+        .then(requests => cache.set("webhookRequests", requests, { ttl: 1440000000 }))
     })
     .catch(err => {
       client.logger.error("incoming.user.error", { hull_summary: `Error Processing user: ${_.get(err, "message", "Unexpected error")}`, errors: err });

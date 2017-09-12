@@ -163,7 +163,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     errors.push("You need to return a 'new Promise' and 'resolve' or 'reject' it in you 'request' callback.");
   }
 
-  if (_.isEmpty(userIdentity)) {
+  if (!errors.length && _.isEmpty(userIdentity)) {
     errors.push("You have to call 'asUser' method with user's identity. Remember that every next invocation will override previous one.");
   }
 
@@ -183,10 +183,12 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
       userIdentity,
       logs,
       errors,
+      code,
       userTraits: _.reduce(userTraits, buildPayload, {}),
       events: tracks,
       payload: sandbox.payload,
       accountIdentity,
+      success: true,
       accountTraits: _.reduce(accountTraits, buildPayload, {})
     };
   });

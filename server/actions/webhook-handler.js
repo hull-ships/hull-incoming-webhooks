@@ -27,7 +27,7 @@ export default function webhookHandler(req: Request, res: Response) {
       if (requests) {
         return cache.set("webhookRequests", requests, { ttl });
       }
-      return cache.set("webhookRequests", new RequestsQueue(10, [payload]), { ttl });
+      return cache.set("webhookRequests", new RequestsQueue(100, [payload]), { ttl });
     })
     .then(() => updateUser(payload.webhookData, req.hull));
 }

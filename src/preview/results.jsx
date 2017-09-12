@@ -1,18 +1,35 @@
 import React, { Component } from "react";
 import _ from "lodash";
-import { Col, Button, Tabs, Tab } from "react-bootstrap";
-import Help from "../ui/help";
-
+import { Row } from "react-bootstrap";
 import Icon from "../ui/icon";
+
+import CodePane from "../code";
 import Header from "../ui/header";
 import Errors from "./errors";
 import Output from "./output";
 
 export default class Results extends Component {
-
   constructor(props) {
     super(props);
     this.state = {};
+  }
+
+  getIcon() {
+    if (this.props.title === "Current") {
+      if (this.props.loading) {
+        return "spinner";
+      }
+    }
+
+    if (_.get(_.get(this.props.result), "errors.length")) {
+      return "cross";
+    }
+
+    if (_.get(this.props.result, "success")) {
+      return "valid"
+    }
+
+    return null;
   }
 
   render() {
@@ -22,14 +39,11 @@ export default class Results extends Component {
       events = [],
       accountClaims = {},
       logs = [],
-      payload,
-      code,
-      className,
-      sm, md
-     } = this.props;
+    } = this.props.result;
+
+    const { code, onCodeUpdate, title } = this.props;
+
     const ActivePane = (errors && errors.length) ? Errors : Output;
-    const highlight = ((errors && errors.length) ? [] : _.map(_.keys(userTraits), k => `traits_${k}`) || []);
-    const codeIsEmpty = code === "return {};" || code === "";
 
     const logOutput = logs.map(l => {
       return l.map(e => {
@@ -60,17 +74,24 @@ ${claims}
 /* EVENTS */
 ${eventString}`;
     }
-    return (<Col className={className} md={md} sm={sm}>
-      <Header title="Results">
-        <Help showModal={codeIsEmpty}/>
+
+    return (<div>
+      <Header title={title}>
+        <Icon className="custom-icon" name={this.getIcon()} />
       </Header>
       <hr/>
-      <ActivePane
-        userTraits={output}
-        logs={logOutput}
-        errors={errors}
-        payload={payload}
-        highlight={highlight} />
-    </Col>);
+      <Row className="flexRow result">
+        <CodePane
+          className="flexColumn codePane"
+          onChange={onCodeUpdate}
+          value={code}
+        />
+        <ActivePane
+          userTraits={output}
+          logs={logOutput}
+          errors={errors}
+        />
+      </Row>
+    </div>);
   }
 }
