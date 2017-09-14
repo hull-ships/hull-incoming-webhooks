@@ -3,7 +3,9 @@
 import connect from "connect";
 import timeout from "connect-timeout";
 import bodyParser from "body-parser";
+import _ from "lodash";
 import { Request, Response, Next } from "express";
+
 import compute from "../compute";
 import getLastWebhooks from "../middlewares/get-last-webhooks";
 
@@ -25,6 +27,8 @@ function computeHandler(req: Request, res: Response) {
       if (logs && logs.length) {
         logs.map(line => req.hull.client.logger.debug("preview.console.log", line));
       }
+      result.userTraits = result.userTraits.map(u => _.omit(u, "userIdentityOptions"));
+      result.accountTraits = result.accountTraits.map(a => _.omit(a, "accountIdentityOptions"));
       res.send({ ship, lastWebhooks: req.hull.lastWebhooks, result }).end();
     }).catch(error => res.status(500).json({ error }));
   } else {

@@ -1,8 +1,8 @@
 import React from 'react';
 import Area from '../ui/area';
 
-export default ({errors}) => (
+export default ({errors, highlight}) => (
   <div className='output'>
-    <Area value={errors} type='danger' javascript={false}/>
+    <Area highlight={highlight} value={errors} type='danger' javascript={false}/>
   </div>
 )

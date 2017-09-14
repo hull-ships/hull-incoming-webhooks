@@ -21,7 +21,7 @@ export default class Results extends Component {
       }
     }
 
-    if (_.get(_.get(this.props.result), "errors.length")) {
+    if (_.get(this.props.result, "errors.length")) {
       return "cross";
     }
 
@@ -34,15 +34,16 @@ export default class Results extends Component {
 
   render() {
     const {
-      userTraits = {},
+      userTraits = [],
       errors = [],
       events = [],
-      accountClaims = {},
+      accountClaims = [],
       logs = [],
     } = this.props.result;
 
     const { code, onCodeUpdate, title } = this.props;
 
+    const highlight = ((errors && errors.length && !_.isEmpty(userTraits)) ? [] : _.map(_.keys(userTraits.map(u => u.userTraits)), k => `traits_${k}`) || []);
     const ActivePane = (errors && errors.length) ? Errors : Output;
 
     const logOutput = logs.map(l => {
@@ -67,12 +68,17 @@ ${claims}
     }
     if (events.length) {
       const eventString = _.map(events, e => {
-        const props = JSON.stringify(e.properties, null, 2);
-        return `track("${e.eventName}", ${props})
+        const identity = JSON.stringify((e.userIdentity || e.accountIdentity), null, 2);
+        const props = JSON.stringify(e.event.properties, null, 2);
+        return `Identity:
+${identity}
+Event:
+(${e.event.eventName} - ${props})
+
 `; });
-      output = `${output}
+      output = (`${output}
 /* EVENTS */
-${eventString}`;
+${eventString}`).split(",").join("");
     }
 
     return (<div>
@@ -90,6 +96,7 @@ ${eventString}`;
           userTraits={output}
           logs={logOutput}
           errors={errors}
+          highlight={highlight}
         />
       </Row>
     </div>);

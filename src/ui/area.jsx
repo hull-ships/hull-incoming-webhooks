@@ -5,7 +5,7 @@ import stringify from "json-stable-stringify";
 
 export default class Area extends Component {
   componentDidUpdate() {
-    this.props.highlight.length && this.cm && this.cm.addOverlay({token:this.buildHighlighter()})
+    this.props.highlight && this.props.highlight.length && this.cm && this.cm.addOverlay({token:this.buildHighlighter()})
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -27,6 +27,7 @@ export default class Area extends Component {
       return undefined;
     };
   }
+
   render() {
     let { wrap, style, onChange, value } = this.props;
     if (typeof value !== "string") value = stringify(value, { space: 2 });
