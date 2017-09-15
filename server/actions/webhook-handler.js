@@ -5,7 +5,10 @@ import RequestsQueue from "fifo-array";
 import updateUser from "../webhook-processor";
 
 function pickValuesFromRequest(req: Request) {
-  return _.pick(req, ["body", "headers", "cookies", "ip", "method", "params", "query"]);
+  const requestParams = _.pick(req, ["body", "headers", "cookies", "ip", "method", "params", "query"]);
+  return _.update(_.update(requestParams, "headers", value => _.omit(value, [
+    "x-forwarded-for", "x-forwarded-proto", "x-newrelic-id", "x-newrelic-transaction"
+  ])), "query", value => _.omit(value, ["token", "conf"]));
 }
 
 export default function webhookHandler(req: Request, res: Response) {

@@ -18,17 +18,43 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
+function filterInvalidIdentities(values, client, object = "user") {
+  return values.filter(u => {
+    try {
+      if (u.userIdentity && (!u.userIdentity.email && !u.userIdentity.id && !u.userIdentity.external_id && !u.userIdentity.anonymous_id)) {
+        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", userIdentity: u.userIdentity });
+        return false;
+      }
+
+      if (u.accountIdentity && (!u.accountIdentity.domain && !u.accountIdentity.id && !u.accountIdentity.external_id)) {
+        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", accountIdentity: u.accountIdentity });
+        return false;
+      }
+
+      if (u.userIdentity) {
+        client.asUser(u.userIdentity);
+      }
+
+      if (u.accountIdentity) {
+        client.asAccount(u.accountIdentity)
+      }
+      return true;
+    } catch (err) {
+      client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", identity: _.get(u, ["userIdentity", "accountIdentity"]) });
+      return false;
+    }
+  });
+}
+
 module.exports = function handle(payload: Object = {}, { ship, client, metric, cache }: Object) {
   return compute(payload, ship, client)
     .then(result => {
-      const { userTraits, events, accountTraits, logs, errors, accountLinks } = result;
-      // TODO FILTER ALL skipped users
-      try {
-        userTraits.map(u => client.asUser(u.userIdentity));
-        accountLinks.map(l => client.asUser(l.userIdentity));
-      } catch (err) {
-        client.logger.info("incoming.user.skip", { reason: "missing/invalid user ident." });
-      }
+      const { logs, errors } = result;
+      let { events, userTraits, accountTraits, accountLinks } = result;
+      userTraits = filterInvalidIdentities(userTraits, client, "user");
+      events = filterInvalidIdentities(events, client, "event");
+      accountTraits = filterInvalidIdentities(accountTraits, client, "account");
+      accountLinks = filterInvalidIdentities(accountLinks, client, "account.link");
 
       client.logger.info("compute.user.debug", { userTraits, accountTraits });
 
@@ -43,6 +69,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         })).then(() => metric.increment("ship.incoming.users", successfulUsers));
       }
 
+      // Emit events
       if (_.size(events)) {
         let succeededEvents = 0;
         Promise.all(events.map(({ userIdentity, event, userIdentityOptions }) => {
@@ -51,8 +78,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
           return asUser.track(eventName, properties, {
             ip: "0",
             source: "incoming-webhook", ...context
-          }).then(
-            () => {
+          }).then(() => {
               succeededEvents++;
               return asUser.logger.info("incoming.event.success");
             },
@@ -78,8 +104,8 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         })).then(() => metric.increment("ship.incoming.accounts", succeededAccounts));
       }
 
+      // Link accounts with users
       if (_.size(accountLinks)) {
-        // Link account
         Promise.all(accountLinks.map(link => {
           const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
           asUser.account(link.accountIdentity, link.accountIdentityOptions)
@@ -101,6 +127,8 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         .then(requests => {
             const request = _.find(requests, request => _.isEqual(request.webhookData, payload));
             request.result = result;
+            request.result.events = events;
+            request.result.accountLinks = accountLinks;
             request.result.userTraits = request.result.userTraits.map(u => _.omit(u, "userIdentityOptions"));
             request.result.accountTraits = request.result.accountTraits.map(a => _.omit(a, "accountIdentityOptions"));
             return requests;
