@@ -2,6 +2,7 @@
 import { Connector } from "hull";
 
 import express from "express";
+import bodyParser from "body-parser";
 
 import webhookHandler from "./actions/webhook-handler";
 import computeHandler from "./actions/compute-handler";
@@ -16,7 +17,7 @@ export default function Server(connector: Connector, options: Object = {}, app: 
     res.render("admin.html", { hostname: req.hostname, token: req.hull.token, connectorId: req.hull.ship.id });
   });
 
-  app.post("/webhooks/:connectorId", webhookHandler);
+  app.post("/webhooks/:connectorId", bodyParser.urlencoded(), webhookHandler);
 
   app.post("/compute", computeHandler({ hostSecret, connector }));
 

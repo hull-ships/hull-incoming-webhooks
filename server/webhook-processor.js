@@ -21,9 +21,11 @@ function flatten(obj, key, group) {
 module.exports = function handle(payload: Object = {}, { ship, client, metric, cache }: Object) {
   return compute(payload, ship, client)
     .then(result => {
-      const { userTraits, events, accountTraits, accountIdentity, logs, errors } = result;
+      const { userTraits, events, accountTraits, logs, errors, accountLinks } = result;
+      // TODO FILTER ALL skipped users
       try {
         userTraits.map(u => client.asUser(u.userIdentity));
+        accountLinks.map(l => client.asUser(l.userIdentity));
       } catch (err) {
         client.logger.info("incoming.user.skip", { reason: "missing/invalid user ident." });
       }
@@ -54,7 +56,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
               succeededEvents++;
               return asUser.logger.info("incoming.event.success");
             },
-            err => asUser.logger.error("incoming.event.error", { errors: err })
+            err => client.logger.error("incoming.event.error", { user: userIdentity, errors: err })
           )
         })).then(() => metric.increment("ship.incoming.events", succeededEvents));
       }
@@ -64,19 +66,27 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let succeededAccounts = 0;
         Promise.all(accountTraits.map(a => {
           const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
-          asAccount.traits(...flatten({}, "", accountTraits)).then(() => client.logger.info("incoming.account.success", {
-            accountTraits: flatten({}, "", accountTraits),
-            accountIdentity
-          })).then(() => succeededAccounts += 1);
+          asAccount.traits(...flatten({}, "", a.accountTraits)).then(() => client.logger.info("incoming.account.success", {
+            accountTraits: flatten({}, "", a.accountTraits),
+            accountIdentity: a.accountIdentity
+          }))
+            .then(() => succeededAccounts += 1)
+            .catch(err => client.logger.error("incoming.account.error", {
+              accountTraits: flatten({}, "", a.accountTraits),
+              accountIdentity: a.accountIdentity
+            }))
         })).then(() => metric.increment("ship.incoming.accounts", succeededAccounts));
       }
-      // TODO
-      // else if (_.size(accountTraits) || !_.isMatch(accountTraits, accountIdentity)) {
-      //   Link account
-        // asUser.account(accountIdentity).traits({}).then(() => {
-        //   asUser.logger.info("incoming.account.link", { accountTraits, accountIdentity });
-        // });
-      // }
+
+      if (_.size(accountLinks)) {
+        // Link account
+        Promise.all(accountLinks.map(link => {
+          const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
+          asUser.account(link.accountIdentity, link.accountIdentityOptions)
+            .then(() => asUser.logger.info("incoming.account.link", { account: link.accountIdentity, user: link.userIdentity }))
+            .catch(err => client.logger.info("incoming.account.link.error"), { user: link.userIdentity, errors: err })
+        }));
+      }
 
       if (errors && errors.length > 0) {
         client.logger.error("incoming.user.error", { hull_summary: `Error Processing user: ${errors.join(", ")}`, errors });

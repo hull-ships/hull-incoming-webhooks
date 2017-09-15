@@ -72,7 +72,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   let tracks = [];
   const userTraits = [];
   const accountTraits = [];
-  let accountIdentity = {};
+  const accountLinks = [];
   const logs = [];
   const errors = [];
   let isAsync = false;
@@ -85,19 +85,29 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     if (eventName) tracks.push({ userIdentity, userIdentityOptions, event: { eventName, properties, context } });
   };
 
-  const traits = (userIdentity, userIdentityOptions)=> (properties = {}, context = {}) => {
+  const traits = (userIdentity, userIdentityOptions) => (properties = {}, context = {}) => {
     userTraits.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
   };
 
-  const user = (userIdentity = {}, userIdentOptions = {}) => {
+  const links = (userIdentity, userIdentityOptions) => (accountIdentity = {}, accountIdentityOptions = {}) => {
+    accountLinks.push({ userIdentity, userIdentityOptions, accountIdentity, accountIdentityOptions });
+    return {
+      traits: (properties = {}, context = {}) => {
+        accountTraits.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
+      }
+    }
+  };
+
+  const user = (userIdentity = {}, userIdentityOptions = {}) => {
     try {
       client.asUser(userIdentity);
     } catch (err) {
       errors.push(`Encountered error while calling asUser : ${_.get(err, "message", "")}`);
     }
     return {
-      track: track(userIdentity, userIdentOptions),
-      traits: traits(userIdentity, userIdentOptions)
+      track: track(userIdentity, userIdentityOptions),
+      traits: traits(userIdentity, userIdentityOptions),
+      account: links(userIdentity, userIdentityOptions)
     };
   };
 
@@ -182,8 +192,8 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
         userTraits: _.map(userTraits, ({ userIdentity, userIdentityOptions, userTraits }) =>
           ({ userIdentity, userIdentityOptions, userTraits: _.reduce(userTraits, buildPayload, {}) })),
         events: tracks,
+        accountLinks,
         payload: sandbox.payload,
-        accountIdentity,
         success: true,
         accountTraits: _.map(accountTraits, ({ accountIdentity, accountIdentityOptions, accountTraits }) =>
           ({ accountIdentity, accountIdentityOptions, accountTraits: _.reduce(accountTraits, buildPayload, {}) })),

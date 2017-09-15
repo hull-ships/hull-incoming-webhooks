@@ -13,7 +13,7 @@ function computeHandler(req: Request, res: Response) {
   const { client } = req.hull;
   let { ship = {} } = req.body;
   const { webhook, code } = req.body;
-// This condition ensures boot request does work:
+  // This condition ensures boot request does work:
   // When loading the page, the ship is client-side so what's passed to remote
   // doesn't have private_settings embedded
   ship = (ship.private_settings) ? ship : req.hull.ship;
