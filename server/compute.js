@@ -66,7 +66,9 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
 
   const sandbox = getSandbox(ship);
 
-  Object.keys(webhookRequest).forEach(userKey => sandbox[userKey] = webhookRequest[userKey]);
+  Object.keys(webhookRequest).forEach(userKey => {
+    sandbox[userKey] = webhookRequest[userKey];
+  });
 
   sandbox.ship = ship;
   sandbox.payload = {};
@@ -74,9 +76,9 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   applyUtils(sandbox);
 
   let tracks = [];
-  const userTraits = [];
-  const accountTraits = [];
-  const accountLinks = [];
+  const userTraitsList = [];
+  const accountTraitsList = [];
+  const accountLinksList = [];
   const logs = [];
   const errors = [];
   let isAsync = false;
@@ -90,16 +92,16 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   };
 
   const traits = (userIdentity, userIdentityOptions) => (properties = {}, context = {}) => {
-    userTraits.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
+    userTraitsList.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
   };
 
   const links = (userIdentity, userIdentityOptions) => (accountIdentity = {}, accountIdentityOptions = {}) => {
-    accountLinks.push({ userIdentity, userIdentityOptions, accountIdentity, accountIdentityOptions });
+    accountLinksList.push({ userIdentity, userIdentityOptions, accountIdentity, accountIdentityOptions });
     return {
       traits: (properties = {}, context = {}) => {
-        accountTraits.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
+        accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
       }
-    }
+    };
   };
 
   const user = (userIdentity = {}, userIdentityOptions = {}) => {
@@ -120,9 +122,9 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
       if (accountIdentity) {
         return {
           traits: (properties = {}, context = {}) => {
-            accountTraits.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
+            accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
           }
-        }
+        };
       }
       return errors.push("Account identity cannot be empty");
     },
@@ -193,13 +195,13 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
         logs,
         errors,
         code,
-        userTraits: _.map(userTraits, ({ userIdentity, userIdentityOptions, userTraits }) =>
+        userTraits: _.map(userTraitsList, ({ userIdentity, userIdentityOptions, userTraits }) =>
           ({ userIdentity, userIdentityOptions, userTraits: _.reduce(userTraits, buildPayload, {}) })),
         events: tracks,
-        accountLinks,
+        accountLinks: accountLinksList,
         payload: sandbox.payload,
         success: true,
-        accountTraits: _.map(accountTraits, ({ accountIdentity, accountIdentityOptions, accountTraits }) =>
+        accountTraits: _.map(accountTraitsList, ({ accountIdentity, accountIdentityOptions, accountTraits }) =>
           ({ accountIdentity, accountIdentityOptions, accountTraits: _.reduce(accountTraits, buildPayload, {}) })),
       };
     });

@@ -1,10 +1,10 @@
 /* global describe, it, beforeEach, afterEach */
-
 import Minihull from "minihull";
 import axios from "axios";
 import assert from "assert";
-import jwt from "jwt-simple";
 import _ from "lodash";
+
+import { encrypt } from "../../server/lib/crypto";
 import bootstrap from "./support/bootstrap";
 
 describe("Connector for webhooks endpoint", function test() {
@@ -12,8 +12,7 @@ describe("Connector for webhooks endpoint", function test() {
   let server;
 
   const private_settings = {
-    code: "hull.asUser({ \"id\": req.body.user.id });\n\
-    hull.traits(req.body.user.traits, { source: \"my-group\" });"
+    code: "hull.user({ \"id\": body.user.id }).traits(body.user.traits, { source: \"my-group\" });"
   };
 
   beforeEach((done) => {
@@ -38,12 +37,12 @@ describe("Connector for webhooks endpoint", function test() {
     ship: "123456789012345678901234",
     secret: "1234"
   };
-  const token = jwt.encode(config, "1234");
+  const token = encrypt(config, "1234");
 
-  it("should update user when webhook is sent", (done) => {
+  it("should update user when webhook is sent", done => {
     let check = false;
 
-    axios.post(`http://localhost:8000/webhooks/123456789012345678901234?token=${token}`, {
+    axios.post(`http://localhost:8000/webhooks/123456789012345678901234?conf=${token}`, {
       user: {
         id: "123",
         traits: {
@@ -51,15 +50,13 @@ describe("Connector for webhooks endpoint", function test() {
         }
       }
     }).then(() => {
-      minihull.on("incoming.request", (req) => {
-        const batch = req.body.batch;
+      minihull.on("incoming.request", req => {
+        const batch = req.body.batch[0];
 
-        batch.forEach(incoming => {
-          if (incoming.type === "traits") {
-            assert.equal(_.get(incoming.body, "my-group/customerioid"), "321");
-            check = true;
-          }
-        });
+        if (batch.type === "traits") {
+          assert.equal(_.get(batch.body, "my-group/customerioid"), "321");
+          check = true;
+        }
       });
 
       setTimeout(() => {

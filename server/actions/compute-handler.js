@@ -27,7 +27,7 @@ function filterInvalidIdentities(values, client, object = "user") {
       }
 
       if (u.accountIdentity) {
-        client.asAccount(u.accountIdentity)
+        client.asAccount(u.accountIdentity);
       }
       return true;
     } catch (err) {
@@ -61,8 +61,7 @@ function computeHandler(req: Request, res: Response) {
       result.accountLinks = filterInvalidIdentities(result.accountLinks.map(a => _.omit(a, ["userIdentityOptions", "accountIdentityOptions"])), client, "account.link");
       res.send({ ship, lastWebhooks: req.hull.lastWebhooks, result }).end();
     }).catch(error => {
-      console.log(error);
-      return res.status(500).json({ error })
+      return res.status(500).json({ error });
     });
   } else {
     res

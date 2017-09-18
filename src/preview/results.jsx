@@ -48,9 +48,9 @@ export default class Results extends Component {
       logs = [],
     } = this.props.result;
 
+    // Merge all traits by user
     const mergedUserTraits = [];
 
-    // Merge all traits by user
     userTraits.forEach(v => {
       if (_.filter(mergedUserTraits, alreadyFiltered => _.isEqual(v.userIdentity, alreadyFiltered.userIdentity)).length === 0) {
         const allUserTraits = _.filter(userTraits, x => _.isEqual(x.userIdentity, v.userIdentity));
