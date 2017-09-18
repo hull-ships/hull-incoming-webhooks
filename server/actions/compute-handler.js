@@ -3,15 +3,45 @@
 import connect from "connect";
 import timeout from "connect-timeout";
 import bodyParser from "body-parser";
+import _ from "lodash";
 import { Request, Response, Next } from "express";
+
 import compute from "../compute";
 import getLastWebhooks from "../middlewares/get-last-webhooks";
+
+function filterInvalidIdentities(values, client, object = "user") {
+  return values.filter(u => {
+    try {
+      if (u.userIdentity && (!u.userIdentity.email && !u.userIdentity.id && !u.userIdentity.external_id && !u.userIdentity.anonymous_id)) {
+        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", userIdentity: u.userIdentity });
+        return false;
+      }
+
+      if (u.accountIdentity && (!u.accountIdentity.domain && !u.accountIdentity.id && !u.accountIdentity.external_id)) {
+        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", accountIdentity: u.accountIdentity });
+        return false;
+      }
+
+      if (u.userIdentity) {
+        client.asUser(u.userIdentity);
+      }
+
+      if (u.accountIdentity) {
+        client.asAccount(u.accountIdentity)
+      }
+      return true;
+    } catch (err) {
+      client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", identity: _.get(u, ["userIdentity", "accountIdentity"]) });
+      return false;
+    }
+  });
+}
 
 function computeHandler(req: Request, res: Response) {
   const { client } = req.hull;
   let { ship = {} } = req.body;
   const { webhook, code } = req.body;
-// This condition ensures boot request does work:
+  // This condition ensures boot request does work:
   // When loading the page, the ship is client-side so what's passed to remote
   // doesn't have private_settings embedded
   ship = (ship.private_settings) ? ship : req.hull.ship;
@@ -25,8 +55,15 @@ function computeHandler(req: Request, res: Response) {
       if (logs && logs.length) {
         logs.map(line => req.hull.client.logger.debug("preview.console.log", line));
       }
+      result.userTraits = filterInvalidIdentities(result.userTraits.map(u => _.omit(u, ["userIdentityOptions"])), client, "user");
+      result.events = filterInvalidIdentities(result.events, client, "event");
+      result.accountTraits = filterInvalidIdentities(result.accountTraits.map(a => _.omit(a, ["accountIdentityOptions"])), client, "account");
+      result.accountLinks = filterInvalidIdentities(result.accountLinks.map(a => _.omit(a, ["userIdentityOptions", "accountIdentityOptions"])), client, "account.link");
       res.send({ ship, lastWebhooks: req.hull.lastWebhooks, result }).end();
-    }).catch(error => res.status(500).json({ error }));
+    }).catch(error => {
+      console.log(error);
+      return res.status(500).json({ error })
+    });
   } else {
     res
       .status(400)

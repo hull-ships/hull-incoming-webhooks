@@ -8,15 +8,23 @@ import Promise from "bluebird";
 
 const TOP_LEVEL_FIELDS = ["tags", "name", "description", "extra", "picture", "settings", "username", "email", "contact_email", "image", "first_name", "last_name", "address", "created_at", "phone", "domain", "accepts_marketing"];
 
-function applyUtils(sandbox = {}) {
-  const lodash = _.functions(_).reduce((l, key) => {
-    l[key] = (...args) => _[key](...args);
-    return l;
-  }, {});
+const lodash = _.functions(_).reduce((l, key) => {
+  l[key] = (...args) => _[key](...args);
+  return l;
+}, {});
 
-  sandbox.moment = deepFreeze((...args) => { return moment(...args); });
-  sandbox.urijs = deepFreeze((...args) => { return urijs(...args); });
-  sandbox._ = deepFreeze(lodash);
+const frozenMoment = deepFreeze((...args) => {
+  return moment(...args);
+});
+const frozenUrijs = deepFreeze((...args) => {
+  return urijs(...args);
+});
+const frozenLodash = deepFreeze(lodash);
+
+function applyUtils(sandbox = {}) {
+  sandbox.moment = frozenMoment;
+  sandbox.urijs = frozenUrijs;
+  sandbox._ = frozenLodash;
 }
 
 const buildPayload = (pld, traitsCall = {}) => {
@@ -58,18 +66,17 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
 
   const sandbox = getSandbox(ship);
 
-  sandbox.req = webhookRequest;
+  Object.keys(webhookRequest).forEach(userKey => sandbox[userKey] = webhookRequest[userKey]);
 
   sandbox.ship = ship;
   sandbox.payload = {};
 
   applyUtils(sandbox);
 
-  let userIdentity = {};
   let tracks = [];
   const userTraits = [];
   const accountTraits = [];
-  let accountIdentity = {};
+  const accountLinks = [];
   const logs = [];
   const errors = [];
   let isAsync = false;
@@ -78,41 +85,48 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   sandbox.errors = errors;
   sandbox.logs = logs;
 
-  const track = (eventName, properties = {}, context = {}) => {
-    if (eventName) tracks.push({ eventName, properties, context });
+  const track = (userIdentity, userIdentityOptions) => (eventName, properties = {}, context = {}) => {
+    if (eventName) tracks.push({ userIdentity, userIdentityOptions, event: { eventName, properties, context } });
   };
 
-  const traits = (properties = {}, context = {}) => {
-    userTraits.push({ properties, context });
+  const traits = (userIdentity, userIdentityOptions) => (properties = {}, context = {}) => {
+    userTraits.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
   };
 
-  const asUser = (userIdent = {}) => {
+  const links = (userIdentity, userIdentityOptions) => (accountIdentity = {}, accountIdentityOptions = {}) => {
+    accountLinks.push({ userIdentity, userIdentityOptions, accountIdentity, accountIdentityOptions });
+    return {
+      traits: (properties = {}, context = {}) => {
+        accountTraits.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
+      }
+    }
+  };
+
+  const user = (userIdentity = {}, userIdentityOptions = {}) => {
     try {
-      client.asUser(userIdent);
+      client.asUser(userIdentity);
     } catch (err) {
       errors.push(`Encountered error while calling asUser : ${_.get(err, "message", "")}`);
     }
-    userIdentity = userIdent;
+    return {
+      track: track(userIdentity, userIdentityOptions),
+      traits: traits(userIdentity, userIdentityOptions),
+      account: links(userIdentity, userIdentityOptions)
+    };
   };
 
-  sandbox.track = track;
-  sandbox.traits = traits;
-  sandbox.asUser = asUser;
-
   sandbox.hull = {
-    account: (identity = null) => {
-      if (identity) {
-        accountIdentity = identity;
-      }
-      return {
-        traits: (properties = {}, context = {}) => {
-          accountTraits.push({ properties, context });
+    account: (accountIdentity = null, accountIdentityOptions = {}) => {
+      if (accountIdentity) {
+        return {
+          traits: (properties = {}, context = {}) => {
+            accountTraits.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
+          }
         }
-      };
+      }
+      return errors.push("Account identity cannot be empty");
     },
-    traits,
-    track,
-    asUser
+    user
   };
 
   sandbox.request = (opts, callback) => {
@@ -140,6 +154,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   function logError(...args) {
     errors.push(args);
   }
+
   sandbox.console = { log, warn: log, error: logError, debug };
 
   try {
@@ -157,36 +172,35 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     errors.push(err.toString());
   }
 
-  if (isAsync && !_.some(_.compact(sandbox.results), (r) => _.isFunction(r.then))) {
+  if (sandbox.results.length && isAsync && !_.some(_.compact(sandbox.results), (r) => _.isFunction(r.then))) {
     errors.push("It seems you’re using 'request' which is asynchronous.");
     errors.push("You need to return a 'new Promise' and 'resolve' or 'reject' it in you 'request' callback.");
   }
 
-  if (_.isEmpty(userIdentity)) {
-    errors.push("You have to call 'asUser' method with user's identity. Every next invocation will override previous one.");
-  }
-
   return Promise.all(sandbox.results)
-  .catch((err) => {
-    errors.push(err.toString());
-  })
-  .then(() => {
-    if (preview && tracks.length > 10) {
-      logs.unshift([tracks]);
-      logs.unshift([`You're trying to send ${tracks.length} calls at a time. We will only process the first 10`]);
-      logs.unshift(["You can't send more than 10 tracking calls in one batch."]);
-      tracks = _.slice(tracks, 0, 10);
-    }
+    .catch((err) => {
+      errors.push(err.toString());
+    })
+    .then(() => {
+      if (preview && tracks.length > 10) {
+        logs.unshift([tracks]);
+        logs.unshift([`You're trying to send ${tracks.length} 'track' calls at a time. We will only process the first 10`]);
+        logs.unshift(["You can't send more than 10 tracking calls in one batch."]);
+        tracks = _.slice(tracks, 0, 10);
+      }
 
-    return {
-      userIdentity,
-      logs,
-      errors,
-      userTraits: _.reduce(userTraits, buildPayload, {}),
-      events: tracks,
-      payload: sandbox.payload,
-      accountIdentity,
-      accountTraits: _.reduce(accountTraits, buildPayload, {})
-    };
-  });
+      return {
+        logs,
+        errors,
+        code,
+        userTraits: _.map(userTraits, ({ userIdentity, userIdentityOptions, userTraits }) =>
+          ({ userIdentity, userIdentityOptions, userTraits: _.reduce(userTraits, buildPayload, {}) })),
+        events: tracks,
+        accountLinks,
+        payload: sandbox.payload,
+        success: true,
+        accountTraits: _.map(accountTraits, ({ accountIdentity, accountIdentityOptions, accountTraits }) =>
+          ({ accountIdentity, accountIdentityOptions, accountTraits: _.reduce(accountTraits, buildPayload, {}) })),
+      };
+    });
 };

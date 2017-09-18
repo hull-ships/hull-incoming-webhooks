@@ -5,7 +5,6 @@ import superagent from "superagent";
 const EVENT = "CHANGE";
 
 export default class Engine extends EventEmitter {
-
   constructor(config, { ship }) {
     super();
     this.config = config;
@@ -37,7 +36,7 @@ export default class Engine extends EventEmitter {
   }
 
   setupShip(ship) {
-    this.compute({ ship, webhook: this.state.currentWebhook || {} });
+    this.compute({ ship, webhook: _.get(this.state.currentWebhook, "webhookData", {}) });
   }
 
   updateParent(code) {
@@ -64,7 +63,7 @@ export default class Engine extends EventEmitter {
     this.setState({ ship: newShip });
     this.compute({
       ship: newShip,
-      webhook: this.state.currentWebhook
+      webhook: _.get(this.state.currentWebhook, "webhookData", {})
     });
   }
 
@@ -72,11 +71,14 @@ export default class Engine extends EventEmitter {
     this.setState({ currentWebhook: webhook });
     this.compute({
       code: _.get(this.state, "ship.private_settings.code"),
-      webhook: this.state.currentWebhook
+      webhook: _.get(this.state.currentWebhook, "webhookData", {})
     });
   }
 
   compute(params) {
+    this.setState({
+      loading: true
+    });
     if (this.computing) {
       this.computing.abort();
     }
@@ -109,11 +111,11 @@ export default class Engine extends EventEmitter {
 
             this.setState({
               error: null,
-              ship, lastWebhooks, result, fetchedWebhooks: true
+              ship, lastWebhooks, result, fetchedWebhooks: true, loading: false
             });
 
             if (this.state.fetchedWebhooks && !this.state.dashboardReady) {
-              this.state.currentWebhook = _.get(_.last(this.state.lastWebhooks), "webhookData", {});
+              this.state.currentWebhook = _.last(this.state.lastWebhooks);
               this.setupShip(this.state.ship);
             }
           }
@@ -124,5 +126,4 @@ export default class Engine extends EventEmitter {
       });
     return this.computing;
   }
-
 }

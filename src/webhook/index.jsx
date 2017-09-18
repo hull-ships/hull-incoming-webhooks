@@ -1,49 +1,40 @@
 import React, { Component } from "react";
-import { Col, DropdownButton, MenuItem } from "react-bootstrap";
+import { Col, Tab, Nav, NavItem } from "react-bootstrap";
 import _ from "lodash";
 
-import Area from "../ui/area";
+import Icon from "../ui/icon";
 import Header from '../ui/header';
 
 export default class WebhookPane extends Component {
-  getCurrentWebhook(webhooks, currentWebhook) {
-    if (currentWebhook) {
-      return _.find(webhooks, webhook => _.isEqual(webhook.webhookData, currentWebhook));
+  getIcon(success, errors) {
+    if (_.get(errors, "length")) {
+      return "cross";
     }
-    return _.last(webhooks) || {};
-  }
 
-  getTitle(webhooks, currentWebhook) {
-    if (!_.size(webhooks)) {
-      return "no webhooks received";
+    if (success) {
+      return "valid"
     }
-    return _.get(this.getCurrentWebhook(webhooks, currentWebhook), "date", "no date provided");
-  }
 
-  getWebhookData(webhooks, currentWebhook) {
-    return _.get(this.getCurrentWebhook(webhooks, currentWebhook), "webhookData", {});
+    return null;
   }
 
   render() {
-    const { className, sm, md, onChange, lastWebhooks, currentWebhook } = this.props;
-    const title = "Last Received Webhooks";
+    const { className, sm, md, lg, xs, onChange, lastWebhooks, currentWebhook } = this.props;
 
-    // const lastReceivedWebhooks = lastWebhooks.reverse();
-    const webhooksToDisplay = lastWebhooks.map(webhook => <MenuItem eventKey={webhook.date}>{webhook.date}</MenuItem>);
+    const sortedWebhooks = _.reverse(_.sortBy(lastWebhooks, ["date"]));
+    const webhooksToDisplay = sortedWebhooks.map(webhook => <NavItem eventKey={webhook.date}>{webhook.date} <Icon className="custom-icon last-webhook-icon" name={this.getIcon(_.get(webhook, "result.success"), _.get(webhook, "result.errors"))} /></NavItem>);
 
-    return <Col className={className} md={md} sm={sm}>
-      <Header title={title}>
-        <DropdownButton
-          bsSize="small"
-          title={this.getTitle(lastWebhooks, currentWebhook)}
-          disabled={_.size(lastWebhooks) === 0}
-          id="last-webhook"
-          onSelect={onChange} >
-          {webhooksToDisplay}
-        </DropdownButton>
+    return <Col className={className} md={md} sm={sm} lg={lg} xs={xs}>
+      <Header title="Last Received Webhooks">
       </Header>
       <hr/>
-      <Area value={this.getWebhookData(lastWebhooks, currentWebhook)} type="info" onChange={onChange} javascript={false}/>
+      <div className="last-received-webhooks">
+        <Tab.Container onSelect={onChange} id="last-received-webhooks" defaultActiveKey={_.get(currentWebhook, "date", _.head(lastWebhooks))}>
+          <Nav bsStyle="pills" stacked>
+            {webhooksToDisplay}
+          </Nav>
+        </Tab.Container>
+      </div>
     </Col>;
   }
 }
