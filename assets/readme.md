@@ -10,20 +10,16 @@ Navigate to the 'Connectors' page of your Hull organization, click the button 'A
 
 ## Columns
 
-### Last Received Webhooks
-
-Left column displays last 100 received webhooks from your application.
-
 ### Payload
 
-This column will display webhook data when you choose webhook from Left pane.
+Left column displays dropdown with last 100 received webhooks from your application and payload of chosen one.
 
-### Previous/Current
+### Previous/Current Tabs
 
-Columns on the right display preview of changes that was applied/will be applied to webhook data to update user/account in Hull.
+Right column displays preview of changes that was applied/will be applied to webhook data to update user/account in Hull.
 
 Preview is divided to two sections: 'Previous' and 'Current'.
-The Previous section will show you code and changes was applied to your webhook when it arrived.
+The Previous section will show you code and changes was applied to your webhook when it arrived to us.
 The Current section allows you to write Javascript code on the left and see the preview on the right - what changes will be applied to all incoming webhooks after you save this code.
 
 ![Logs and Changes](./docs/current-console.png)

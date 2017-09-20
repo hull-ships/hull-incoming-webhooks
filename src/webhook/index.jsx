@@ -15,7 +15,7 @@ export default class WebhookPane extends Component {
       return "valid"
     }
 
-    return null;
+    return "cross";
   }
 
   render() {

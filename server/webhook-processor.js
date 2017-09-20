@@ -2,6 +2,8 @@
 import compute from "./compute";
 import _ from "lodash";
 
+import { filterInvalidIdentities, reducePayload } from "./lib/map-filter-results";
+
 function isGroup(o) {
   return _.isPlainObject(o) && !_.isEqual(_.sortBy(_.keys(o)), ["operation", "value"]);
 }
@@ -16,34 +18,6 @@ function flatten(obj, key, group) {
     }
     return m;
   }, obj);
-}
-
-function filterInvalidIdentities(values, client, object = "user") {
-  return values.filter(u => {
-    try {
-      if (u.userIdentity && (!u.userIdentity.email && !u.userIdentity.id && !u.userIdentity.external_id && !u.userIdentity.anonymous_id)) {
-        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", userIdentity: u.userIdentity });
-        return false;
-      }
-
-      if (u.accountIdentity && (!u.accountIdentity.domain && !u.accountIdentity.id && !u.accountIdentity.external_id)) {
-        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", accountIdentity: u.accountIdentity });
-        return false;
-      }
-
-      if (u.userIdentity) {
-        client.asUser(u.userIdentity);
-      }
-
-      if (u.accountIdentity) {
-        client.asAccount(u.accountIdentity);
-      }
-      return true;
-    } catch (err) {
-      client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", identity: _.get(u, ["userIdentity", "accountIdentity"]) });
-      return false;
-    }
-  });
 }
 
 module.exports = function handle(payload: Object = {}, { ship, client, metric, service, cachedWebhookPayload }: Object) {
@@ -114,9 +88,12 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, s
       if (_.size(accountLinks)) {
         Promise.all(accountLinks.map(link => {
           const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
-          return asUser.account(link.accountIdentity, link.accountIdentityOptions)
-            .then(() => asUser.logger.info("incoming.account.link", { account: link.accountIdentity, user: link.userIdentity }))
-            .catch(err => client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err }));
+          try {
+            asUser.account(link.accountIdentity, link.accountIdentityOptions)
+          } catch (err) {
+            return client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err })
+          }
+          return asUser.logger.info("incoming.account.link", { account: link.accountIdentity, user: link.userIdentity })
         }));
       }
 
@@ -134,11 +111,11 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, s
 
       webhookPayload.result = result;
       webhookPayload.result.events = events;
-      webhookPayload.result.accountLinks = accountLinks;
-      webhookPayload.result.userTraits = webhookPayload.result.userTraits.map(u => _.omit(u, "userIdentityOptions"));
-      webhookPayload.result.accountTraits = webhookPayload.result.accountTraits.map(a => _.omit(a, "accountIdentityOptions"));
+      webhookPayload.result.accountLinks = reducePayload(accountLinks, "accountIdentity");
+      webhookPayload.result.userTraits = reducePayload(userTraits.map(u => _.omit(u, "userIdentityOptions")), "userTraits");
+      webhookPayload.result.accountTraits = reducePayload(accountTraits.map(a => _.omit(a, "accountIdentityOptions")), "accountTraits");
 
-      const webhook = new WebhookModel({ result: payload.result, webhookData: payload.webhookData, date: payload.date });
+      const webhook = new WebhookModel({ result: webhookPayload.result, webhookData: payload, date: cachedWebhookPayload.date });
 
       return webhook.save(payload);
     })
