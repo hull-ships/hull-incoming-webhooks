@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function (host, connectorId, token, footer) {
   return <div>
     <div className="row">
