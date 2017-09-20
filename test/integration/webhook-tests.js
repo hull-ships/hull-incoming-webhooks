@@ -3,8 +3,9 @@
 import Minihull from "minihull";
 import axios from "axios";
 import assert from "assert";
-import jwt from "jwt-simple";
 import _ from "lodash";
+
+import { encrypt } from "../../server/lib/crypto";
 import bootstrap from "./support/bootstrap";
 
 describe("Connector for webhooks endpoint", function test() {
@@ -12,12 +13,11 @@ describe("Connector for webhooks endpoint", function test() {
   let server;
 
   const private_settings = {
-    code: "hull.asUser({ \"id\": req.body.user.id });\n\
-    hull.traits(req.body.user.traits);\n\ \
-    hull.track(req.body.user.eventName);"
+    code: "hull.user({ \"id\": body.user.id }).traits(body.user.traits);\n\
+    hull.user({ \"id\": body.user.id }).track(body.user.eventName);"
   };
 
-  beforeEach((done) => {
+  beforeEach(done => {
     minihull = new Minihull();
     server = bootstrap();
     minihull.listen(8001);
@@ -39,13 +39,13 @@ describe("Connector for webhooks endpoint", function test() {
     ship: "123456789012345678901234",
     secret: "1234"
   };
-  const token = jwt.encode(config, "1234");
+  const token = encrypt(config, "1234");
 
-  it("should update user when webhook is sent", (done) => {
+  it("should update user when webhook is sent", done => {
     let firstCheck = false;
     let secondCheck = false;
 
-    axios.post(`http://localhost:8000/webhooks/123456789012345678901234?token=${token}`, {
+    axios.post(`http://localhost:8000/webhooks/123456789012345678901234?conf=${token}`, {
       user: {
         id: "123",
         eventName: "test",
@@ -54,7 +54,7 @@ describe("Connector for webhooks endpoint", function test() {
         }
       }
     }).then(() => {
-      minihull.on("incoming.request", (req) => {
+      minihull.on("incoming.request", req => {
         const batch = req.body.batch;
 
         batch.forEach(incoming => {

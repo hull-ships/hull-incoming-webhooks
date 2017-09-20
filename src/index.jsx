@@ -15,6 +15,7 @@ import Engine from "./engine";
   });
 
   Hull.ready((hull, currentUser, app) => {
+    console.log(hull, app);
     const root = document.getElementById("app");
     const engine = new Engine({ ship, organization, secret }, { ship: app });
 

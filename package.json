@@ -66,6 +66,7 @@
     "react": "^15.1.0",
     "react-bootstrap": "^0.29.5",
     "react-dom": "^15.1.0",
+    "mongoose": "4.11.11",
     "request": "^2.74.0",
     "response-time": "^2.3.1",
     "rimraf": "^2.5.2",

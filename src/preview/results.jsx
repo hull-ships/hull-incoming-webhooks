@@ -4,7 +4,6 @@ import { Row } from "react-bootstrap";
 import Icon from "../ui/icon";
 
 import CodePane from "../code";
-import Header from "../ui/header";
 import Errors from "./errors";
 import Output from "./output";
 
@@ -29,13 +28,7 @@ export default class Results extends Component {
       return "valid"
     }
 
-    return null;
-  }
-
-  mergeObjects(obj) {
-    return _.reduce(obj, (x,y) => {
-      return _.merge(x, y);
-    });
+    return "cross";
   }
 
   render() {
@@ -48,21 +41,7 @@ export default class Results extends Component {
       logs = [],
     } = this.props.result;
 
-    const mergedUserTraits = [];
-
-    // Merge all traits by user
-    userTraits.forEach(v => {
-      if (_.filter(mergedUserTraits, alreadyFiltered => _.isEqual(v.userIdentity, alreadyFiltered.userIdentity)).length === 0) {
-        const allUserTraits = _.filter(userTraits, x => _.isEqual(x.userIdentity, v.userIdentity));
-        mergedUserTraits.push({
-          userIdentity: v.userIdentity,
-          userTraits: _.reduce(allUserTraits.map(z => z.userTraits), (acc, obj) => _.merge(acc, obj), {})
-        });
-      }
-    });
-
-
-    const { code, onCodeUpdate, title } = this.props;
+    const { code, onCodeUpdate } = this.props;
 
     const highlight = ((errors && errors.length && !_.isEmpty(userTraits)) ? [] : _.map(_.keys(userTraits.map(u => u.userTraits)), k => `traits_${k}`) || []);
     const ActivePane = (errors && errors.length) ? Errors : Output;
@@ -74,20 +53,30 @@ export default class Results extends Component {
     }).join("\n");
 
     let output = "";
-    if (_.size(userTraits)) {
-      const traits = mergedUserTraits.map(u => {
-        const account = _.find(accountLinks, a => _.isEqual(a.userIdentity, u.userIdentity));
+    if (_.size(userTraits) || _.size(accountLinks)) {
+      const traits = userTraits.map(user => {
+        const account = _.get(_.find(accountLinks, acc => _.isEqual(acc.userIdentity, user.userIdentity)), "accountIdentity");
         return `
-// User identified by:
-${JSON.stringify(u.userIdentity, null, 2)}
+// User identified by
+${JSON.stringify(user.userIdentity, null, 2)}
 // Attributes
-${JSON.stringify(u.userTraits, null, 2)}
-${account ? `Linked to account identified by: \n${JSON.stringify(account, null, 2)}` : ""}
-      `
+${JSON.stringify(user.userTraits || {}, null, 2)}
+${account ? `// Linked to account identified by:
+${JSON.stringify(account, null, 2)}` : ""}`
       });
-      // const traits = JSON.stringify(userTraits, null, 2);
-      output = `/* TRAITS */
+
+      const links = accountLinks.filter(acc => {
+        return !_.some(userTraits, user =>
+          _.isEqual(user.userIdentity, acc.userIdentity));
+      }).map(account => `
+// User identified by
+${JSON.stringify(account.userIdentity, null, 2)}
+// Linked to account identified by
+${JSON.stringify(account.accountIdentity, null, 2)}`);
+
+      output = `/* USER TRAITS AND LINKS */
 ${traits}
+${links}
 `;
     }
     if (_.size(accountTraits)) {
@@ -100,17 +89,15 @@ ${traits}
     if (events.length) {
       const eventString = _.map(events, e => {
         const identity = JSON.stringify((e.userIdentity || e.accountIdentity), null, 2);
-        const props = JSON.stringify(e.event.properties, null, 2);
-        const context = JSON.stringify(e.event.context, null, 2);
-        return `Identity:
+        return `${e.userIdentity ? "User " : e.accountIdentity ? "Account " : ""}Identity:
 ${identity}
 Event:
-// Name:
+// Name
 ${e.event.eventName}
-// Properties
-${props}
-// Context
-${context}
+${!_.isEmpty(e.event.properties) ? `// Properties
+${JSON.stringify(e.event.properties, null, 2)}` : ""}
+${!_.isEmpty(e.event.context) ? `// Context
+${JSON.stringify(e.event.context, null, 2)}` : ""}
 `; });
       output = (`${output}
 /* EVENTS */
@@ -118,10 +105,10 @@ ${eventString}`).split(",").join("");
     }
 
     return (<div>
-      <Header title={title}>
+      <div className="flexRow">
         <Icon className="custom-icon" name={this.getIcon()} />
-      </Header>
-      <hr/>
+      </div>
+
       <Row className="flexRow result">
         <CodePane
           className="flexColumn codePane"

@@ -12,12 +12,15 @@
       font-size: 12px;
     }
 
-    .last-webhook-icon {
-      position: relative;
+    .dropdown-menu {
+      max-height: 70vh;
+      overflow-y: auto;
+      width: 100%;
+      text-align: center;
     }
 
-    .resultPane {
-      height: 90%;
+    .last-webhook-icon {
+      position: relative;
     }
 
     .webhookPane {
@@ -25,12 +28,11 @@
     }
 
     .custom-icon {
-      float: right;
+      margin: 5px auto 0;
     }
 
     .custom-icon svg {
       height: 1.5em;
-      position: absolute;
       right: 0;
     }
 
@@ -42,18 +44,21 @@
       overflow-y: hidden;
     }
 
-    .help {
+    .help-buttons {
       float: right;
     }
 
     .output {
-      height: 50%;
       width: 100%;
       margin: 5px;
     }
 
-    .half-row {
+    .output .ReactCodeMirror {
       height: 50%;
+    }
+
+    .payloadPane .ReactCodeMirror {
+      height: calc(100% + 19px); /* plus icon height */
     }
 
     .last-received-webhooks {
@@ -63,7 +68,6 @@
 
     .resultPane .ReactCodeMirror {
       min-height: 60px;
-      height: 50%;
     }
     .output {
       position: relative;
@@ -137,7 +141,7 @@
         <div class="panel-body text-center">
           Connector exposes webhook endpoint that you should use within your app to connect with Hull. <br/>
           Your Webhook Url: <br/>
-          <input class="form-control mb-1" value="https://<%= hostname %>/webhooks/<%= connectorId %>?token=<%= token %>" />
+          <input class="form-control mb-1" value="https://<%= hostname %>/webhooks/<%= connectorId %>?conf=<%= token %>" />
         </div>
       </div>
     </div>

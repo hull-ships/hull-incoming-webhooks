@@ -5,7 +5,7 @@ import _ from "lodash";
 import styles from './icon.css';
 import icons from './icon_list';
 
-export default (props)=>{
+export default props => {
   const pp = _.omit(props, 'styles');
   const { name, colorize, className } = pp;
   const src = icons[name];

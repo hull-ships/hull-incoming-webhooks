@@ -3,7 +3,8 @@ import { Grid, Row } from "react-bootstrap";
 import _ from "lodash";
 
 import Help from "./ui/help";
-import WebhookPane from "./webhook";
+import WebhookUrl from "./ui/webhook-url";
+import webhookUrlContent from "./ui/webhook-url-content";
 import Payload from "./payload";
 import Preview from "./preview";
 
@@ -41,48 +42,42 @@ export default class App extends Component {
     const codeIsEmpty = code === "return {};" || code === "";
 
     if (initialized) {
-      return <div>
-        <Grid className="pt-1">
-          <Row className="flexRow help">
-            <Help className="text-right" showModal={codeIsEmpty}/>
-          </Row>
-          <Row className="flexRow">
-            <WebhookPane
-              className="flexColumn webhookPane"
-              sm={3}
-              md={3}
-              lg={3}
-              xs={3}
-              lastWebhooks={lastWebhooks}
-              currentWebhook={currentWebhook}
-              onChange={this.handleWebhookChange.bind(this)}
-            />
+      return (_.get(lastWebhooks, "length", 0) > 0) ?
+        (<div>
+          <Grid className="pt-1">
+            <Row className="flexRow help-buttons">
+              <WebhookUrl className="text-right" showModal={false}/>
+              <Help className="text-right" showModal={codeIsEmpty}/>
+            </Row>
+            <Row className="flexRow">
+              <Payload
+                className="flexColumn payloadPane"
+                currentWebhook={currentWebhook}
+                lastWebhooks={lastWebhooks}
+                onSelect={this.handleWebhookChange.bind(this)}
+                sm={4}
+                md={4}
+                lg={4}
+                xs={4}
+              />
 
-            <Payload
-              className="flexColumn payloadPane"
-              currentWebhook={currentWebhook}
-              sm={3}
-              md={3}
-              lg={3}
-              xs={3}
-            />
-
-            <Preview
-              sm={6}
-              md={6}
-              lg={6}
-              xs={6}
-              result={result}
-              error={error}
-              loading={loading}
-              onCodeUpdate={this.handleCodeUpdate.bind(this)}
-              code={code}
-              currentWebhook={currentWebhook}
-            />
-          </Row>
-        </Grid>
-      </div>
+              <Preview
+                sm={8}
+                md={8}
+                lg={8}
+                xs={8}
+                result={result}
+                error={error}
+                loading={loading}
+                onCodeUpdate={this.handleCodeUpdate.bind(this)}
+                code={code}
+                currentWebhook={currentWebhook}
+              />
+            </Row>
+          </Grid>
+        </div>) : (webhookUrlContent("localhost", "234", "567", "Send some requests for preview"))
     }
+
     return <div className="text-center pt-2"><h4>Loading...</h4></div>;
   }
 }

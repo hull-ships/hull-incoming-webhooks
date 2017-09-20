@@ -8,34 +8,7 @@ import { Request, Response, Next } from "express";
 
 import compute from "../compute";
 import getLastWebhooks from "../middlewares/get-last-webhooks";
-
-function filterInvalidIdentities(values, client, object = "user") {
-  return values.filter(u => {
-    try {
-      if (u.userIdentity && (!u.userIdentity.email && !u.userIdentity.id && !u.userIdentity.external_id && !u.userIdentity.anonymous_id)) {
-        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", userIdentity: u.userIdentity });
-        return false;
-      }
-
-      if (u.accountIdentity && (!u.accountIdentity.domain && !u.accountIdentity.id && !u.accountIdentity.external_id)) {
-        client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", accountIdentity: u.accountIdentity });
-        return false;
-      }
-
-      if (u.userIdentity) {
-        client.asUser(u.userIdentity);
-      }
-
-      if (u.accountIdentity) {
-        client.asAccount(u.accountIdentity)
-      }
-      return true;
-    } catch (err) {
-      client.logger.info(`incoming.${object}.skip`, { reason: "Missing/Invalid ident.", identity: _.get(u, ["userIdentity", "accountIdentity"]) });
-      return false;
-    }
-  });
-}
+import { filterInvalidIdentities, reducePayload } from "../lib/map-filter-results";
 
 function computeHandler(req: Request, res: Response) {
   const { client } = req.hull;
@@ -55,14 +28,13 @@ function computeHandler(req: Request, res: Response) {
       if (logs && logs.length) {
         logs.map(line => req.hull.client.logger.debug("preview.console.log", line));
       }
-      result.userTraits = filterInvalidIdentities(result.userTraits.map(u => _.omit(u, ["userIdentityOptions"])), client, "user");
+      result.userTraits = reducePayload(filterInvalidIdentities(result.userTraits.map(u => _.omit(u, ["userIdentityOptions"])), client, "user"), "userTraits");
       result.events = filterInvalidIdentities(result.events, client, "event");
-      result.accountTraits = filterInvalidIdentities(result.accountTraits.map(a => _.omit(a, ["accountIdentityOptions"])), client, "account");
-      result.accountLinks = filterInvalidIdentities(result.accountLinks.map(a => _.omit(a, ["userIdentityOptions", "accountIdentityOptions"])), client, "account.link");
+      result.accountTraits = reducePayload(filterInvalidIdentities(result.accountTraits.map(a => _.omit(a, ["accountIdentityOptions"])), client, "account"), "accountTraits");
+      result.accountLinks = reducePayload(filterInvalidIdentities(result.accountLinks.map(a => _.omit(a, ["userIdentityOptions", "accountIdentityOptions"])), client, "account.link"), "accountIdentity");
       res.send({ ship, lastWebhooks: req.hull.lastWebhooks, result }).end();
     }).catch(error => {
-      console.log(error);
-      return res.status(500).json({ error })
+      return res.status(500).json({ error });
     });
   } else {
     res
