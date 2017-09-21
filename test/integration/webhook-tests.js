@@ -45,7 +45,7 @@ describe("Connector for webhooks endpoint", function test() {
     let firstCheck = false;
     let secondCheck = false;
 
-    axios.post(`http://localhost:8000/webhooks/123456789012345678901234?conf=${token}`, {
+    axios.post(`http://localhost:8000/webhooks/123456789012345678901234/${token}`, {
       user: {
         id: "123",
         eventName: "test",

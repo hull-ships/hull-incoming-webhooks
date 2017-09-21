@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
-export const schema = new mongoose.Schema({
-  webhookData: Object,
-  result: Object,
-  date: Date
-}, {
-  capped: {
-    size: 16777216,
-    max: 100,
-    autoIndexId: true
-  }
-});
+
+export function schema(collectionSize) {
+  return new mongoose.Schema({
+    connectorId: String,
+    webhookData: Object,
+    result: Object,
+    date: Date
+  }, {
+    capped: {
+      size: collectionSize,
+      autoIndexId: true
+    }
+  }).index({ connectorId: 1 });
+}

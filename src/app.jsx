@@ -36,17 +36,17 @@ export default class App extends Component {
   }
 
   render() {
-    const { lastWebhooks, currentWebhook, loading, initialized, error, ship = {}, result } = this.state;
+    const { lastWebhooks, currentWebhook, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
     const codeIsEmpty = code === "return {};" || code === "";
 
-    if (initialized) {
+    if (initialized && token && hostname && lastWebhooks && currentWebhook) {
       return (_.get(lastWebhooks, "length", 0) > 0) ?
         (<div>
           <Grid className="pt-1">
             <Row className="flexRow help-buttons">
-              <WebhookUrl className="text-right" showModal={false}/>
+              <WebhookUrl ship={ship} token={token} hostname={hostname} className="text-right" showModal={false}/>
               <Help className="text-right" showModal={codeIsEmpty}/>
             </Row>
             <Row className="flexRow">
@@ -68,14 +68,14 @@ export default class App extends Component {
                 xs={8}
                 result={result}
                 error={error}
-                loading={loading}
+                computing={computing}
                 onCodeUpdate={this.handleCodeUpdate.bind(this)}
                 code={code}
                 currentWebhook={currentWebhook}
               />
             </Row>
           </Grid>
-        </div>) : (webhookUrlContent("localhost", "234", "567", "Send some requests for preview"))
+        </div>) : (webhookUrlContent(hostname, ship.id, token, "webhook-url", "Connector exposes webhook endpoint that you should use within your app to connect with Hull.","Send some requests for preview"))
     }
 
     return <div className="text-center pt-2"><h4>Loading...</h4></div>;

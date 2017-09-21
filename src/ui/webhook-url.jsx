@@ -17,12 +17,14 @@ export default class WebhookUrl extends Component {
   }
 
   render() {
+    const { token, hostname, ship } = this.props;
+
     return (<div>
-      <Button bsStyle="warning" bsSize="sm" className='btn-pill btn-rounded' onClick={this.open.bind(this)}> YourWebhook Url </Button>
+      <Button bsStyle="warning" bsSize="sm" className='btn-pill btn-rounded webhook-url-button' onClick={this.open.bind(this)}> Your Webhook Url </Button>
 
       <Modal show={this.state.showModal} bsSize='large' onHide={this.close.bind(this)}>
         <Modal.Body>
-          {webhookUrlContent("localhost", "234", "567")}
+          {webhookUrlContent(hostname, ship.id, token, "webhook-url-modal")}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.close.bind(this)}>Close</Button>

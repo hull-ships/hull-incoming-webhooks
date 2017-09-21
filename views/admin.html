@@ -19,6 +19,19 @@
       text-align: center;
     }
 
+    .modal-footer {
+      text-align: center;
+    }
+
+    .webhook-url-button {
+      margin-right: 5px;
+    }
+
+    .webhook-url-modal {
+      margin-left: 0;
+      width: 100%;
+    }
+
     .last-webhook-icon {
       position: relative;
     }
@@ -132,20 +145,6 @@
 </head>
 <body>
 <div>
-  <div class="row">
-    <div class=" mt-1 col-md-6 col-md-offset-3">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title text-center">Incoming Webhooks Connector</h3>
-        </div>
-        <div class="panel-body text-center">
-          Connector exposes webhook endpoint that you should use within your app to connect with Hull. <br/>
-          Your Webhook Url: <br/>
-          <input class="form-control mb-1" value="https://<%= hostname %>/webhooks/<%= connectorId %>?conf=<%= token %>" />
-        </div>
-      </div>
-    </div>
-  </div>
   <div id="app"><div class='text-center pt-2'><h4>Loading...</h4></div></div>
 </div>
 </body>

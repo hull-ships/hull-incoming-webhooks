@@ -14,7 +14,7 @@ export default class PayloadPane extends Component {
     return <Col className={className} md={md} sm={sm} lg={lg} xs={xs}>
       <Header title="Payload">
         <DropdownButton
-          disabled={_.get(lastWebhooks, "length", 0) === 0} className="last-webhooks-button" bsStyle="default"
+          className="last-webhooks-button" bsStyle="default"
           bsSize="small" id="last-webhooks" title={_.get(currentWebhook, "date", "No Webhooks Received")}
           key={_.get(currentWebhook, "date")} onSelect={onSelect}>
           {lastWebhooksButtonConent}

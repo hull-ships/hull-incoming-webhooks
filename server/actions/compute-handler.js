@@ -7,7 +7,6 @@ import _ from "lodash";
 import { Request, Response, Next } from "express";
 
 import compute from "../compute";
-import getLastWebhooks from "../middlewares/get-last-webhooks";
 import { filterInvalidIdentities, reducePayload } from "../lib/map-filter-results";
 
 function computeHandler(req: Request, res: Response) {
@@ -32,7 +31,7 @@ function computeHandler(req: Request, res: Response) {
       result.events = filterInvalidIdentities(result.events, client, "event");
       result.accountTraits = reducePayload(filterInvalidIdentities(result.accountTraits.map(a => _.omit(a, ["accountIdentityOptions"])), client, "account"), "accountTraits");
       result.accountLinks = reducePayload(filterInvalidIdentities(result.accountLinks.map(a => _.omit(a, ["userIdentityOptions", "accountIdentityOptions"])), client, "account.link"), "accountIdentity");
-      res.send({ ship, lastWebhooks: req.hull.lastWebhooks, result }).end();
+      res.send({ ship, result }).end();
     }).catch(error => {
       return res.status(500).json({ error });
     });
@@ -55,7 +54,6 @@ export default function computeHandlerComponent(options: Object) {
   app.use(bodyParser.json());
   app.use(haltOnTimedout);
   app.use(connector.clientMiddleware({ hostSecret, fetchShip: true, cacheShip: false }));
-  app.use(getLastWebhooks);
   app.use(haltOnTimedout);
   app.use(computeHandler);
   app.use(haltOnTimedout);

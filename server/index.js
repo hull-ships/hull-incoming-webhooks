@@ -7,12 +7,13 @@ import server from "./server";
 
 const {
   LOG_LEVEL,
-  SECRET = "1234",
+  SECRET,
   NODE_ENV,
-  PORT = 8082,
+  PORT,
   OVERRIDE_FIREHOSE_URL,
   MONGO_URL,
-  DB_NAME
+  DB_NAME,
+  MONGO_COLLECTION_SIZE
 } = process.env;
 
 if (LOG_LEVEL) {
@@ -27,15 +28,16 @@ const cache = new Cache({
 });
 
 const options = {
-  hostSecret: SECRET,
+  hostSecret: SECRET || "1234",
   devMode: NODE_ENV === "development",
-  port: PORT,
+  port: PORT || 8082,
   cache,
   clientConfig: {
     firehoseUrl: OVERRIDE_FIREHOSE_URL
   },
   mongoDbConnectionUrl: MONGO_URL || "mongodb://localhost",
-  dbName: DB_NAME || "incoming-webhooks"
+  dbName: DB_NAME || "incoming-webhooks",
+  mongoCappedCollectionSize: MONGO_COLLECTION_SIZE || 524288000
 };
 
 let app = express();

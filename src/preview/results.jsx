@@ -15,7 +15,7 @@ export default class Results extends Component {
 
   getIcon() {
     if (this.props.title === "Current") {
-      if (this.props.loading) {
+      if (this.props.computing) {
         return "spinner";
       }
     }

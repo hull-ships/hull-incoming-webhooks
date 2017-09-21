@@ -1,5 +1,7 @@
 import crypto from "crypto";
 import qs from "querystring";
+import url from "url";
+import _ from "lodash";
 
 const algorithm = "aes-128-cbc";
 
@@ -12,16 +14,17 @@ export function encrypt(text, password) {
 
 export function decrypt(text, password) {
   const decipher = crypto.createDecipher(algorithm, password);
-  let dec = decipher.update(text, "base64", "utf8");
+  let dec = decipher.update(decodeURIComponent(text), "base64", "utf8");
   dec += decipher.final("utf8");
   return qs.parse(dec);
 }
 
 export function middleware(password) {
   return (req, res, next) => {
-    if (req.query.conf) {
+    const pathName = _.get(url.parse(req.url).pathname.match("/webhooks/(?:[a-zA-Z0-9]*)/(.*)"), "[1]");
+    if (pathName) {
       req.hull = req.hull || {};
-      req.hull.config = decrypt(req.query.conf, password);
+      req.hull.config = decrypt(pathName, password);
     }
     next();
   };

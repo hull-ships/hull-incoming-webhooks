@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { EventEmitter } from "events";
-import superagent from "superagent";
+import axios from "axios";
 
 const EVENT = "CHANGE";
 
@@ -8,15 +8,16 @@ export default class Engine extends EventEmitter {
   constructor(config, { ship }) {
     super();
     this.config = config;
-    this.state = { ship };
+    this.state = { ship, API_PREFIX: process.env.API_PREFIX || `https://${config.organization}` };
     this.compute = _.debounce(this.compute, 1000);
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
 
-  setState(newState) {
+  setState(newState, callback = () => {
+           }) {
     this.state = { ...this.state, ...newState };
     this.emitChange();
-    return this.state;
+    return callback();
   }
 
   getState() {
@@ -35,8 +36,13 @@ export default class Engine extends EventEmitter {
     this.emit(EVENT);
   }
 
-  setupShip(ship) {
-    this.compute({ ship, webhook: _.get(this.state.currentWebhook, "webhookData", {}) });
+  setup(ship) {
+    this.fetchToken();
+    this.fetchLastWebhooks(() => {
+      return this.setState({
+        currentWebhook: _.head(this.state.lastWebhooks) || {}
+      }, () => this.compute({ ship, webhook: _.get(this.state.currentWebhook, "webhookData", {}) }))
+    });
   }
 
   updateParent(code) {
@@ -75,55 +81,88 @@ export default class Engine extends EventEmitter {
     });
   }
 
-  compute(params) {
+  fetchToken() {
     this.setState({
-      loading: true
+      loadingToken: true
     });
-    if (this.computing) {
-      this.computing.abort();
-    }
-    this.computing = superagent.post("/compute")
-      .query(this.config)
-      .send(params)
-      .accept("json")
-      .end((error, { body = {}, status } = {}) => {
-        try {
-          this.computing = false;
-          if (error) {
-            this.setState({
-              error: { ...body, status },
-              initialized: true
-            });
-          } else {
-            const { ship, lastWebhooks, result } = body || {};
 
-            // Don't kill user code
-            if (this && this.state && this.state.ship && this.state.ship.private_settings) {
-              ship.private_settings.code = this.state.ship.private_settings.code;
-            }
-
-            if (this.state.lastWebhooks) {
-              this.setState({
-                initialized: true,
-                dashboardReady: true
-              })
-            }
-
-            this.setState({
-              error: null,
-              ship, lastWebhooks, result, fetchedWebhooks: true, loading: false
-            });
-
-            if (this.state.fetchedWebhooks && !this.state.dashboardReady) {
-              this.state.currentWebhook = _.last(this.state.lastWebhooks);
-              this.setupShip(this.state.ship);
-            }
+    return axios.get(`${this.state.API_PREFIX}/conf`, {
+      params: this.config
+    }).then(({ data = {}, status }) => {
+      try {
+        const { token, hostname } = data || {};
+        this.setState({ token, hostname, loadingToken: false });
+      } catch (err) {
+        this.setState({
+          loadingToken: false,
+          error: {
+            ...data,
+            status
           }
+        })
+      }
+    })
+  }
+
+  fetchLastWebhooks(callback) {
+    this.setState({
+      loadingWebhooks: true
+    });
+
+    return axios.get(`${this.state.API_PREFIX}/last-webhooks`, {
+      params: this.config,
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      }
+    })
+      .then(({ data = {}, status }) => {
+        try {
+          const { lastWebhooks } = data;
+          this.setState({
+            lastWebhooks,
+            loadingWebhooks: false
+          }, callback);
         } catch (err) {
-          this.computing = false;
-          this.setState({ error: err });
+          this.setState({
+            loadingWebhooks: false,
+            error: {
+              ...data,
+              status
+            }
+          })
+        }
+      })
+  }
+
+  compute(dataToSend) {
+    this.setState({
+      computing: true
+    });
+    if (this.computingState) {
+      return this.computingState;
+    }
+    this.computingState = axios({
+      url: `${this.state.API_PREFIX}/compute`,
+      method: "post",
+      params: this.config,
+      data: dataToSend
+    })
+      .then(({ data = {}, status } = {}) => {
+        try {
+          this.computingState = false;
+          const { ship, result } = data || {};
+
+          // Don't kill user code
+          if (this && this.state && this.state.ship && this.state.ship.private_settings) {
+            ship.private_settings.code = this.state.ship.private_settings.code;
+          }
+
+          this.setState({ ship, result, computing: false, initialized: true });
+        } catch (err) {
+          this.computingState = false;
+          this.setState({ err, ...data, status, initialized: true, computing: false });
         }
       });
-    return this.computing;
+    return this.computingState;
   }
 }
