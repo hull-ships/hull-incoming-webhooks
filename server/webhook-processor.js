@@ -89,11 +89,11 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, s
         Promise.all(accountLinks.map(link => {
           const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
           try {
-            asUser.account(link.accountIdentity, link.accountIdentityOptions)
+            asUser.account(link.accountIdentity, link.accountIdentityOptions);
           } catch (err) {
-            return client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err })
+            return client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err });
           }
-          return asUser.logger.info("incoming.account.link", { account: link.accountIdentity, user: link.userIdentity })
+          return asUser.logger.info("incoming.account.link", { account: link.accountIdentity, user: link.userIdentity });
         }));
       }
 
@@ -115,9 +115,9 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, s
       webhookPayload.result.userTraits = reducePayload(userTraits.map(u => _.omit(u, "userIdentityOptions")), "userTraits");
       webhookPayload.result.accountTraits = reducePayload(accountTraits.map(a => _.omit(a, "accountIdentityOptions")), "accountTraits");
 
-      const webhook = new WebhookModel({ result: webhookPayload.result, webhookData: payload, date: cachedWebhookPayload.date });
+      const webhook = new WebhookModel({ connectorId: ship.id, result: webhookPayload.result, webhookData: payload, date: cachedWebhookPayload.date });
 
-      return webhook.save(payload);
+      return webhook.save();
     })
     .catch(err =>
       client.logger.error("incoming.user.error", { hull_summary: `Error Processing user: ${_.get(err, "message", "Unexpected error")}`, errors: err }));

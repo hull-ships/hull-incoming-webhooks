@@ -21,21 +21,21 @@ export default class PreviewPane extends Component {
   }
 
   render() {
-    const { result, onCodeUpdate, code, currentWebhook, md, sm, lg, xs, loading } = this.props;
+    const { result, onCodeUpdate, code, currentWebhook, md, sm, lg, xs, computing } = this.props;
     const previousResult = _.get(currentWebhook, "result", {});
     const previousCode = _.get(previousResult, "code", "");
 
     return (<Col className="flexColumn pl-1 resultPane" md={md} sm={sm} lg={lg} xs={xs}>
       <Tabs justified defaultActiveKey={this.state.activeTab} id="preview-tabs" onSelect={this.changeTab}>
         <Tab eventKey="Current" title="Current"/>
-        <Tab eventKey="Previous" title="Previous" disabled={!currentWebhook}/>
+        <Tab eventKey="Previous" title="Previous"/>
       </Tabs>
 
       <ResultsPane
         title={this.state.activeTab}
         result={this.currentOrPrevious(result, previousResult)}
         code={this.currentOrPrevious(code, previousCode)}
-        loading={loading}
+        computing={computing}
         onCodeUpdate={this.currentOrPrevious(onCodeUpdate, undefined)}
       />
     </Col>);

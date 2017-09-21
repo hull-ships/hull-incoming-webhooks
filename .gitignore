@@ -7,5 +7,7 @@ npm-debug.log
 newrelic_agent.log
 .env*
 .idea
+lib
+!/server/lib
 
 dist

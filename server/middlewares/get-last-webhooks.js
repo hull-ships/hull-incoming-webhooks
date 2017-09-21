@@ -1,18 +1,21 @@
 /* @flow */
-import { Request, Response, Next } from "express";
+import { Request, Response } from "express";
 import moment from "moment";
 import _ from "lodash";
 
-export default function getLastWebhooks(req: Request, res: Response, next: Next) {
+export default function getLastWebhooks(req: Request, res: Response) {
   const { client, service } = req.hull;
-  service.WebhookModel.find({}).lean().exec((err, docs) => {
+  const query = service.WebhookModel.find({}).sort({ date: -1 }).limit(100);
+
+  query.lean().exec((err, docs) => {
     if (err) {
       client.logger.debug("mongo.query.error", { errors: err });
-      req.hull.lastWebhooks = [];
+      res.status(500).json({ lastWebhooks: [] });
     }
-    req.hull.lastWebhooks = _.map(docs, webhook => {
-      return _.set(_.omit(webhook, ["_id", "__v"]), "date", moment(webhook.date).format("MMM Do YYYY, h:mm:ss A"));
-    }) || [];
-    return next();
+
+    const lastWebhooks = _.map(docs, webhook =>
+        _.set(_.omit(webhook, ["_id", "__v", "connectorId"]), "date", moment(webhook.date).format("MMM Do YYYY, h:mm:ss A"))) || [];
+
+    return res.status(200).json({ lastWebhooks });
   });
 }

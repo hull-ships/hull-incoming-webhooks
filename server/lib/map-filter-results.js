@@ -35,7 +35,7 @@ export function reducePayload(payloadList: Array<Object>, byKey: string) {
 
       acc.push({
         userIdentity: payload.userIdentity,
-        [byKey]: _.reduce(allUserOccurrences.map(pld => pld[byKey]), (acc, obj) => _.merge(acc, obj), {})
+        [byKey]: _.reduce(allUserOccurrences.map(pld => pld[byKey]), (toMerge, obj) => _.merge(toMerge, obj), {})
       });
       return acc;
     }

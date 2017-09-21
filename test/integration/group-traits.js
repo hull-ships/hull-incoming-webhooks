@@ -42,7 +42,7 @@ describe("Connector for webhooks endpoint", function test() {
   it("should update user when webhook is sent", done => {
     let check = false;
 
-    axios.post(`http://localhost:8000/webhooks/123456789012345678901234?conf=${token}`, {
+    axios.post(`http://localhost:8000/webhooks/123456789012345678901234/${token}`, {
       user: {
         id: "123",
         traits: {
