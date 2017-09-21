@@ -8,7 +8,7 @@ export default class Engine extends EventEmitter {
   constructor(config, { ship }) {
     super();
     this.config = config;
-    this.state = { ship, API_PREFIX: process.env.API_PREFIX || `https://${config.organization}` };
+    this.state = { ship, API_PREFIX: ship.source_url.endsWith("/") ? _.trimEnd(ship.source_url, "/") : ship.source_url };
     this.compute = _.debounce(this.compute, 1000);
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
