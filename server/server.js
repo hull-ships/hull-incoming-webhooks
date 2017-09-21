@@ -14,7 +14,7 @@ import statusCheck from "./actions/status-check";
 import mongoCollectionMiddleware from "./middlewares/mongo-collection-middleware";
 
 export default function Server(connector: Connector, options: Object = {}, app: express) {
-  const { hostSecret, mongoDbConnectionUrl, dbName, mongoCollectionSize } = options;
+  const { hostSecret, mongoDbConnectionUrl, mongoCollectionSize } = options;
 
   app.get("/admin.html", (req, res) => {
     res.render("admin.html");
@@ -27,7 +27,7 @@ export default function Server(connector: Connector, options: Object = {}, app: 
     res.status(403).send();
   });
 
-  const mongoMiddleware = mongoCollectionMiddleware(mongoDbConnectionUrl, dbName, mongoCollectionSize);
+  const mongoMiddleware = mongoCollectionMiddleware(mongoDbConnectionUrl, mongoCollectionSize);
 
   app.get("/last-webhooks", mongoMiddleware, getLastWebhooks);
 

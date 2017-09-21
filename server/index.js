@@ -35,8 +35,7 @@ const options = {
   clientConfig: {
     firehoseUrl: OVERRIDE_FIREHOSE_URL
   },
-  mongoDbConnectionUrl: MONGO_URL || "mongodb://localhost",
-  dbName: DB_NAME || "incoming-webhooks",
+  mongoDbConnectionUrl: MONGO_URL || "mongodb://localhost/incoming-webhooks",
   mongoCappedCollectionSize: MONGO_COLLECTION_SIZE || 524288000
 };
 
