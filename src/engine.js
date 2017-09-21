@@ -13,8 +13,7 @@ export default class Engine extends EventEmitter {
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
 
-  setState(newState, callback = () => {
-           }) {
+  setState(newState, callback = () => {}) {
     this.state = { ...this.state, ...newState };
     this.emitChange();
     return callback();
