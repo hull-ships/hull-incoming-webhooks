@@ -12,7 +12,6 @@ const {
   PORT,
   OVERRIDE_FIREHOSE_URL,
   MONGO_URL,
-  DB_NAME,
   MONGO_COLLECTION_SIZE
 } = process.env;
 
