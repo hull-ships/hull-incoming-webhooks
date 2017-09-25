@@ -16,7 +16,7 @@ export default class PreviewPane extends Component {
   }
 
   getIcon() {
-    if (this.props.title === "Current") {
+    if (this.state.activeTab === "Current") {
       if (this.props.computing) {
         return "spinner";
       }
@@ -55,7 +55,6 @@ export default class PreviewPane extends Component {
         }/>
         <Tab eventKey="Previous" title={<div>
           <div className="tab-title">Previous</div>
-
 
           <WebhookUrl ship={ship} token={token} hostname={hostname} className="text-right"/>
           <Help className="text-right"/>
