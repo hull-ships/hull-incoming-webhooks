@@ -20,7 +20,7 @@ export default class PayloadPane extends Component {
           {lastWebhooksButtonConent}
         </DropdownButton>
       </Header>
-      <hr/>
+      <hr className="payload-divider"/>
       <Area value={_.get(currentWebhook, "webhookData", {})} type="info" javascript={false}/>
     </Col>;
   }

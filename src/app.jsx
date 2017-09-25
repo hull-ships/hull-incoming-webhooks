@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { Grid, Row } from "react-bootstrap";
 import _ from "lodash";
 
-import Help from "./ui/help";
-import WebhookUrl from "./ui/webhook-url";
 import webhookUrlContent from "./ui/webhook-url-content";
 import Payload from "./payload";
 import Preview from "./preview";
@@ -39,16 +37,11 @@ export default class App extends Component {
     const { lastWebhooks, currentWebhook, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
-    const codeIsEmpty = code === "return {};" || code === "";
 
     if (initialized && token && hostname && lastWebhooks && currentWebhook) {
       return (_.get(lastWebhooks, "length", 0) > 0) ?
         (<div>
           <Grid className="pt-1">
-            <Row className="flexRow help-buttons">
-              <WebhookUrl ship={ship} token={token} hostname={hostname} className="text-right" showModal={false}/>
-              <Help className="text-right" showModal={codeIsEmpty}/>
-            </Row>
             <Row className="flexRow">
               <Payload
                 className="flexColumn payloadPane"
@@ -67,6 +60,9 @@ export default class App extends Component {
                 lg={8}
                 xs={8}
                 result={result}
+                ship={ship}
+                token={token}
+                hostname={hostname}
                 error={error}
                 computing={computing}
                 onCodeUpdate={this.handleCodeUpdate.bind(this)}
