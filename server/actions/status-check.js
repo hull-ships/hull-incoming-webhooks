@@ -17,5 +17,5 @@ export default function statusCheck(req, res) {
   }
 
   res.json({ messages, status });
-  return client.put(ship.id, { status, status_messages: messages });
+  return client.put(`${ship.id}/status`, { status, messages });
 }
