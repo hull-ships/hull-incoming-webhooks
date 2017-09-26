@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import _ from "lodash";
 import { Row } from "react-bootstrap";
-import Icon from "../ui/icon";
 
 import CodePane from "../code";
 import Errors from "./errors";
@@ -11,24 +10,6 @@ export default class Results extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-  }
-
-  getIcon() {
-    if (this.props.title === "Current") {
-      if (this.props.computing) {
-        return "spinner";
-      }
-    }
-
-    if (_.get(this.props.result, "errors.length")) {
-      return "cross";
-    }
-
-    if (_.get(this.props.result, "success")) {
-      return "valid"
-    }
-
-    return "cross";
   }
 
   render() {
@@ -105,10 +86,6 @@ ${eventString}`).split(",").join("");
     }
 
     return (<div>
-      <div className="flexRow">
-        <Icon className="custom-icon" name={this.getIcon()} />
-      </div>
-
       <Row className="flexRow result">
         <CodePane
           className="flexColumn codePane"

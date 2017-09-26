@@ -41,7 +41,9 @@ If you send some webhooks your UI will look like this:
 
 ![Full Dashboard](./docs/dashboard.png)
 
-If you would check you your Webhook Url - we provided you special button for this occasion (right top corner of dashboard).
+If you would check you your Webhook Url - we provided you special button for this occasion (pointy brackets icon in right top corner of dashboard).
+
+Also there is a little help pop up if you would like to quickly check connector's capabilities. Just click on calculator icon in right top corner.
 
 ## Further Instructions
 

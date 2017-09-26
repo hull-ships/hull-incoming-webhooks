@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Modal, Button } from "react-bootstrap";
+
 import webhookUrlContent from "./webhook-url-content";
+import Icon from "./icon";
 
 export default class WebhookUrl extends Component {
   constructor(props) {
@@ -20,7 +22,7 @@ export default class WebhookUrl extends Component {
     const { token, hostname, ship } = this.props;
 
     return (<div>
-      <Button bsStyle="warning" bsSize="sm" className='btn-pill btn-rounded webhook-url-button' onClick={this.open.bind(this)}> Your Webhook Url </Button>
+      <Button bsClass="btn help-button webhook-url-button" bsStyle="link" onClick={this.open.bind(this)}><Icon className="custom-icon" name="source"/></Button>
 
       <Modal show={this.state.showModal} bsSize='large' onHide={this.close.bind(this)}>
         <Modal.Body>

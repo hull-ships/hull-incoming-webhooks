@@ -19,21 +19,18 @@
       text-align: center;
     }
 
-    .modal-footer {
-      text-align: center;
+    .payload-divider {
+      margin-top: 15px;
+      margin-bottom: 5px;
     }
 
-    .webhook-url-button {
-      margin-right: 5px;
+    .modal-footer {
+      text-align: center;
     }
 
     .webhook-url-modal {
       margin-left: 0;
       width: 100%;
-    }
-
-    .last-webhook-icon {
-      position: relative;
     }
 
     .webhookPane {
@@ -42,6 +39,19 @@
 
     .custom-icon {
       margin: 5px auto 0;
+    }
+
+    .status-icon {
+      float: right;
+    }
+
+    .help-button {
+      float: right;
+      padding: 0;
+    }
+
+    .webhook-url-button {
+      margin-left: 5px;
     }
 
     .custom-icon svg {
@@ -70,10 +80,6 @@
       height: 50%;
     }
 
-    .payloadPane .ReactCodeMirror {
-      height: calc(100% + 19px); /* plus icon height */
-    }
-
     .last-received-webhooks {
       height: 100%;
       overflow-y: scroll;
@@ -86,6 +92,10 @@
       position: relative;
       overflow-x: auto;
       overflow-y: hidden;
+    }
+
+    .tab-title {
+      position: absolute;
     }
 
     .outputContent {

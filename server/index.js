@@ -12,7 +12,6 @@ const {
   PORT,
   OVERRIDE_FIREHOSE_URL,
   MONGO_URL,
-  DB_NAME,
   MONGO_COLLECTION_SIZE
 } = process.env;
 
@@ -35,7 +34,7 @@ const options = {
   clientConfig: {
     firehoseUrl: OVERRIDE_FIREHOSE_URL
   },
-  mongoDbConnectionUrl: MONGO_URL || "mongodb://localhost",
+  mongoDbConnectionUrl: MONGO_URL || "mongodb://localhost/incoming-webhooks",
   mongoCappedCollectionSize: MONGO_COLLECTION_SIZE || 524288000
 };
 
