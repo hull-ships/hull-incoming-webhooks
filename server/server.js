@@ -33,6 +33,8 @@ export default function Server(connector: Connector, options: Object = {}, app: 
 
   app.post("/webhooks/:connectorId/:token", mongoMiddleware, bodyParser.urlencoded(), webhookHandler);
 
+  app.post("/webhooks/:connectorId", mongoMiddleware, bodyParser.urlencoded(), webhookHandler);
+
   app.post("/compute", mongoMiddleware, computeHandler({ hostSecret, connector }));
 
   app.all("/status", statusCheck);
