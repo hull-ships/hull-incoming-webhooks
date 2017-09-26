@@ -14,6 +14,8 @@ Navigate to the 'Connectors' page of your Hull organization, click the button 'A
 
 Left column displays dropdown with last 100 received webhooks from your application and payload of chosen one.
 
+![Last Webhooks](./docs/last-webhooks.png)
+
 ### Previous/Current Tabs
 
 Right column displays preview of changes that was applied/will be applied to webhook data to update user/account in Hull.

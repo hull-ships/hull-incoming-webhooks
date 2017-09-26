@@ -5,10 +5,10 @@ import axios from "axios";
 const EVENT = "CHANGE";
 
 export default class Engine extends EventEmitter {
-  constructor(config, { ship }) {
+  constructor(config) {
     super();
     this.config = config;
-    this.state = { ship, API_PREFIX: ship.source_url.endsWith("/") ? _.trimEnd(ship.source_url, "/") : ship.source_url };
+    this.state = {};
     this.compute = _.debounce(this.compute, 1000);
     this.updateParent = _.debounce(this.updateParent, 1000);
   }
@@ -35,12 +35,12 @@ export default class Engine extends EventEmitter {
     this.emit(EVENT);
   }
 
-  setup(ship) {
+  setup() {
     this.fetchToken();
     this.fetchLastWebhooks(() => {
       return this.setState({
         currentWebhook: _.head(this.state.lastWebhooks) || {}
-      }, () => this.compute({ ship, webhook: _.get(this.state.currentWebhook, "webhookData", {}) }))
+      }, () => this.compute({ webhook: _.get(this.state.currentWebhook, "webhookData", {}) }));
     });
   }
 
@@ -85,7 +85,7 @@ export default class Engine extends EventEmitter {
       loadingToken: true
     });
 
-    return axios.get(`${this.state.API_PREFIX}/conf`, {
+    return axios.get("conf", {
       params: this.config
     }).then(({ data = {}, status }) => {
       try {
@@ -98,9 +98,9 @@ export default class Engine extends EventEmitter {
             ...data,
             status
           }
-        })
+        });
       }
-    })
+    });
   }
 
   fetchLastWebhooks(callback) {
@@ -108,7 +108,7 @@ export default class Engine extends EventEmitter {
       loadingWebhooks: true
     });
 
-    return axios.get(`${this.state.API_PREFIX}/last-webhooks`, {
+    return axios.get("last-webhooks", {
       params: this.config,
       headers: {
         "Access-Control-Allow-Origin": "*"
@@ -128,9 +128,9 @@ export default class Engine extends EventEmitter {
               ...data,
               status
             }
-          })
+          });
         }
-      })
+      });
   }
 
   compute(dataToSend) {
@@ -141,7 +141,7 @@ export default class Engine extends EventEmitter {
       return this.computingState;
     }
     this.computingState = axios({
-      url: `${this.state.API_PREFIX}/compute`,
+      url: "compute",
       method: "post",
       params: this.config,
       data: dataToSend

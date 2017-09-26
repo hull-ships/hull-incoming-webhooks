@@ -25,7 +25,14 @@ export function middleware(password) {
     if (pathName) {
       req.hull = req.hull || {};
       req.hull.config = decrypt(pathName, password);
+      return next();
     }
-    next();
+
+    if (req.query && req.query.conf) {
+      req.hull = req.hull || {};
+      req.hull.config = decrypt(req.query.conf, password);
+      return next();
+    }
+    return next();
   };
 }
