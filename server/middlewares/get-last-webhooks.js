@@ -4,8 +4,8 @@ import moment from "moment";
 import _ from "lodash";
 
 export default function getLastWebhooks(req: Request, res: Response) {
-  const { client, service } = req.hull;
-  const query = service.WebhookModel.find({}).sort({ date: -1 }).limit(100);
+  const { client, service, ship = {} } = req.hull;
+  const query = service.WebhookModel.find({ connectorId: ship.id }).sort({ date: -1 }).limit(100);
 
   query.lean().exec((err, docs) => {
     if (err) {
