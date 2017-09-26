@@ -4,22 +4,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./app";
 import Engine from "./engine";
+import ready from "domready";
 
-
-(function main() {
+ready(() => {
   const { ship, organization, secret } = queryParams();
-
-  Hull.init({
-    appId: ship,
-    orgUrl: `https://${organization}`
-  });
-
-  Hull.ready((hull, currentUser, app) => {
-    const root = document.getElementById("app");
-    const engine = new Engine({ ship, organization, secret }, { ship: app });
-
-    engine.setup(app);
-
-    ReactDOM.render(<App engine={engine} />, root);
-  });
-}());
+  const root = document.getElementById("app");
+  const engine = new Engine({ ship, organization, secret });
+  engine.setup();
+  ReactDOM.render(<App engine={engine} />, root);
+});
