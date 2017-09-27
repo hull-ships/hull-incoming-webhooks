@@ -2,6 +2,10 @@
 import express from "express";
 import Hull from "hull";
 import { Cache } from "hull/lib/infra";
+import mongoose from "mongoose";
+import _ from "lodash";
+
+import { schema } from "./mongo/db-schema";
 import { middleware } from "./lib/crypto";
 import server from "./server";
 import webhookRequest from "./models/webhook-request";
@@ -39,8 +43,10 @@ const options = {
   hostSecret: SECRET || "1234",
   devMode: NODE_ENV === "development",
   port: PORT || 8082,
-  WebhookModel,
-  cache
+  cache,
+  clientConfig: {
+    firehoseUrl: OVERRIDE_FIREHOSE_URL
+  }
 };
 
 let app = express();
@@ -50,6 +56,6 @@ app.use(middleware(connector.hostSecret));
 
 connector.setupApp(app);
 
-app = server(connector, options, app);
+app = server(connector, options, app, WebhookModel);
 
 connector.startApp(app);

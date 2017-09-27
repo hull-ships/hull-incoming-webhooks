@@ -20,7 +20,7 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
-module.exports = function handle(payload: Object = {}, { ship, client, metric, service, cachedWebhookPayload }: Object) {
+module.exports = function handle(payload: Object = {}, { ship, client, metric, service, cachedWebhookPayload }: Object, WebhookModel: Object) {
   return compute(payload, ship, client)
     .then(result => {
       const { logs, errors } = result;
@@ -104,8 +104,6 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, s
       if (logs && logs.length) {
         logs.map(log => client.logger.info("compute.console.log", { log }));
       }
-
-      const { WebhookModel } = service || {};
 
       const webhookPayload = cachedWebhookPayload;
 
