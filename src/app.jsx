@@ -29,12 +29,16 @@ export default class App extends Component {
     this.props.engine.updateCode(code);
   }
 
+  handleRefresh() {
+    this.props.engine.fetchLastWebhooks();
+  }
+
   handleWebhookChange(date) {
     this.props.engine.setLastWebhook(_.find(this.state.lastWebhooks, webhook => webhook.date === date));
   }
 
   render() {
-    const { lastWebhooks, currentWebhook, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
+    const { lastWebhooks, currentWebhook, loadingWebhooks, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
 
@@ -46,8 +50,10 @@ export default class App extends Component {
               <Payload
                 className="flexColumn payloadPane"
                 currentWebhook={currentWebhook}
+                loadingWebhooks={loadingWebhooks}
                 lastWebhooks={lastWebhooks}
                 onSelect={this.handleWebhookChange.bind(this)}
+                onRefresh={this.handleRefresh.bind(this)}
                 sm={4}
                 md={4}
                 lg={4}

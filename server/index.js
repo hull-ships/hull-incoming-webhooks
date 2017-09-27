@@ -2,6 +2,10 @@
 import express from "express";
 import Hull from "hull";
 import { Cache } from "hull/lib/infra";
+import mongoose from "mongoose";
+import _ from "lodash";
+
+import { schema } from "./mongo/db-schema";
 import { middleware } from "./lib/crypto";
 import server from "./server";
 
@@ -33,9 +37,7 @@ const options = {
   cache,
   clientConfig: {
     firehoseUrl: OVERRIDE_FIREHOSE_URL
-  },
-  mongoDbConnectionUrl: MONGO_URL || "mongodb://localhost/incoming-webhooks",
-  mongoCappedCollectionSize: MONGO_COLLECTION_SIZE || 524288000
+  }
 };
 
 let app = express();
@@ -43,8 +45,13 @@ const connector = new Hull.Connector(options);
 
 app.use(middleware(connector.hostSecret));
 
+const collectionName = "incoming-webhook-requests";
+const mongoConnection = mongoose.connect(MONGO_URL || "mongodb://localhost/incoming-webhooks", { useMongoClient: true });
+
+const WebhookModel = _.get(mongoConnection.models, collectionName) || mongoConnection.model(collectionName, schema(MONGO_COLLECTION_SIZE || 524288000));
+
 connector.setupApp(app);
 
-app = server(connector, options, app);
+app = server(connector, options, app, WebhookModel);
 
 connector.startApp(app);

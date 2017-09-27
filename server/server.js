@@ -11,10 +11,9 @@ import computeHandler from "./actions/compute-handler";
 import devMode from "./dev-mode";
 import errorHandler from "./middlewares/error-handler";
 import statusCheck from "./actions/status-check";
-import mongoCollectionMiddleware from "./middlewares/mongo-collection-middleware";
 
-export default function Server(connector: Connector, options: Object = {}, app: express) {
-  const { hostSecret, mongoDbConnectionUrl, mongoCollectionSize } = options;
+export default function Server(connector: Connector, options: Object = {}, app: express, WebhookModel: Object) {
+  const { hostSecret } = options;
 
   app.get("/admin.html", (req, res) => {
     res.render("admin.html");
@@ -27,15 +26,13 @@ export default function Server(connector: Connector, options: Object = {}, app: 
     res.status(403).send();
   });
 
-  const mongoMiddleware = mongoCollectionMiddleware(mongoDbConnectionUrl, mongoCollectionSize);
+  app.get("/last-webhooks", getLastWebhooks(WebhookModel));
 
-  app.get("/last-webhooks", mongoMiddleware, getLastWebhooks);
+  app.post("/webhooks/:connectorId/:token", bodyParser.urlencoded(), webhookHandler(WebhookModel));
 
-  app.post("/webhooks/:connectorId/:token", mongoMiddleware, bodyParser.urlencoded(), webhookHandler);
+  app.post("/webhooks/:connectorId", bodyParser.urlencoded(), webhookHandler(WebhookModel));
 
-  app.post("/webhooks/:connectorId", mongoMiddleware, bodyParser.urlencoded(), webhookHandler);
-
-  app.post("/compute", mongoMiddleware, computeHandler({ hostSecret, connector }));
+  app.post("/compute", computeHandler({ hostSecret, connector }));
 
   app.all("/status", statusCheck);
 
