@@ -1,6 +1,5 @@
-/* @flow */
-import compute from "./compute";
 import _ from "lodash";
+import compute from "./compute";
 
 import { filterInvalidIdentities, reducePayload } from "./lib/map-filter-results";
 
@@ -20,7 +19,7 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
-module.exports = function handle(payload: Object = {}, { ship, client, metric, service, cachedWebhookPayload }: Object, WebhookModel: Object) {
+module.exports = function handle(payload: Object = {}, { ship, client, metric, cachedWebhookPayload }: Object, WebhookModel) {
   return compute(payload, ship, client)
     .then(result => {
       const { logs, errors } = result;

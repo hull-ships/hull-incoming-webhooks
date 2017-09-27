@@ -20,5 +20,5 @@ export default function webhookHandler(WebhookModel: Object) {
     req.hull.cachedWebhookPayload = payload;
 
     return updateUser(payload.webhookData, req.hull, WebhookModel);
-  }
+  };
 }

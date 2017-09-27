@@ -2,10 +2,7 @@
 import express from "express";
 import Hull from "hull";
 import { Cache } from "hull/lib/infra";
-import mongoose from "mongoose";
-import _ from "lodash";
 
-import { schema } from "./mongo/db-schema";
 import { middleware } from "./lib/crypto";
 import server from "./server";
 import webhookRequest from "./models/webhook-request";
@@ -17,7 +14,8 @@ const {
   PORT,
   MONGO_URL,
   MONGO_COLLECTION_NAME,
-  MONGO_COLLECTION_SIZE
+  MONGO_COLLECTION_SIZE,
+  OVERRIDE_FIREHOSE_URL
 } = process.env;
 
 if (LOG_LEVEL) {

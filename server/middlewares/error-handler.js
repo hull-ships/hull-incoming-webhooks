@@ -25,5 +25,6 @@ export default function (app: express) {
     if (!res.headersSent) {
       return res.status(500).send({ message: "Unknown error" });
     }
+    return Hull.logger.error("request.error", { message: "Unknown error" });
   });
 }

@@ -19,5 +19,5 @@ export default function getLastWebhooks(WebhookModel: Object) {
 
       return res.status(200).json({ lastWebhooks });
     });
-  }
+  };
 }
