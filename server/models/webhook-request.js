@@ -18,8 +18,6 @@ export default function ({ mongoUrl, collectionSize, collectionName }) {
   const schema = new mongoose.Schema(fields, options)
                              .index({ connectorId: 1, _id: -1 });
 
-
-  console.warn("Connecting mongoUrl", mongoUrl);
   const connection = mongoose.connect(mongoUrl, { useMongoClient: true });
   return connection.model(collectionName, schema);
 }
