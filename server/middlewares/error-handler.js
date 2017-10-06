@@ -14,7 +14,7 @@ export default function (app: express) {
         url: req.url,
         params: req.params
       };
-      const logger = _.get(req, "hull.client.logger" || _.get(Hull, "logger"));
+      const logger = _.get(req, "hull.client.logger", _.get(Hull, "logger"));
       if (logger) {
         logger.error("request.error", err.message, err.status, data);
       }

@@ -16,6 +16,8 @@ Left column displays dropdown with last 100 received webhooks from your applicat
 
 ![Last Webhooks](./docs/last-webhooks.png)
 
+You can refresh list of last received webhooks by pressing 'refresh' button next to list with last requests.
+
 ### Previous/Current Tabs
 
 Right column displays preview of changes that was applied/will be applied to webhook data to update user/account in Hull.
