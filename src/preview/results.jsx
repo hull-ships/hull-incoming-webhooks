@@ -64,7 +64,7 @@ ${links}
     if (_.size(accountTraits)) {
       const traits = JSON.stringify(accountTraits, null, 2);
       output = `${output}
-/* ACCOUNT TRAITS */
+/* Account Traits */
 ${traits}
 `;
     }
@@ -82,7 +82,7 @@ ${!_.isEmpty(e.event.context) ? `// Context
 ${JSON.stringify(e.event.context, null, 2)}` : ""}
 `; });
       output = (`${output}
-/* EVENTS */
+/* Events */
 ${eventString}
 `).split(",").join("");
     }

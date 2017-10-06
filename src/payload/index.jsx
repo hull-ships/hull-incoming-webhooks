@@ -1,10 +1,23 @@
 import React, { Component } from "react";
-import { Col, DropdownButton, MenuItem, Button } from "react-bootstrap";
+import { Col, DropdownButton, MenuItem, Button, Label } from "react-bootstrap";
 import _ from "lodash";
-
-import Area from '../ui/area';
 import Icon from "../ui/icon";
-import Header from '../ui/header';
+import Area from "../ui/area";
+
+import Header from "../ui/header";
+
+const LABELS = {
+  post: "success",
+  get: "info",
+  delete: "danger",
+  put: "warning"
+};
+
+const WebhookTitle = ({ webhook, showDate = false }) => (!webhook ? "No Webhook received" : <span>
+  <Label bsStyle={LABELS[_.get(webhook, "webhookData.method").toLowerCase()]} style={{ marginRight: 5 }}>{_.get(webhook, "webhookData.method")}</Label>
+  {_.get(webhook, "webhookData.headers.user-agent")}
+  { showDate ? <small style={{ display: "block" }}>{webhook.date}</small> : null }
+</span>);
 
 export default class PayloadPane extends Component {
   constructor() {
@@ -21,14 +34,14 @@ export default class PayloadPane extends Component {
   render() {
     const { className, sm, md, lg, xs, currentWebhook, lastWebhooks, onSelect, onRefresh } = this.props;
     const lastWebhooksButtonConent = _.reverse(_.sortBy(lastWebhooks, ["date"])).map((webhook, idx) => <MenuItem
-      id={`last-webhook-${idx}`} eventKey={webhook.date}>{webhook.date}</MenuItem>);
+      id={`last-webhook-${idx}`} eventKey={webhook.date} style={{ textAlign: "left" }}><WebhookTitle webhook={webhook} showDate/></MenuItem>);
 
     return <Col className={className} md={md} sm={sm} lg={lg} xs={xs}>
-      <Header title="Payload">
+      <Header title="Last 100 webhooks">
         <Button bsClass="btn refresh-button" bsStyle="link" onClick={onRefresh}><Icon name={this.getIcon()}/></Button>
         <DropdownButton
           className="last-webhooks-button" bsStyle="default"
-          bsSize="small" id="last-webhooks" title={_.get(currentWebhook, "date", "No Webhooks Received")}
+          id="last-webhooks" title={<WebhookTitle webhook={currentWebhook}/>}
           key={_.get(currentWebhook, "date")} onSelect={onSelect}>
           {lastWebhooksButtonConent}
         </DropdownButton>
