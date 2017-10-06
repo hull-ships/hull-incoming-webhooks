@@ -68,12 +68,13 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
       if (_.size(accountLinks)) {
         promises.push(Promise.all(accountLinks.map(link => {
           const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
-          asUser.account(link.accountIdentity, link.accountIdentityOptions).traits({}).then(() =>
+          return asUser.account(link.accountIdentity, link.accountIdentityOptions).traits({}).then(() =>
             asUser.logger.info("incoming.account.link.success", {
               account: link.accountIdentity,
               user: link.userIdentity
             })
-          ).catch(err => client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err }))
+          )
+            .catch(err => client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err }));
         })));
       }
 
