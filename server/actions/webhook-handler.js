@@ -2,7 +2,7 @@
 import { Request, Response } from "express";
 import _ from "lodash";
 
-import updateUser from "../webhook-processor";
+import processWebhook from "../webhook-processor";
 
 function pickValuesFromRequest(req: Request) {
   const requestParams = _.pick(req, ["body", "headers", "cookies", "ip", "method", "params", "query"]);
@@ -19,6 +19,6 @@ export default function webhookHandler(WebhookModel: Object) {
 
     req.hull.cachedWebhookPayload = payload;
 
-    return updateUser(payload.webhookData, req.hull, WebhookModel);
+    return processWebhook(payload.webhookData, req.hull, WebhookModel);
   };
 }
