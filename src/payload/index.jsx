@@ -14,7 +14,7 @@ const LABELS = {
 };
 
 const WebhookTitle = ({ webhook, showDate = false }) => (!webhook ? "No Webhook received" : <span>
-  <Label bsStyle={LABELS[_.get(webhook, "webhookData.method").toLowerCase()]} style={{ marginRight: 5 }}>{_.get(webhook, "webhookData.method")}</Label>
+  <Label bsStyle={LABELS[_.get(webhook, "webhookData.method", "").toLowerCase()]} style={{ marginRight: 5 }}>{_.get(webhook, "webhookData.method")}</Label>
   {_.get(webhook, "webhookData.headers.user-agent")}
   { showDate ? <small style={{ display: "block" }}>{webhook.date}</small> : null }
 </span>);
