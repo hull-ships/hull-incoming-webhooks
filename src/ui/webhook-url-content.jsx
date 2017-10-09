@@ -10,9 +10,10 @@ export default function (host, connectorId, token, className, content, footer) {
           </div>
           <div className="panel-body text-center">
             {content}
-            Your Webhook Url: <br/>
-            <input className="form-control mb-1"
-                   value={`https://${host}/webhooks/${connectorId}/${token}`}/>
+            <div className="mb-1">
+              Your Webhook Url:
+              <pre><code>{`https://${host}/webhooks/${connectorId}/${token}`}</code></pre>
+            </div>
             {footer}
           </div>
         </div>
