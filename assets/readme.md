@@ -1,6 +1,6 @@
 # Incoming Webhooks
 
-This ship lets you process data from incoming webhooks
+This ship lets you process Webhooks from external systems and update your user and account data in Hull.
 
 ## Getting Started
 
@@ -57,7 +57,8 @@ So when you're satisfied with code that will be applied to every webhook, click 
 You can pick webhook to see preview of changes that was applied when it arrived.
 
 ## Features
-Incoming Webhooks Connector allows you to update user/account properties with Javascript Code.
+Incoming Webhooks Connector allows you to send webhooks from a third-party system to Hull.
+update user/account properties with Javascript Code.
 
 ##### You can apply [Traits operations](https://github.com/hull/hull-client-node#usertraitsproperties-context)
 

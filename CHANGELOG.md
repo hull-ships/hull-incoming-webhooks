@@ -1,3 +1,8 @@
+## v0.1.3
+- UI changes
+- internal bugfixes
+- updated documentation
+
 ## v0.1.2
 - adds /status endpoint for healthchecks
 

@@ -77,7 +77,7 @@ export default class App extends Component {
               />
             </Row>
           </Grid>
-        </div>) : (webhookUrlContent(hostname, ship.id, token, "webhook-url", "Connector exposes webhook endpoint that you should use within your app to connect with Hull.","Send some requests for preview"))
+        </div>) : (webhookUrlContent(hostname, ship.id, token, "webhook-url", "Start by sending data to Hull...", "As soon as you send your first payload, you can start hacking."));
     }
 
     return <div className="text-center pt-2"><h4>Loading...</h4></div>;
