@@ -15,7 +15,7 @@ const LABELS = {
 
 const WebhookTitle = ({ webhook, showDate = false }) => (!webhook ? "No Webhook received" : <span>
   <Label bsStyle={LABELS[_.get(webhook, "webhookData.method", "").toLowerCase()]} style={{ marginRight: 5 }}>{_.get(webhook, "webhookData.method")}</Label>
-  {_.get(webhook, "webhookData.headers.user-agent")}
+  <span className="webhook-content">{_.get(webhook, "webhookData.headers.user-agent")}</span>
   { showDate ? <small style={{ display: "block" }}>{webhook.date}</small> : null }
 </span>);
 
@@ -33,7 +33,7 @@ export default class PayloadPane extends Component {
 
   render() {
     const { className, sm, md, lg, xs, currentWebhook, lastWebhooks, onSelect, onRefresh } = this.props;
-    const lastWebhooksButtonConent = _.reverse(_.sortBy(lastWebhooks, ["date"])).map((webhook, idx) => <MenuItem
+    const lastWebhooksButtonContent = _.reverse(_.sortBy(lastWebhooks, ["date"])).map((webhook, idx) => <MenuItem
       id={`last-webhook-${idx}`} eventKey={webhook.date} style={{ textAlign: "left" }}><WebhookTitle webhook={webhook} showDate/></MenuItem>);
 
     return <Col className={className} md={md} sm={sm} lg={lg} xs={xs}>
@@ -43,7 +43,7 @@ export default class PayloadPane extends Component {
           className="last-webhooks-button" bsStyle="default"
           id="last-webhooks" title={<WebhookTitle webhook={currentWebhook}/>}
           key={_.get(currentWebhook, "date")} onSelect={onSelect}>
-          {lastWebhooksButtonConent}
+          {lastWebhooksButtonContent}
         </DropdownButton>
       </Header>
       <hr className="payload-divider"/>
