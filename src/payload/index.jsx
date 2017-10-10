@@ -34,7 +34,7 @@ export default class PayloadPane extends Component {
 
   render() {
     const { className, sm, md, lg, xs, currentWebhook, lastWebhooks, onSelect, onRefresh } = this.props;
-    const lastWebhooksButtonContent = _.reverse(_.sortBy(lastWebhooks, ["date"])).map((webhook, idx) => <MenuItem
+    const lastWebhooksButtonContent = lastWebhooks.map((webhook, idx) => <MenuItem
       id={`last-webhook-${idx}`} eventKey={webhook.date} style={{ textAlign: "left" }}><WebhookTitle webhook={webhook} showDate/></MenuItem>);
 
     return <Col className={className} md={md} sm={sm} lg={lg} xs={xs}>
