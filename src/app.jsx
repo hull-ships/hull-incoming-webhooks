@@ -1,3 +1,4 @@
+/* eslint no-unused-vars:0, no-useless-constructor:0, import/no-unresolved:0 */
 import React, { Component } from "react";
 import { Grid, Row } from "react-bootstrap";
 import _ from "lodash";
