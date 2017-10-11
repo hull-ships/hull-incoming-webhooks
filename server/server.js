@@ -28,9 +28,13 @@ export default function Server(connector: Connector, options: Object = {}, app: 
 
   app.get("/last-webhooks", getLastWebhooks(WebhookModel));
 
-  app.post("/webhooks/:connectorId/:token", bodyParser.urlencoded({ type: "application/x-www-form-urlencoded" }), bodyParser.json(), webhookHandler(WebhookModel));
+  app.post("/webhooks/:connectorId/:token", bodyParser.urlencoded({ type: (req) => {
+    return (req.get("Content-Type") !== "application/json");
+  } }), bodyParser.json(), webhookHandler(WebhookModel));
 
-  app.post("/webhooks/:connectorId", bodyParser.urlencoded({ type: "application/x-www-form-urlencoded" }), bodyParser.json(), webhookHandler(WebhookModel));
+  app.post("/webhooks/:connectorId", bodyParser.urlencoded({ type: (req) => {
+    return (req.get("Content-Type") !== "application/json");
+  } }), bodyParser.json(), webhookHandler(WebhookModel));
 
   app.post("/compute", computeHandler({ hostSecret, connector }));
 
