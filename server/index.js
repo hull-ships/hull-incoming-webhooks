@@ -6,6 +6,9 @@ import { Cache } from "hull/lib/infra";
 import { middleware } from "./lib/crypto";
 import server from "./server";
 import webhookRequest from "./models/webhook-request";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const {
   LOG_LEVEL,
@@ -14,8 +17,7 @@ const {
   PORT,
   MONGO_URL,
   MONGO_COLLECTION_NAME,
-  MONGO_COLLECTION_SIZE,
-  OVERRIDE_FIREHOSE_URL
+  MONGO_COLLECTION_SIZE
 } = process.env;
 
 if (LOG_LEVEL) {
@@ -41,10 +43,7 @@ const options = {
   hostSecret: SECRET || "1234",
   devMode: NODE_ENV === "development",
   port: PORT || 8082,
-  cache,
-  clientConfig: {
-    firehoseUrl: OVERRIDE_FIREHOSE_URL
-  }
+  cache
 };
 
 let app = express();

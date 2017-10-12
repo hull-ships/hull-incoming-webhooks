@@ -1,138 +1,154 @@
 # Incoming Webhooks
 
-This ship lets you process Webhooks from external systems and update your user and account data in Hull.
+The Incoming Webhooks Connector enables you to process Webhooks from external systems and update your user and account data in Hull by writing Javascript.
 
 ## Getting Started
 
-Navigate to the 'Connectors' page of your Hull organization, click the button 'Add Connector' and press 'Install' on the Incoming Webhooks card. After successful installation, you will see dashboard of Incoming Webhooks Connector that will look like this:
+Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the Incoming Webhooks card. After installation, you will be presented with the Dashboard that displays your unique Webhook Url:
+![Getting Started Step 1](./docs/gettingstarted01.png)
 
-![Getting Started](./docs/dashboard-after-installation.png)
+Copy the displayed url and send at least one request to begin writing code.
+After you have sent your first request, you will be presented with the three column Dashboard layout. The left column displays the **Request** which is composed of the body, header and other metadata. The center column holds your Javascript **Code** that allows you to transform the request data to the **Output** of the right column. The Output itself displays the changed attributes of the user or account and any associated events.
 
-## Columns
+The request column contains the request you sent from an external system to Hull. The body contains a JSON object of your data but you can also leverage header and other meta information in your code.
+You can access the last 100 requests by selecting them from the dropdown list:
+![Getting Started Step 2](./docs/gettingstarted02.png)
 
-### Payload
+The Refresh button allows you to easily reload this list, to check for new requests.
 
-Left column displays dropdown with last 100 received webhooks from your application and payload of chosen one.
+The center column allows you to toggle between the current code and the code at webhook reception, by selecting the appropriate tab:
+![Getting Started Step 3](./docs/gettingstarted03.png)
 
-![Last Webhooks](./docs/last-webhooks.png)
+You can only view the code at webhook reception but are not allowed to make any modifications. To write code make sure to select the tab “Current Code”. Read more about writing code:
 
-You can refresh list of last received webhooks by pressing 'refresh' button next to list with last requests.
-
-### Previous/Current Tabs
-
-Right column displays preview of changes that was applied/will be applied to webhook data to update user/account in Hull.
-
-Preview is divided to two sections: 'Previous' and 'Current'.
-The Previous section will show you code and changes was applied to your webhook when it arrived to us.
-The Current section allows you to write Javascript code on the left and see the preview on the right - what changes will be applied to all incoming webhooks after you save this code.
-
-![Logs and Changes](./docs/current-console.png)
-
-To sum up - previous section is all about displaying code and changes that was applied to webhook (you can't edit it)
-and current section will show you what changes would be applied if you save current code (you can edit the code).
-
----
-
-In above picture you can see that every webhook has status icon.
-Green status indicates that webhook was successfully processed with current code and there was no errors during that.
-Red status means that we encountered some errors during processing of your request or we couldn't process it at all for some reason (you can see logs for more details).
-
----
-
-To send some webhooks you will need to use url that we provided.
-
-If you send some webhooks your UI will look like this:
-
-![Full Dashboard](./docs/dashboard.png)
-
-If you would check you your Webhook Url - we provided you special button for this occasion (pointy brackets icon in right top corner of dashboard).
-
-Also there is a little help pop up if you would like to quickly check connector's capabilities. Just click on calculator icon in right top corner.
-
-## Further Instructions
-
-For every incoming webhook we run code that you saved.
-So when you're satisfied with code that will be applied to every webhook, click **Save**.
-
-You can pick webhook to see preview of changes that was applied when it arrived.
+- Code Basics
+- External libraries
+- Golden Rules
 
 ## Features
-Incoming Webhooks Connector allows you to send webhooks from a third-party system to Hull.
-update user/account properties with Javascript Code.
 
-##### You can apply [Traits operations](https://github.com/hull/hull-client-node#usertraitsproperties-context)
+The Incoming Webhooks Connector allows you to receive data from external systems, write Javascript to transform this data and update users and accounts in Hull. Furthermore, you can emit events in Hull to track behavioral data.
 
-##### You can emit up to 10 tracking events with [track()](https://github.com/hull/hull-client-node#usertrackevent-props-context)
+This Connector supports to `create users` and `create accounts`. It allows you to `create traits` and `update traits` for both, users and accounts.  In addition, you can `create events` and `link accounts` for users.
 
-Lets first explore how you can change attributes for a user.
-There are three types of attributes, top-level, ungrouped and grouped attributes.
-Top-level and ungrouped attributes can be set with the not-overloaded function call `hull.user({USER_IDENTITY_ATTRIBUTE:<value>}).traits({ATTRIBUTE_NAME:<value>})`;
-of course you can set multiple attributes at once by passing a more complex object like `hull.user({USER_IDENTITY_ATTRIBUTE:<value>}).traits({ATTRIBUTE_NAME:<value>, ATTRIBUTE2_NAME:<value>})`.
+To make the Connector even more powerful, you can use the `request` library [https://github.com/request/request](https://github.com/request/request) to call external services.
+
+## Code Basics
+
+You can access the **request data** directly using the following variables:
+
+| Variable Name | Description                                            |
+| ------------- | ------------------------------------------------------ |
+| `body`        | Contains the parsed data as a `json` object.           |
+| `headers`     | Object containing HTTP headers.                        |
+| `ip`          | The IP address of the sender.                          |
+| `method`      | A string describing the HTTP method.                   |
+| `params`      | Object containing the route parameters of the request. |
+| `query`       | Object containing the query parameters.                |
+
+Please note that not all variables might contain data depending on the payload sent by the third party system.
+
+Now that you have a good overview of which variables you can access to obtain information, let’s move on to the functions that allow you to **manipulate data**.
+You can use the following function call to either **reference an existing user** or **create a new one**.
+
+```javascript
+    hull.user({external_id: <value>, email: <value>})
+```
+
+It is recommended to use the `external_id` if your payload contains it or rely on the `email` as fallback option. You can pass both identifiers if they are available, but the `external_id` will always take precedence over the `email`. For the purpose of simplicity, the following code will only show the `external_id` identifier.
+
+Lets first explore how you can **change attributes for a user**. There are three different types of attributes, top-level, ungrouped and grouped attributes. ***Top-level and ungrouped attributes*** can be set with the not-overloaded function call
+
+```javascript
+    hull.user({external_id: <value>}).traits({ ATTRIBUTE_NAME: <value> })
+```
+
+For naming conventions, see the Golden Rules section below.
+
+Of course you can set multiple attributes at once by passing a more complex object like:
+
+```javascript
+    hull.user({external_id: <value>}).traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
+```
+
 Using this function signature, these attributes are stored in the `traits` attributes group.
+If you want to make use of ***grouped attributes***, you can use the overloaded signature of the function, passing the group name as source in the second parameter:
 
-If you want to make use of grouped attributes, you can use the overloaded signature of the function, passing the group name as source in the second parameter: `hull.user({USER_IDENTITY_ATTRIBUTE:<value>}).traits({ATTRIBUTE_NAME:<value>}, {source: <group_name>})`.
+```javascript
+    hull.user({external_id: <value>}).traits({ ATTRIBUTE_NAME: <value> }, { source: <group_name> })
+```
 
 If you want to “delete” an attribute, you can use the same function calls as described above and simply set `null`  as value.
 
-Now that we know how to handle attributes, let’s have a look at how to emit events for a user.
-You can use the `track` function to emit events, but before we go into further details be aware of the following: You cannot use `track` call more than 10 track calls per one webhook.
-If you will try to emit more than 10 events, we will take only first 10 events and emit them, the rest will be skipped.
+Now that we know how to handle attributes, let’s have a look at how to **emit events for a user**.
+You can use the `hull.track` function to emit events, but before we go into further details be aware of the following:
+***You cannot issue more than 10 track calls per received webhook.***
 
 Here is how to use the function signature:
-`hull.user({USER_IDENTITY_ATTRIBUTE:<value>}).track(<event_name>, {PROPERTY_NAME:<value>, PROPERTY2_NAME:<value>})`
+
+```javascript
+    hull.user({external_id: <value>}).track( "<event_name>" , { PROPERTY_NAME: <value>, PROPERTY2_NAME: <value> })
+```
+
 The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event.
 
 Now that we know how to deal with users, let’s have a look how to handle accounts.
 
-You can link an account to the current user by calling the `hull.account` function with claims that identify the account. Supported claims are `domain`, `id` and `external_id`. To link an account that is identified by the domain, you would write `hull.account({domain: <value>})` which would either create the account if it doesn’t exist or link the current user to the existing account.
+You can **link an account to the current user** by calling the `hull.account` function with claims that identify the account. Supported claims are `domain`, `id` and `external_id`. To link an account that is identified by the domain, you would write
 
-To change attributes for an account, you can use the chained function call `hull.account({ACCOUNT_IDENTITY_ATTRIBUTE:<value>}).traits()`.
-
-Also you can link user with account. To do that you can use `hull.user({USER_IDENTITY_ATTRIBUTE:<value>}).account({ACCOUNT_IDENTITY_ATTRIBUTE:<value>})`.
-Please remember that only one account can be linked to user so many invocations of above method within same user will end up in last
-
-You can specify the attributes in the same way as for a user by passing an object into the chained `traits` function like `hull.account({ACCOUNT_IDENTITY_ATTRIBUTE:<value>}).traits({ATTRIBUTE_NAME:<value>, ATTRIBUTE2_NAME:<value>})`.
-
-Checkout `Variables and libraries` section to see what we can give you out of the box.
-
-We are keeping your last 100 webhooks so you can use them for preview. If you switch to another webhook we will run your code so you can see what changes will be applied with current code and what changes we applied when previous code was run.
-
-## Example
-
-Below example will print to the console word "Webhook", create trait for user with email 'email@example.com' and emit event for user with id = 1234 (id in Hull).
-Note that we used additional options for `hull.user()` method `{ create: false }` which means that if there is no user in Hull with that specific email - we won't create it.
-
-Code:
 ```javascript
-   hull.user({ email: "email@example.com" }, { create: false }).traits({ coconuts: 12 }, { source: "webhook" });
-   hull.user({ id :"123" }).track("sample event");
+    hull.user({external_id: <value>}).account({ domain: <value> })
 ```
 
----
+which would either create the account if it doesn’t exist or link the current user to the existing account.
 
-## Variables and libraries
+To **change attributes for an account**, you can use the chained function call `hull.account().traits()`. In contrast to the user, accounts do only support top-level attributes. You can specify the attributes in the same way as for a user by passing an object into the chained `traits` function like
 
-| Function or Variable                 | Description                                                                                                                           |
-|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| `ship`                               | The Ship's data. Can be used to store additional data                                                                                 |
-| `hull.user(userIdent, additionalOptions)`              | A method to identify user in Hull. Method expects to receive as parameter object with at least one of properties: `email`, `id` which is Hull Id, `external_id` or `anonymous_id`. Method have to be called at least once. Every next invocation will override previous user ident. You cannot update more than one user per webhook. Calling this method without `traits` or `track` has no effect.|
-| `hull.user(userIdent, additionalOptions).traits(properties, context)`    | A method to Update User Traits. Optionally define a `context` with a `source` key to save in a custom group.                          |
-| `hull.user(userIdent, additionalOptions).track('Event Name', properties)`| A method to generate new Events for the user. Can be used at most 10 times in a single run of the processor.                          |
-| `hull.account(accountIdent, additionalOptions)`               | A method to identify Account. Calling this method without `traits` has no effect.                                                                                     |
-| `hull.account(accountIdent, additionalOptions).traits(properties, context)` | A method to Update Account Traits. If `claims` is defined, the claimed Account will be created/updated and linked to the User, else if `claims` is `null`, the Account belonging to this User will be updated. Optionally define a `context` with a `source` key to save in a custom group. |
-| `body`                               | Webhook Body                                                                                                                          |
-| `headers`                            | Webhook Headers                                                                                                                       |
-| `cookies`                            | Webhook Cookies                                                                                                                       |
-| `ip`                                 | Webhook Sender's IP Address                                                                                                           |
-| `method`                             | Webhook Http Method                                                                                                                   |
-| `params`                             | Webhook Params                                                                                                                        |
-| `query`                              | Webhook Query                                                                                                                         |
-| `moment()`                           | The Moment.js library.                                                                                                                |
-| `_`                                  | The lodash library.                                                                                                                   |
-| `console.(log warn error debug)`     | A method to print something to console on dashboard (right bottom corner). All logs for every webhook will be displayed in Connector's logs. Debug logs will be shown only for preview. |
+```javascript
+    hull.account({domain: <value>}).traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
+```
 
-## Limitations & Advantages:
+## External Libraries
 
-- ES6 is supported.
-- You can't use external libraries. You can use all properties that we described in `Variables and libraries` section.
-- The only option for asynchronous operation is `request` method described above.
+The Connector exposes several external libraries that can be used:
+
+| Library    | Description
+| ---------- | ------------------------------------------------------------------ |
+| `_`        | The lodash library. [https://lodash.com/](https://lodash.com/)     |
+| `moment()` | The Moment.js library. [https://momentjs.com/](https://momentjs.com/) |
+| `urijs()`  | The URI.js library. [https://github.com/medialize/URI.js/](https://github.com/medialize/URI.js/) |
+| `request`  | The simplified request client. [https://github.com/request/request](https://github.com/request/request) |
+
+Please visit the linked pages for documentation and further information about these third party libraries.
+
+## Golden Rules
+
+- DO use snake_case rather than camelCase in your naming.
+- DO write human readable keys for traits. Don’t use names like `ls` for lead score, just name it `lead_score`.
+- DO use `_at` or `_date` as suffix to your trait name to let hull recognize the values as valid dates. You can pass either
+  - a valid unix timestamp in seconds or milliseconds or
+  - a valid string formatted according to ISO-8601
+- DO make sure that you use the proper type for new traits because this cannot be changed later. For example, if you pass `"1234"` as the value for trait `customerId`, the trait will be always a treated as string, even if you intended it to be a number.
+- DO NOT write code that generates dynamic keys for traits
+- DO NOT use large arrays because they are slowing down the compute performance of your data. Arrays with up to 50 values are okay.
+
+## Debugging and Logging
+
+When operating you might want to log certain information so that it is available for debugging or auditing purposes while other data might be only of interest during development. The processor allows you to do both:
+
+- `console.log` is used for development purposes only and will display the result in the console of the user interface but doesn’t write into the operational logs.
+- `console.info` is used to display the result in the console of the user interface and does also write an operational log.
+
+You can access the operational logs via the tab “Logs” in the user interface. The following list explains the various log messages available:
+
+| **Message**                     | **Description**                                                          |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| `compute.console.log`           | The manually logged information via `console.info`.                      |
+| `compute.user.debug`            | Logged when the computation of a user is started.                        |
+| `incoming.user`                 | Logs the payload                                                         |
+| `incoming.user.success`         | Logged after attributes of a user have been successfully computed.       |
+| `incoming.user.skip`            | Logged if the user hasn’t changed and there is no computation necessary. |
+| `incoming.account.success`      | Logged after attributes of an account have been successfully computed.   |
+| `incoming.account.link.success` | Logged after the user has been successfully linked with an account.      |
+| `incoming.account.link.error`   | Logged when an error occurred during linking a user to an account.       |
+| `incoming.user.error`           | Logged if an error is encountered during compute.                        |

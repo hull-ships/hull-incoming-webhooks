@@ -15,7 +15,7 @@ export default function webhookHandler(WebhookModel: Object) {
 
     const payload = { webhookData: pickValuesFromRequest(req), date: new Date() };
     const { client } = req.hull;
-    client.logger.debug("incoming.user", payload.webhookData);
+    client.logger.debug("connector.request.data", payload.webhookData);
 
     req.hull.cachedWebhookPayload = payload;
 

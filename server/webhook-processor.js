@@ -22,7 +22,7 @@ function flatten(obj, key, group) {
 module.exports = function handle(payload: Object = {}, { ship, client, metric, cachedWebhookPayload }: Object, WebhookModel: Object) {
   return compute(payload, ship, client)
     .then(result => {
-      const { logs, errors } = result;
+      const { logsForLogger, errors } = result;
       let { events, userTraits, accountTraits, accountLinks } = result;
       userTraits = reducePayload(filterInvalidIdentities(userTraits, client, "user"), "userTraits");
       events = filterInvalidIdentities(events, client, "event");
@@ -105,8 +105,8 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         });
       }
 
-      if (logs && logs.length) {
-        logs.map(log => client.logger.info("compute.console.log", { log }));
+      if (logsForLogger && logsForLogger.length) {
+        logsForLogger.map(log => client.logger.info("compute.console.log", { log }));
       }
 
       const webhookPayload = cachedWebhookPayload;

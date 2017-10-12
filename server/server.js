@@ -2,7 +2,6 @@
 import { Connector } from "hull";
 
 import express from "express";
-import bodyParser from "body-parser";
 
 import getLastWebhooks from "./middlewares/get-last-webhooks";
 import { encrypt } from "./lib/crypto";
@@ -28,13 +27,9 @@ export default function Server(connector: Connector, options: Object = {}, app: 
 
   app.get("/last-webhooks", getLastWebhooks(WebhookModel));
 
-  app.post("/webhooks/:connectorId/:token", bodyParser.urlencoded({ type: (req) => {
-    return (req.get("Content-Type") !== "application/json");
-  } }), bodyParser.json(), webhookHandler(WebhookModel));
+  app.post("/webhooks/:connectorId/:token", express.urlencoded({ extended: true }), express.json(), webhookHandler(WebhookModel));
 
-  app.post("/webhooks/:connectorId", bodyParser.urlencoded({ type: (req) => {
-    return (req.get("Content-Type") !== "application/json");
-  } }), bodyParser.json(), webhookHandler(WebhookModel));
+  app.post("/webhooks/:connectorId", express.urlencoded({ extended: true }), express.json(), webhookHandler(WebhookModel));
 
   app.post("/compute", computeHandler({ hostSecret, connector }));
 
