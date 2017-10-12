@@ -1,6 +1,5 @@
-/* @flow */
-import compute from "./compute";
 import _ from "lodash";
+import compute from "./compute";
 
 import { filterInvalidIdentities, reducePayload } from "./lib/map-filter-results";
 
@@ -20,35 +19,36 @@ function flatten(obj, key, group) {
   }, obj);
 }
 
-module.exports = function handle(payload: Object = {}, { ship, client, metric, service, cachedWebhookPayload }: Object) {
+module.exports = function handle(payload: Object = {}, { ship, client, metric, cachedWebhookPayload }: Object, WebhookModel: Object) {
   return compute(payload, ship, client)
     .then(result => {
-      const { logs, errors } = result;
+      const { logsForLogger, errors } = result;
       let { events, userTraits, accountTraits, accountLinks } = result;
-      userTraits = filterInvalidIdentities(userTraits, client, "user");
+      userTraits = reducePayload(filterInvalidIdentities(userTraits, client, "user"), "userTraits");
       events = filterInvalidIdentities(events, client, "event");
-      accountTraits = filterInvalidIdentities(accountTraits, client, "account");
-      accountLinks = filterInvalidIdentities(accountLinks, client, "account.link");
+      accountTraits = reducePayload(filterInvalidIdentities(accountTraits, client, "account"), "accountIdentity");
+      accountLinks = reducePayload(filterInvalidIdentities(accountLinks, client, "account.link"), "accountIdentity");
+      const promises = [];
 
       client.logger.info("compute.user.debug", { userTraits, accountTraits });
 
       // Update user traits
       if (_.size(userTraits)) {
         let successfulUsers = 0;
-        Promise.all(userTraits.map(u => {
+        promises.push(Promise.all(userTraits.map(u => {
           const asUser = client.asUser(u.userIdentity, u.userIdentityOptions);
           return asUser.traits(flatten({}, "", u.userTraits)).then(() => asUser.logger.info("incoming.user.success", { ...flatten({}, "", u.userTraits) }))
             .then(() => {
               successfulUsers += 1;
             })
             .catch(err => client.logger.error("incoming.user.error", { errors: err }));
-        })).then(() => metric.increment("ship.incoming.users", successfulUsers));
+        })).then(() => metric.increment("ship.incoming.users", successfulUsers)));
       }
 
       // Emit events
       if (_.size(events)) {
         let succeededEvents = 0;
-        Promise.all(events.map(({ userIdentity, event, userIdentityOptions }) => {
+        promises.push(Promise.all(events.map(({ userIdentity, event, userIdentityOptions }) => {
           const asUser = client.asUser(userIdentity, userIdentityOptions);
           const { eventName, properties, context } = event;
           return asUser.track(eventName, properties, {
@@ -61,13 +61,27 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, s
             },
             err => client.logger.error("incoming.event.error", { user: userIdentity, errors: err })
           );
-        })).then(() => metric.increment("ship.incoming.events", succeededEvents));
+        })).then(() => metric.increment("ship.incoming.events", succeededEvents)));
+      }
+
+      // Link accounts with users
+      if (_.size(accountLinks)) {
+        promises.push(Promise.all(accountLinks.map(link => {
+          const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
+          return asUser.account(link.accountIdentity, link.accountIdentityOptions).traits({}).then(() =>
+            asUser.logger.info("incoming.account.link.success", {
+              account: link.accountIdentity,
+              user: link.userIdentity
+            })
+          )
+            .catch(err => client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err }));
+        })));
       }
 
       // Update account traits
       if (_.size(accountTraits)) {
         let succeededAccounts = 0;
-        Promise.all(accountTraits.map(a => {
+        promises.push(Promise.all(accountTraits.map(a => {
           const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
           return asAccount.traits(...flatten({}, "", a.accountTraits)).then(() => client.logger.info("incoming.account.success", {
             accountTraits: flatten({}, "", a.accountTraits),
@@ -81,44 +95,40 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, s
               accountIdentity: a.accountIdentity,
               errors: err
             }));
-        })).then(() => metric.increment("ship.incoming.accounts", succeededAccounts));
-      }
-
-      // Link accounts with users
-      if (_.size(accountLinks)) {
-        Promise.all(accountLinks.map(link => {
-          const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
-          try {
-            asUser.account(link.accountIdentity, link.accountIdentityOptions);
-          } catch (err) {
-            return client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err });
-          }
-          return asUser.logger.info("incoming.account.link", { account: link.accountIdentity, user: link.userIdentity });
-        }));
+        })).then(() => metric.increment("ship.incoming.accounts", succeededAccounts)));
       }
 
       if (errors && errors.length > 0) {
-        client.logger.error("incoming.user.error", { hull_summary: `Error Processing user: ${errors.join(", ")}`, errors });
+        client.logger.error("incoming.user.error", {
+          hull_summary: `Error Processing user: ${errors.join(", ")}`,
+          errors
+        });
       }
 
-      if (logs && logs.length) {
-        logs.map(log => client.logger.info("compute.console.log", { log }));
+      if (logsForLogger && logsForLogger.length) {
+        logsForLogger.map(log => client.logger.info("compute.console.log", { log }));
       }
-
-      const { WebhookModel } = service || {};
 
       const webhookPayload = cachedWebhookPayload;
 
       webhookPayload.result = result;
       webhookPayload.result.events = events;
-      webhookPayload.result.accountLinks = reducePayload(accountLinks, "accountIdentity");
-      webhookPayload.result.userTraits = reducePayload(userTraits.map(u => _.omit(u, "userIdentityOptions")), "userTraits");
-      webhookPayload.result.accountTraits = reducePayload(accountTraits.map(a => _.omit(a, "accountIdentityOptions")), "accountTraits");
+      webhookPayload.result.accountLinks = accountLinks;
+      webhookPayload.result.userTraits = userTraits.map(u => _.omit(u, "userIdentityOptions"));
+      webhookPayload.result.accountTraits = accountTraits.map(a => _.omit(a, "accountIdentityOptions"));
 
-      const webhook = new WebhookModel({ connectorId: ship.id, result: webhookPayload.result, webhookData: payload, date: cachedWebhookPayload.date });
+      const webhook = new WebhookModel({
+        connectorId: ship.id,
+        result: webhookPayload.result,
+        webhookData: payload,
+        date: cachedWebhookPayload.date
+      });
 
-      return webhook.save();
+      return Promise.all(promises).then(() => webhook.save());
     })
     .catch(err =>
-      client.logger.error("incoming.user.error", { hull_summary: `Error Processing user: ${_.get(err, "message", "Unexpected error")}`, errors: err }));
+      client.logger.error("incoming.user.error", {
+        hull_summary: `Error Processing user: ${_.get(err, "message", "Unexpected error")}`,
+        errors: err
+      }));
 };

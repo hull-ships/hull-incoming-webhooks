@@ -5,6 +5,19 @@
   <link rel="stylesheet" href="/codemirror.css" />
   <script src="/admin.js"></script>
   <style>
+    .nav-tabs.nav-tabs>li>a, .nav-tabs.nav-tabs>li>a:hover, .nav-tabs.nav-tabs>li>a:active, .nav-tabs.nav-tabs>li>a:focus {
+      outline:  none;
+    }
+    .webhook-content {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: bottom;
+      display: inline-block;
+    }
+    .last-webhooks-button {
+      padding: 4px 20px;
+    }
     .CodeMirror {
       border: 1px solid #eee;
       height: auto;
@@ -19,7 +32,7 @@
     }
 
     .payload-divider {
-      margin-top: 15px;
+      margin-top: 12px;
       margin-bottom: 5px;
     }
 
@@ -37,20 +50,24 @@
     }
 
     .custom-icon {
-      margin: 5px auto 0;
+      margin: 0;
+      float: right;
     }
 
-    .status-icon {
-      float: right;
+    .refresh-button {
+      padding: 5px;
+      margin-right: 5px;
+      background-color: #FFF;
     }
 
     .help-button {
       float: right;
-      padding: 0;
+      padding: 0 15px;
     }
 
     .webhook-url-button {
       margin-left: 5px;
+      background-color: #FFF;
     }
 
     .custom-icon svg {

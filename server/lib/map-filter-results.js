@@ -2,6 +2,8 @@ import _ from "lodash";
 
 export function filterInvalidIdentities(values, client, subject = "user") {
   return values.filter(u => {
+    // We would like to check if user ident and account ident is valid so we are checking if all fields that are required
+    // are present and try to actually call asUser and asAccount methods to see if there will be no errors
     try {
       if (u.userIdentity && (!u.userIdentity.email && !u.userIdentity.id && !u.userIdentity.external_id && !u.userIdentity.anonymous_id)) {
         client.logger.info(`incoming.${subject}.skip`, { reason: "Missing/Invalid ident.", userIdentity: u.userIdentity });

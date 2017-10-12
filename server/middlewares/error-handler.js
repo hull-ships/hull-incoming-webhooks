@@ -14,15 +14,17 @@ export default function (app: express) {
         url: req.url,
         params: req.params
       };
-      const logger = _.get(req, "hull.client.logger");
+      const logger = _.get(req, "hull.client.logger", _.get(Hull, "logger"));
       if (logger) {
         logger.error("request.error", err.message, err.status, data);
-      } else {
-        Hull.logger.error("request.error", err.message, err.status, data);
       }
-      return res.status(_.get(err, "status") || 500).send({ message: _.get(err, "message") });
+      if (!res.headersSent) {
+        return res.status(_.get(err, "status") || 500).send({ message: _.get(err, "message") });
+      }
     }
-    Hull.logger.warn("Unknown error ?");
-    return res.status(500).send({ message: "Unknown error" });
+    if (!res.headersSent) {
+      return res.status(500).send({ message: "Unknown error" });
+    }
+    return Hull.logger.error("request.error", { message: "Unknown error" });
   });
 }

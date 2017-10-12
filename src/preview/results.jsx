@@ -43,7 +43,8 @@ ${JSON.stringify(user.userIdentity, null, 2)}
 // Attributes
 ${JSON.stringify(user.userTraits || {}, null, 2)}
 ${account ? `// Linked to account identified by:
-${JSON.stringify(account, null, 2)}` : ""}`
+${JSON.stringify(account, null, 2)}` : ""}
+`
       });
 
       const links = accountLinks.filter(acc => {
@@ -63,7 +64,7 @@ ${links}
     if (_.size(accountTraits)) {
       const traits = JSON.stringify(accountTraits, null, 2);
       output = `${output}
-/* ACCOUNT TRAITS */
+/* Account Traits */
 ${traits}
 `;
     }
@@ -81,8 +82,9 @@ ${!_.isEmpty(e.event.context) ? `// Context
 ${JSON.stringify(e.event.context, null, 2)}` : ""}
 `; });
       output = (`${output}
-/* EVENTS */
-${eventString}`).split(",").join("");
+/* Events */
+${eventString}
+`).split(",").join("");
     }
 
     return (<div>

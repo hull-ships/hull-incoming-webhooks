@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Col, Tabs, Tab } from "react-bootstrap";
+import { Row, Col, Tabs, Tab } from "react-bootstrap";
 import _ from "lodash";
 
 import Icon from "../ui/icon";
@@ -47,22 +47,18 @@ export default class PreviewPane extends Component {
     const previousCode = _.get(previousResult, "code", "");
 
     return (<Col className="flexColumn pl-1 resultPane" md={md} sm={sm} lg={lg} xs={xs}>
-      <Tabs justified defaultActiveKey={this.state.activeTab} id="preview-tabs" onSelect={this.changeTab}>
-        <Tab eventKey="Current" title={<div>
-          <div className="tab-title">Current</div>
-          <Icon className="custom-icon status-icon" name={this.getIcon()}/>
-        </div>
-        }/>
-        <Tab eventKey="Previous" title={<div>
-          <div className="tab-title">Previous</div>
-
+      <Row>
+        <Col sm={6}>
+          <Tabs justified defaultActiveKey={this.state.activeTab} id="preview-tabs" onSelect={this.changeTab}>
+            <Tab eventKey="Current" title="Current Code"/>
+            <Tab eventKey="Previous" title="At Webhook reception" />
+          </Tabs>
+        </Col>
+        <Col sm={6} className="mt-05">
           <WebhookUrl ship={ship} token={token} hostname={hostname} className="text-right"/>
           <Help className="text-right"/>
-
-        </div>}>
-
-        </Tab>
-      </Tabs>
+        </Col>
+      </Row>
 
       <ResultsPane
         title={this.state.activeTab}
