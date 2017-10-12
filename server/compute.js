@@ -80,6 +80,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   const accountTraitsList = [];
   const accountLinksList = [];
   const logs = [];
+  const logsForLogger = [];
   const errors = [];
   let isAsync = false;
 
@@ -157,7 +158,12 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     errors.push(args);
   }
 
-  sandbox.console = { log, warn: log, error: logError, debug };
+  function info(...args) {
+    logs.push(args);
+    logsForLogger.push(args);
+  }
+
+  sandbox.console = { log, warn: log, error: logError, debug, info };
 
   try {
     const script = new vm.Script(`
@@ -193,6 +199,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
 
       return {
         logs,
+        logsForLogger,
         errors,
         code,
         userTraits: _.map(userTraitsList, ({ userIdentity, userIdentityOptions, userTraits }) =>

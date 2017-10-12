@@ -11,3 +11,6 @@ lib
 !/server/lib
 
 dist
+
+package-lock.json
+.vscode
