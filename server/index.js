@@ -2,13 +2,9 @@
 import express from "express";
 import Hull from "hull";
 import { Cache } from "hull/lib/infra";
-
 import { middleware } from "./lib/crypto";
 import server from "./server";
 import webhookRequest from "./models/webhook-request";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const {
   LOG_LEVEL,
@@ -43,6 +39,7 @@ const options = {
   hostSecret: SECRET || "1234",
   devMode: NODE_ENV === "development",
   port: PORT || 8082,
+  WebhookModel,
   cache
 };
 
@@ -53,6 +50,6 @@ app.use(middleware(connector.hostSecret));
 
 connector.setupApp(app);
 
-app = server(connector, options, app, WebhookModel);
+app = server(connector, options, app);
 
 connector.startApp(app);

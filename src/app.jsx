@@ -1,4 +1,3 @@
-/* eslint no-unused-vars:0, no-useless-constructor:0, import/no-unresolved:0 */
 import React, { Component } from "react";
 import { Grid, Row } from "react-bootstrap";
 import _ from "lodash";
@@ -30,16 +29,12 @@ export default class App extends Component {
     this.props.engine.updateCode(code);
   }
 
-  handleRefresh() {
-    this.props.engine.fetchLastWebhooks();
-  }
-
   handleWebhookChange(date) {
     this.props.engine.setLastWebhook(_.find(this.state.lastWebhooks, webhook => webhook.date === date));
   }
 
   render() {
-    const { lastWebhooks, currentWebhook, loadingWebhooks, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
+    const { lastWebhooks, currentWebhook, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
 
@@ -51,10 +46,8 @@ export default class App extends Component {
               <Payload
                 className="flexColumn payloadPane"
                 currentWebhook={currentWebhook}
-                loadingWebhooks={loadingWebhooks}
                 lastWebhooks={lastWebhooks}
                 onSelect={this.handleWebhookChange.bind(this)}
-                onRefresh={this.handleRefresh.bind(this)}
                 sm={4}
                 md={4}
                 lg={4}
@@ -78,7 +71,7 @@ export default class App extends Component {
               />
             </Row>
           </Grid>
-        </div>) : (webhookUrlContent(hostname, ship.id, token, "webhook-url", "Start by sending data to Hull...", "As soon as you send your first payload, you can start hacking."));
+        </div>) : (webhookUrlContent(hostname, ship.id, token, "webhook-url", "Connector exposes webhook endpoint that you should use within your app to connect with Hull.","Send some requests for preview"))
     }
 
     return <div className="text-center pt-2"><h4>Loading...</h4></div>;

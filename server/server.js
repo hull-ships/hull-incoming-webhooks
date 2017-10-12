@@ -2,6 +2,7 @@
 import { Connector } from "hull";
 
 import express from "express";
+import bodyParser from "body-parser";
 
 import getLastWebhooks from "./middlewares/get-last-webhooks";
 import { encrypt } from "./lib/crypto";
@@ -11,8 +12,16 @@ import devMode from "./dev-mode";
 import errorHandler from "./middlewares/error-handler";
 import statusCheck from "./actions/status-check";
 
-export default function Server(connector: Connector, options: Object = {}, app: express, WebhookModel: Object) {
-  const { hostSecret } = options;
+export default function Server(connector: Connector, options: Object = {}, app: express) {
+  const { hostSecret, WebhookModel } = options;
+
+  app.use((req, res, next) => {
+    if (req.hull) {
+      req.hull.service = req.hull.service || {};
+      req.hull.service.WebhookModel = WebhookModel;
+    }
+    next();
+  });
 
   app.get("/admin.html", (req, res) => {
     res.render("admin.html");
@@ -25,11 +34,10 @@ export default function Server(connector: Connector, options: Object = {}, app: 
     res.status(403).send();
   });
 
-  app.get("/last-webhooks", getLastWebhooks(WebhookModel));
+  app.get("/last-webhooks", getLastWebhooks);
 
-  app.post("/webhooks/:connectorId/:token", express.urlencoded({ extended: true }), express.json(), webhookHandler(WebhookModel));
-
-  app.post("/webhooks/:connectorId", express.urlencoded({ extended: true }), express.json(), webhookHandler(WebhookModel));
+  app.post("/webhooks/:connectorId", bodyParser.urlencoded(), webhookHandler);
+  app.post("/webhooks/:connectorId/:token", bodyParser.urlencoded(), webhookHandler);
 
   app.post("/compute", computeHandler({ hostSecret, connector }));
 
