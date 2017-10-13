@@ -24,7 +24,7 @@ hull.user({ id: "123" }).track("sample event");
     `;
     return (
       <div>
-        <Button bsClass="btn help-button" bsStyle="link" onClick={this.open.bind(this)}><Icon className="custom-icon" name="calculator"/></Button>
+        <Button bsClass="help-button btn" bsSize='small' bsStyle="secondary" onClick={this.open.bind(this)}>Help</Button>
 
         <Modal show={this.state.showModal} bsSize='large' onHide={this.close.bind(this)}>
           <Modal.Header closeButton>
