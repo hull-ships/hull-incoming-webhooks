@@ -13,6 +13,7 @@ describe("Connector for webhooks endpoint", function test() {
   let server;
 
   const private_settings = {
+    // eslint-disable-next-line no-multi-str
     code: "hull.user({ \"id\": body.user.id }).traits(body.user.traits);\n\
     hull.user({ \"id\": body.user.id }).track(body.user.eventName);"
   };
@@ -70,9 +71,9 @@ describe("Connector for webhooks endpoint", function test() {
 
       setTimeout(() => {
         if (!firstCheck) {
-          done(Error("first check not satisfied"))
+          done(Error("first check not satisfied"));
         } else if (!secondCheck) {
-          done(Error("second check not satisfied"))
+          done(Error("second check not satisfied"));
         } else {
           done();
         }

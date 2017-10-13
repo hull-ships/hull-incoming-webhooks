@@ -61,7 +61,7 @@ describe("Connector for webhooks endpoint", function test() {
 
       setTimeout(() => {
         if (!check) {
-          done(Error("check not satisfied"))
+          done(Error("check not satisfied"));
         } else {
           done();
         }
