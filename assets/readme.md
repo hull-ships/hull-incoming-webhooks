@@ -5,19 +5,19 @@ The Incoming Webhooks Connector enables you to process Webhooks from external sy
 ## Getting Started
 
 Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the Incoming Webhooks card. After installation, you will be presented with the Dashboard that displays your unique Webhook Url:
-![Getting Started Step 1](./docs/gettingstarted01.png)
+![Getting Started Step 1](./docs/dashboard-after-installation.png)
 
 Copy the displayed url and send at least one request to begin writing code.
 After you have sent your first request, you will be presented with the three column Dashboard layout. The left column displays the **Request** which is composed of the body, header and other metadata. The center column holds your Javascript **Code** that allows you to transform the request data to the **Output** of the right column. The Output itself displays the changed attributes of the user or account and any associated events.
 
 The request column contains the request you sent from an external system to Hull. The body contains a JSON object of your data but you can also leverage header and other meta information in your code.
 You can access the last 100 requests by selecting them from the dropdown list:
-![Getting Started Step 2](./docs/gettingstarted02.png)
+![Getting Started Step 2](./docs/last-webhooks.png)
 
 The Refresh button allows you to easily reload this list, to check for new requests.
 
 The center column allows you to toggle between the current code and the code at webhook reception, by selecting the appropriate tab:
-![Getting Started Step 3](./docs/gettingstarted03.png)
+![Getting Started Step 3](./docs/dashboard.png)
 
 You can only view the code at webhook reception but are not allowed to make any modifications. To write code make sure to select the tab “Current Code”. Read more about writing code:
 
