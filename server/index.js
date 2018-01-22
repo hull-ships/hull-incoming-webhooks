@@ -1,5 +1,6 @@
 /* @flow */
 import express from "express";
+import compression from "compression";
 import Hull from "hull";
 import { Cache } from "hull/lib/infra";
 
@@ -47,6 +48,7 @@ const options = {
 };
 
 let app = express();
+app.use(compression());
 const connector = new Hull.Connector(options);
 
 app.use(middleware(connector.hostSecret));
