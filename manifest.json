@@ -5,6 +5,14 @@
   "picture": "picture.png",
   "ui": false,
   "admin": "admin.html",
+  "tabs": [
+    {
+      "title": "Edit Code",
+      "url": "admin.html",
+      "size": "large",
+      "editable": true
+    }
+  ],
   "readme" : "readme.md",
   "version": "0.1.3",
   "private_settings": [
