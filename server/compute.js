@@ -6,8 +6,6 @@ import deepFreeze from "deep-freeze";
 import request from "request";
 import Promise from "bluebird";
 
-const TOP_LEVEL_FIELDS = ["tags", "name", "description", "extra", "picture", "settings", "username", "email", "contact_email", "image", "first_name", "last_name", "address", "created_at", "phone", "domain", "accepts_marketing"];
-
 const lodash = _.functions(_).reduce((l, key) => {
   l[key] = (...args) => _[key](...args);
   return l;
@@ -38,13 +36,8 @@ const buildPayload = (pld, traitsCall = {}) => {
         const path = k.replace("/", ".");
         if (path.indexOf(".") > -1) {
           _.setWith(pld, path, v, Object);
-        } else if (_.includes(TOP_LEVEL_FIELDS, k)) {
-          pld[k] = v;
         } else {
-          pld.traits = {
-            ...pld.traits,
-            [k]: v
-          };
+          pld[k] = v;
         }
       });
     }

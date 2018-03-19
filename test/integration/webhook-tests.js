@@ -60,7 +60,7 @@ describe("Connector for webhooks endpoint", function test() {
 
         batch.forEach(incoming => {
           if (incoming.type === "traits") {
-            assert.equal(_.get(incoming.body, "traits/customerioid"), "321");
+            assert.equal(_.get(incoming.body, "customerioid"), "321");
             firstCheck = true;
           } else {
             assert.equal(incoming.body.event, "test");

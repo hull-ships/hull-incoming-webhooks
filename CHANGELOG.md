@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.4
+
+- do not prefix traits with `traits/`
+
 ## v0.1.3
 
 - UI changes
