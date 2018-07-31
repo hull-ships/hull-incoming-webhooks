@@ -44,3 +44,19 @@ export function reducePayload(payloadList: Array<Object>, byKey: string) {
     return acc;
   }, []);
 }
+
+
+export function reduceAccountPayload(payloadList: Array<Object>, byKey: string) {
+  return _.reduce(payloadList, (acc, payload) => {
+    if (!_.filter(acc, alreadyFiltered => _.isEqual(payload.accountIdentity, alreadyFiltered.accountIdentity)).length) {
+      const allAccountOccurrences = _.filter(payloadList, pld => _.isEqual(pld.accountIdentity, payload.accountIdentity));
+
+      acc.push({
+        accountIdentity: payload.accountIdentity,
+        [byKey]: _.reduce(allAccountOccurrences.map(pld => pld[byKey]), (toMerge, obj) => _.merge(toMerge, obj), {})
+      });
+      return acc;
+    }
+    return acc;
+  }, []);
+}
