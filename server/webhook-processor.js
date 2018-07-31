@@ -1,7 +1,8 @@
 import _ from "lodash";
 import compute from "./compute";
+const debug = require("debug")("hull-incoming-webhooks:webhook-processor");
 
-import { filterInvalidIdentities, reducePayload } from "./lib/map-filter-results";
+import { filterInvalidIdentities, reducePayload, reduceAccountPayload } from "./lib/map-filter-results";
 
 function isGroup(o) {
   return _.isPlainObject(o) && !_.isEqual(_.sortBy(_.keys(o)), ["operation", "value"]);
@@ -22,11 +23,12 @@ function flatten(obj, key, group) {
 module.exports = function handle(payload: Object = {}, { ship, client, metric, cachedWebhookPayload }: Object, WebhookModel: Object) {
   return compute(payload, ship, client)
     .then(result => {
+      debug("compute.result", result);
       const { logsForLogger, errors } = result;
       let { events, userTraits, accountTraits, accountLinks } = result;
       userTraits = reducePayload(filterInvalidIdentities(userTraits, client, "user"), "userTraits");
       events = filterInvalidIdentities(events, client, "event");
-      accountTraits = reducePayload(filterInvalidIdentities(accountTraits, client, "account"), "accountIdentity");
+      accountTraits = reduceAccountPayload(filterInvalidIdentities(accountTraits, client, "account"), "accountTraits");
       accountLinks = reducePayload(filterInvalidIdentities(accountLinks, client, "account.link"), "accountIdentity");
       const promises = [];
 
@@ -41,7 +43,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
             .then(() => {
               successfulUsers += 1;
             })
-            .catch(err => client.logger.error("incoming.user.error", { errors: err }));
+            .catch(err => asUser.logger.error("incoming.user.error", { errors: err }));
         })).then(() => metric.increment("ship.incoming.users", successfulUsers)));
       }
 
@@ -59,7 +61,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
               succeededEvents++;
               return asUser.logger.info("incoming.event.success");
             },
-            err => client.logger.error("incoming.event.error", { user: userIdentity, errors: err })
+            err => asUser.logger.error("incoming.event.error", { user: userIdentity, errors: err })
           );
         })).then(() => metric.increment("ship.incoming.events", succeededEvents)));
       }
@@ -74,7 +76,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
               user: link.userIdentity
             })
           )
-            .catch(err => client.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err }));
+            .catch(err => asUser.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err }));
         })));
       }
 
@@ -83,14 +85,14 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let succeededAccounts = 0;
         promises.push(Promise.all(accountTraits.map(a => {
           const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
-          return asAccount.traits(...flatten({}, "", a.accountTraits)).then(() => client.logger.info("incoming.account.success", {
+          return asAccount.traits(...flatten({}, "", a.accountTraits)).then(() => asAccount.logger.info("incoming.account.success", {
             accountTraits: flatten({}, "", a.accountTraits),
             accountIdentity: a.accountIdentity
           }))
             .then(() => {
               succeededAccounts += 1;
             })
-            .catch(err => client.logger.error("incoming.account.error", {
+            .catch(err => asAccount.logger.error("incoming.account.error", {
               accountTraits: flatten({}, "", a.accountTraits),
               accountIdentity: a.accountIdentity,
               errors: err

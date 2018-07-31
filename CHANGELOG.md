@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.5
+
+- fix reducing account traits
+- fix logs context (use scoped HullClient instance instead of global one)
+- add missing dependencies
+
 ## v0.1.4
 
 - do not prefix traits with `traits/`
