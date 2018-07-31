@@ -7,7 +7,7 @@
   "admin": "admin.html",
   "tabs": [
     {
-      "title": "Edit Code",
+      "title": "Code Editor",
       "url": "admin.html",
       "size": "large",
       "editable": true
