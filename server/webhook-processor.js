@@ -85,7 +85,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let succeededAccounts = 0;
         promises.push(Promise.all(accountTraits.map(a => {
           const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
-          return asAccount.traits(...flatten({}, "", a.accountTraits)).then(() => asAccount.logger.info("incoming.account.success", {
+          return asAccount.traits({ ...flatten({}, "", a.accountTraits) }).then(() => asAccount.logger.info("incoming.account.success", {
             accountTraits: flatten({}, "", a.accountTraits),
             accountIdentity: a.accountIdentity
           }))
