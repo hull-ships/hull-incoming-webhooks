@@ -39,7 +39,8 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let successfulUsers = 0;
         promises.push(Promise.all(userTraits.map(u => {
           const asUser = client.asUser(u.userIdentity, u.userIdentityOptions);
-          return asUser.traits(flatten({}, "", u.userTraits)).then(() => asUser.logger.info("incoming.user.success", { ...flatten({}, "", u.userTraits) }))
+          const flatUserTraits = flatten({}, "", u.userTraits);
+          return asUser.traits(flatUserTraits).then(() => asUser.logger.info("incoming.user.success", { ...flatUserTraits }))
             .then(() => {
               successfulUsers += 1;
             })
@@ -85,15 +86,16 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let succeededAccounts = 0;
         promises.push(Promise.all(accountTraits.map(a => {
           const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
-          return asAccount.traits({ ...flatten({}, "", a.accountTraits) }).then(() => asAccount.logger.info("incoming.account.success", {
-            accountTraits: flatten({}, "", a.accountTraits),
+          const flatAccountTraits = flatten({}, "", a.accountTraits);
+          return asAccount.traits({ ...flatAccountTraits }).then(() => asAccount.logger.info("incoming.account.success", {
+            accountTraits: flatAccountTraits,
             accountIdentity: a.accountIdentity
           }))
             .then(() => {
               succeededAccounts += 1;
             })
             .catch(err => asAccount.logger.error("incoming.account.error", {
-              accountTraits: flatten({}, "", a.accountTraits),
+              accountTraits: flatAccountTraits,
               accountIdentity: a.accountIdentity,
               errors: err
             }));
