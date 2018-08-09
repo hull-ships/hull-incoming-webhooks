@@ -1,0 +1,177 @@
+<html>
+  <head>
+    <title>Hull Incoming Webhooks</title>
+    <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css" />
+    <link rel="stylesheet" href="/codemirror.css" />
+    <style>
+      .nav-tabs.nav-tabs>li>a, .nav-tabs.nav-tabs>li>a:hover, .nav-tabs.nav-tabs>li>a:active, .nav-tabs.nav-tabs>li>a:focus {
+        outline:  none;
+      }
+      .webhook-content {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+        display: inline-block;
+      }
+      .last-webhooks-button {
+        padding: 4px 20px;
+      }
+      .CodeMirror {
+        border: 1px solid #eee;
+        height: auto;
+        font-size: 12px;
+      }
+
+      .dropdown-menu {
+        max-height: 70vh;
+        overflow-y: auto;
+        width: 100%;
+        text-align: center;
+      }
+
+      .payload-divider {
+        margin-top: 12px;
+        margin-bottom: 5px;
+      }
+
+      .modal-footer {
+        text-align: center;
+      }
+
+      .webhook-url-modal {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .webhookPane {
+        overflow-y: hidden;
+      }
+
+      .custom-icon {
+        margin: 0;
+        float: right;
+      }
+
+      .refresh-button {
+        padding: 5px;
+        margin-right: 5px;
+        background-color: #FFF;
+      }
+
+      .help-button {
+        /*float: right;*/
+        padding: 0 15px;
+      }
+
+      .webhook-url-button {
+        margin-left: 5px;
+        /*background-color: #FFF;*/
+      }
+
+      .custom-icon svg {
+        height: 1.5em;
+        right: 0;
+      }
+
+      .codePane {
+        height: auto;
+        width: 100%;
+        margin: 5px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .help-buttons {
+        float: right;
+      }
+
+      .output {
+        width: 100%;
+        margin: 5px;
+      }
+
+      .output .ReactCodeMirror {
+        height: 50%;
+      }
+
+      .last-received-webhooks {
+        height: 100%;
+        overflow-y: scroll;
+      }
+
+      .resultPane .ReactCodeMirror {
+        min-height: 60px;
+      }
+      .output {
+        position: relative;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .tab-title {
+        position: absolute;
+      }
+
+      .outputContent {
+        opacity: .6;
+        position: absolute;
+        right: 16px;
+        background: #eee;
+        z-index: 10;
+        padding: 5px 10px;
+        color: #3f4654;
+        border-radius: 20px;
+      }
+      hr {
+        margin: 10px 0;
+      }
+      body {
+        background-color: white;
+        height: 100%;
+      }
+      pre {
+        margin:0;
+      }
+      .well {
+        padding:0;
+      }
+      @media (min-width: 768px) {
+        .flexRow {
+          flex-direction: row;
+          display: flex;
+        }
+        .flexColumn {
+          display: flex;
+          flex-direction: column;
+          flex: auto;
+          padding: 0 10px;
+        }
+      }
+      .flexGrow {
+        flex-grow:1;
+      }
+      .input-group-btn,
+      .input-group-addon {
+        vertical-align: top;
+      }
+      .input-group input.form-control-sm[type='text'].form-control {
+        padding-top: 0;
+        padding-bottom: 11px;
+      }
+      .CodeMirror pre {
+        font-size: 11px;
+        line-height:1.2;
+      }
+      .grid {
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div id="app"><div class='text-center pt-2'><h4>Loading...</h4></div></div>
+    </div>
+    <script src="/index.js"></script>
+  </body>
+  </html>
