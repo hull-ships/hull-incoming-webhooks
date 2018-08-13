@@ -27,7 +27,7 @@
   "engines": {
     "node": "8.11.x",
     "npm": "5.6.x",
-    "yarn": "1.9.x"
+    "yarn": "1.6.x"
   },
   "scripts": {
     "ngrok": "ngrok http 8082 --region eu --subdomain incoming-webhooks",
