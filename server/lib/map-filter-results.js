@@ -1,7 +1,14 @@
 // @flow
+import type { HullProperties } from "hull";
+
 const _ = require("lodash");
 
-module.exports.filterInvalidIdentities = (values, client, subject = "user") => {
+// TODO: values => array content
+module.exports.filterInvalidIdentities = (
+  values: Array<*>,
+  client: HullProperties,
+  subject: string = "user"
+) => {
   return values.filter(u => {
     // We would like to check if user ident and account ident is valid so we are checking if all fields that are required
     // are present and try to actually call asUser and asAccount methods to see if there will be no errors
@@ -64,6 +71,7 @@ module.exports.reducePayload = (payloadList: Array<Object>, byKey: string) => {
           _.isEqual(pld.userIdentity, payload.userIdentity)
         );
 
+        // $FlowFixMe Cannot get u.xxx because property xxx is missing in object literal
         acc.push({
           userIdentity: payload.userIdentity,
           [byKey]: _.reduce(
@@ -96,6 +104,7 @@ module.exports.reduceAccountPayload = (
           _.isEqual(pld.accountIdentity, payload.accountIdentity)
         );
 
+        // $FlowFixMe Cannot get u.xxx because property xxx is missing in object literal
         acc.push({
           accountIdentity: payload.accountIdentity,
           [byKey]: _.reduce(

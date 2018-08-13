@@ -1,10 +1,11 @@
 // @flow
-import type { $Application, $Request, $Response, NextFunction } from "express";
+import type { $Application, $Request, $Response } from "express";
+
 const Hull = require("hull");
 const _ = require("lodash");
 
-module.exports = function(app: $Application) {
-  app.use((err: Error, req: $Request, res: $Response, next: NextFunction ) => {
+module.exports = function ErrorHandler(app: $Application) {
+  app.use((err: Error, req: $Request, res: $Response) => {
     // eslint-disable-line no-unused-vars
     if (err) {
       const data = {

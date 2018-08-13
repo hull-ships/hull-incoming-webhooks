@@ -1,13 +1,13 @@
 // @flow
 import type { $Response } from "express";
-import type { THullRequest } from "hull";
+import type { TRequestIncomingWebhooks } from "../types";
 
 const check = require("syntax-error");
 const _ = require("lodash");
 
 const processWebhook = require("../webhook-processor");
 
-function pickValuesFromRequest(req: THullRequest) {
+function pickValuesFromRequest(req: TRequestIncomingWebhooks) {
   const requestParams = _.pick(req, [
     "body",
     "headers",
@@ -27,8 +27,10 @@ function pickValuesFromRequest(req: THullRequest) {
   );
 }
 
-module.exports.webhookHandler = function webhookHandler(WebhookModel: Object) {
-  return (req: THullRequest, res: $Response) => {
+module.exports.webhookHandler = function webhookHandler(
+  WebhookModel: Function
+) {
+  return (req: TRequestIncomingWebhooks, res: $Response) => {
     res.send();
 
     const payload = {
@@ -44,7 +46,10 @@ module.exports.webhookHandler = function webhookHandler(WebhookModel: Object) {
   };
 };
 
-module.exports.statusCheck = (req: THullRequest, res: $Response) => {
+module.exports.statusCheck = (
+  req: TRequestIncomingWebhooks,
+  res: $Response
+) => {
   const { ship, client } = req.hull;
   const messages = [];
   let status = "ok";

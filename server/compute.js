@@ -9,6 +9,7 @@ const request = require("request");
 const Promise = require("bluebird");
 
 const lodash = _.functions(_).reduce((l, key) => {
+  // $FlowFixMe An indexer property is missing in Lodash [1].
   l[key] = (...args) => _[key](...args);
   return l;
 }, {});
@@ -54,11 +55,12 @@ function getSandbox(ship) {
   return sandboxes[ship.id];
 }
 
+// TODO: find more relevant Type for webhookRequest
 module.exports = function compute(
-  webhookRequest,
-  ship = {},
-  client = {},
-  options = {}
+  webhookRequest: *,
+  ship: Object = {},
+  client: Object = {},
+  options: Object = {}
 ) {
   const { preview } = options;
   const { private_settings = {} } = ship;
@@ -203,7 +205,8 @@ module.exports = function compute(
   sandbox.console = { log, warn: log, error: logError, debug, info };
 
   try {
-    const script = new vm.Script(`
+    const script = new vm.Script(
+      `
       try {
         results.push(function() {
           "use strict";
@@ -211,7 +214,9 @@ module.exports = function compute(
         }());
       } catch (err) {
         errors.push(err.toString());
-      }`, {});
+      }`,
+      {}
+    );
     script.runInContext(sandbox);
   } catch (err) {
     errors.push(err.toString());

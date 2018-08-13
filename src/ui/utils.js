@@ -1,4 +1,4 @@
-export function queryParams(search) {
+function queryParams(search) {
   return (search || document.location.search)
     .slice(1)
     .split("&")
@@ -8,3 +8,5 @@ export function queryParams(search) {
       return q;
     }, {});
 }
+
+export default queryParams;

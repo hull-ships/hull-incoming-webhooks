@@ -1,6 +1,7 @@
 // @flow
 import type { $Response, NextFunction } from "express";
-import type { THullRequest } from "hull";
+import type { TRequestIncomingWebhooks } from "../types";
+
 const connect = require("connect");
 const timeout = require("connect-timeout");
 const bodyParser = require("body-parser");
@@ -12,7 +13,7 @@ const {
   reducePayload,
 } = require("../lib/map-filter-results");
 
-function computeHandler(req: THullRequest, res: $Response) {
+function computeHandler(req: TRequestIncomingWebhooks, res: $Response) {
   const { client } = req.hull;
   let { ship = {} } = req.body;
   const { webhook, code } = req.body;
@@ -73,7 +74,11 @@ function computeHandler(req: THullRequest, res: $Response) {
   }
 }
 
-function haltOnTimedout(req: THullRequest, res: $Response, next: NextFunction) {
+function haltOnTimedout(
+  req: TRequestIncomingWebhooks,
+  res: $Response,
+  next: NextFunction
+) {
   if (!req.timedout) next();
 }
 
@@ -95,7 +100,7 @@ module.exports = (options: Object) => {
   app.use(computeHandler);
   app.use(haltOnTimedout);
 
-  return function c(req: THullRequest, res: $Response) {
+  return function c(req: TRequestIncomingWebhooks, res: $Response) {
     return app.handle(req, res);
   };
 };

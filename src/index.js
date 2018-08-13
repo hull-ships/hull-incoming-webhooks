@@ -1,8 +1,8 @@
 /* global Hull */
-import { queryParams } from "./ui/utils";
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./app";
+import queryParams from "./ui/utils";
+import App from "./app.jsx";
 import Engine from "./ui/engine";
 
 const { ship, organization, secret } = queryParams();

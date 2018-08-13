@@ -1,7 +1,15 @@
 // @flow
+import type { TWebhookRequest } from "../types";
+
 const mongoose = require("mongoose");
 
-module.exports = function({ mongoUrl, collectionSize, collectionName }) {
+const Schema = mongoose.Schema;
+
+module.exports = function WebhookRequest({
+  mongoUrl,
+  collectionSize,
+  collectionName,
+}: TWebhookRequest) {
   const fields = {
     connectorId: String,
     webhookData: Object,
@@ -18,11 +26,10 @@ module.exports = function({ mongoUrl, collectionSize, collectionName }) {
 
   mongoose.Promise = global.Promise;
 
-  const schema = mongoose
-    .Schema(fields, options)
-    .index({ connectorId: 1, _id: -1 });
+  // $FlowFixMe Error do not fit with mongoose doc (http://mongoosejs.com/docs/guide.html#capped)
+  const schema = new Schema(fields, options).index({ connectorId: 1, _id: -1 });
 
-  const connection = mongoose.connect(
+  mongoose.connect(
     mongoUrl,
     { useNewUrlParser: true }
   );

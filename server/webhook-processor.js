@@ -17,6 +17,7 @@ function isGroup(o) {
 }
 
 function flatten(obj, key, group) {
+  // $FlowFixMe Could not decide which case to select.
   return _.reduce(
     group,
     (m, v, k) => {
@@ -35,7 +36,7 @@ function flatten(obj, key, group) {
 module.exports = function handle(
   payload: Object = {},
   { ship, client, metric, cachedWebhookPayload }: Object,
-  WebhookModel: Object
+  WebhookModel: Function
 ) {
   return compute(payload, ship, client)
     .then(result => {
@@ -104,7 +105,7 @@ module.exports = function handle(
                 })
                 .then(
                   () => {
-                    succeededEvents++;
+                    succeededEvents += 1;
                     return asUser.logger.info("incoming.event.success");
                   },
                   err =>

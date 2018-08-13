@@ -12,6 +12,7 @@ const config = require("../../webpack.config");
  * TODO This function should be moved to hull-node library
  */
 function devMode(app: $Application) {
+  // $FlowFixMe Could not decide which case to select.
   const entry = _.reduce(
     config.entry,
     (m, v, k) => {

@@ -1,6 +1,6 @@
 // @flow
 import type { $Response, NextFunction } from "express";
-import type { THullRequest } from "hull";
+import type { TRequestIncomingWebhooks } from "../types";
 
 const crypto = require("crypto");
 const qs = require("querystring");
@@ -24,7 +24,11 @@ const decrypt = (text: string, password: string) => {
 };
 
 const middleware = (password: string) => {
-  return (req: THullRequest, res: $Response, next: NextFunction ) => {
+  return (
+    req: TRequestIncomingWebhooks,
+    res: $Response,
+    next: NextFunction
+  ) => {
     const pathName = _.get(
       url.parse(req.url).pathname.match("/webhooks/(?:[a-zA-Z0-9]*)/(.*)"),
       "[1]"

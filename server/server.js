@@ -2,7 +2,7 @@
 
 import type { $Application, $Response } from "express";
 import type { TRequest } from "hull";
-const { Connector } = require("hull");
+
 const express = require("express");
 const { smartNotifierHandler } = require("hull/lib/utils");
 const bodyParser = require("body-parser");
@@ -13,7 +13,6 @@ const { webhookHandler, statusCheck } = require("./actions");
 const getLastWebhooks = require("./middlewares/get-last-webhooks");
 const { encrypt } = require("./lib/crypto");
 const computeHandler = require("./actions/compute-handler");
-const errorHandler = require("./middlewares/error-handler");
 
 function server(
   app: $Application,
@@ -44,7 +43,7 @@ function server(
     })
   );
 
-  app.get("/conf", (req, res) => {
+  app.get("/conf", (req: TRequest, res: $Response) => {
     if (
       req.hostname &&
       req.hull.config &&
