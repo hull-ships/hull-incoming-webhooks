@@ -27,7 +27,8 @@ module.exports = function WebhookRequest({
   mongoose.Promise = global.Promise;
 
   // $FlowFixMe Error do not fit with mongoose doc (http://mongoosejs.com/docs/guide.html#capped)
-  const schema = new Schema(fields, options).index({ connectorId: 1, _id: -1 });
+  // const schema = new Schema(fields, options).index({ connectorId: 1, _id: -1 });
+  const schema = mongoose.Schema(fields, options).index({ connectorId: 1, _id: -1 });
 
   mongoose.connect(
     mongoUrl,

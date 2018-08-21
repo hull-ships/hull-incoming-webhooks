@@ -1,15 +1,18 @@
 /* global describe, it, beforeEach, afterEach */
 
-import Minihull from "minihull";
-import axios from "axios";
-import assert from "assert";
-import _ from "lodash";
+const Minihull = require("minihull");
+const axios = require("axios");
+const assert = require("assert");
+const _ = require("lodash");
 
-import { encrypt } from "../../server/lib/crypto";
-import bootstrap from "./support/bootstrap";
+const { encrypt } = require("../../server/lib/crypto");
+const bootstrap = require("./support/bootstrap");
+
+const minihull = new Minihull();
+const connectorId = minihull.fakeId();
 
 describe("Connector for webhooks endpoint", function test() {
-  let minihull;
+  // let minihull;
   let server;
 
   const private_settings = {
@@ -22,8 +25,13 @@ describe("Connector for webhooks endpoint", function test() {
     minihull = new Minihull();
     server = bootstrap();
     minihull.listen(8001);
-    minihull.stubConnector({ id: "123456789012345678901234", private_settings });
-    minihull.stubSegments([]);
+    minihull.stubConnector({
+      id: connectorId,
+      private_settings
+    });
+    minihull.stubAccountsSegments([]);
+    // minihull.stubConnector({ id: "123456789012345678901234", private_settings });
+    // minihull.stubSegments([]);
 
     setTimeout(() => {
       done();
@@ -57,7 +65,6 @@ describe("Connector for webhooks endpoint", function test() {
     }).then(() => {
       minihull.on("incoming.request", req => {
         const batch = req.body.batch;
-
         batch.forEach(incoming => {
           if (incoming.type === "traits") {
             assert.equal(_.get(incoming.body, "customerioid"), "321");

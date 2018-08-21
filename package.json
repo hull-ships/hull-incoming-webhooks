@@ -27,7 +27,7 @@
   "engines": {
     "node": "8.11.x",
     "npm": "5.6.x",
-    "yarn": "1.6.x"
+    "yarn": "1.9.x"
   },
   "scripts": {
     "ngrok": "ngrok http 8082 --region eu --subdomain incoming-webhooks",
@@ -38,12 +38,14 @@
     "start": "node -r newrelic build",
     "start:dev": "NODE_ENV=development LOG_LEVEL=debug babel-watch -L server",
     "dev": "yarn start:dev",
-    "test": "yarn run test:lint && yarn run test:combined",
+    "test": "yarn run test:lint && yarn run test:flow",
     "test:lint": "eslint server src",
     "test:flow": "flow check",
-    "test:combined": "NODE_ENV=test jest ./test",
-    "test:unit": "NODE_ENV=test jest ./test/unit",
-    "test:integration": "NODE_ENV=test jest ./test/integration",
+    "_test:combined": "NODE_ENV=test jest ./test",
+    "_test:unit": "NODE_ENV=test jest ./test/unit",
+    "_test:integration": "NODE_ENV=test jest ./test/integration",
+    "test:unit": "NODE_ENV=test mocha --require babel-register -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --require babel-register -R spec ./test/integration",
     "postinstall": "yarn run flow:install && yarn run build",
     "prettier:client": "prettier --write \"./src/**/*.{js,jsx,json}\"",
     "prettier:server": "prettier --write \"./server/**/*\"",
@@ -83,6 +85,7 @@
     "postcss-flexbugs-fixes": "^3.3.0",
     "postcss-loader": "^2.1.4",
     "progress-bar-webpack-plugin": "^1.11.0",
+    "proptypes": "^1.1.0",
     "querystring": "^0.2.0",
     "react": "^16.3.2",
     "react-bootstrap": "^0.32.1",
@@ -122,6 +125,8 @@
     "flow-bin": "^0.69.0",
     "flow-typed": "^2.4.0",
     "jest": "^22.4.2",
+    "minihull": "3.0.0",
+    "mocha": "^5.2.0",
     "nock": "^9.0.14",
     "prettier": "^1.12.1"
   }

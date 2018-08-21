@@ -1,98 +1,79 @@
-// @flow
-import React, { Component, createRef } from "react";
+import * as React from "react";
+import PropTypes from "proptypes";
 import className from "classnames";
 import codeMirror from "codemirror";
 
-type ComponentProps = {
-  defaultValue?: string,
-  value?: string,
-  codeMirrorInstance: any,
-  options: Object,
-  path: string,
-  className?: string,
-  onScroll?: Function,
-  onChange?: Function,
-  onFocusChange?: Function,
-};
+class CodeMirror extends React.Component {
+  static propTypes = {
+    value: PropTypes.string.isRequired,
+    options: PropTypes.object.isRequired,
+    onChange: PropTypes.object,
+  };
 
-type ComponentState = {
-  isFocused: boolean,
-};
+  static defaultProps = {
+    value: "",
+    options: {},
+    onChange: () => null,
+  };
 
-class CodeMirror extends Component<ComponentProps, ComponentState> {
   state = {
     isFocused: false,
   };
 
-  _textareaRef = createRef();
+  _textareaRef = React.createRef();
+  _codeMirror = null;
 
   _getCodeMirrorInstance() {
-    return this.props.codeMirrorInstance || codeMirror;
+    return codeMirror;
   }
 
   getCodeMirror() {
-    return this.codeMirror;
+    return this._codeMirror;
   }
 
   componentDidMount() {
     if (this._textareaRef.current !== null) {
       const textareaNode = this._textareaRef.current;
       const codeMirrorInstance = this._getCodeMirrorInstance();
-      this.codeMirror = codeMirrorInstance.fromTextArea(
+      this._codeMirror = codeMirrorInstance.fromTextArea(
         textareaNode,
         this.props.options
       );
-      this.codeMirror.on("change", this.codemirrorValueChanged.bind(this));
-      this.codeMirror.on("focus", this.focusChanged.bind(this, true));
-      this.codeMirror.on("blur", this.focusChanged.bind(this, false));
-      this.codeMirror.on("scroll", this.scrollChanged.bind(this));
-      this.codeMirror.setValue(
-        this.props.defaultValue || this.props.value || ""
-      );
+      if (this._codeMirror !== null) {
+        this._codeMirror.on("change", this.codemirrorValueChanged.bind(this));
+        this._codeMirror.on("focus", this.focusChanged.bind(this, true));
+        this._codeMirror.on("blur", this.focusChanged.bind(this, false));
+        this._codeMirror.setValue(this.props.value);
+      }
     }
   }
 
   componentWillUnmount() {
     // is there a lighter-weight way to remove the cm instance?
-    if (this.codeMirror) {
-      this.codeMirror.toTextArea();
+    if (this._codeMirror) {
+      this._codeMirror.toTextArea();
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: ComponentProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (
-      this.codeMirror &&
+      this._codeMirror &&
       nextProps.value !== undefined &&
-      this.codeMirror.getValue() !== nextProps.value
+      this._codeMirror.getValue() !== nextProps.value
     ) {
-      this.codeMirror.setValue(nextProps.value);
+      this._codeMirror.setValue(nextProps.value);
     }
     // if (typeof nextProps.options === "object") {
     //   for (const optionName in nextProps.options) {
     //     if (nextProps.options.hasOwnProperty(optionName)) {
-    //       this.codeMirror.setOption(optionName, nextProps.options[optionName]);
+    //       this._codeMirror.setOption(optionName, nextProps.options[optionName]);
     //     }
     //   }
     // }
   }
 
-  focusChanged(focused: boolean) {
-    this.setState(
-      {
-        isFocused: focused,
-      },
-      () => {
-        if (typeof this.props.onFocusChange === "function") {
-          this.props.onFocusChange(focused);
-        }
-      }
-    );
-  }
-
-  scrollChanged(cm: any) {
-    if (typeof this.props.onScroll === "function") {
-      this.props.onScroll(cm.getScrollInfo());
-    }
+  focusChanged(isFocused) {
+    this.setState({ isFocused });
   }
 
   codemirrorValueChanged(doc, change) {
@@ -102,16 +83,13 @@ class CodeMirror extends Component<ComponentProps, ComponentState> {
   }
 
   render() {
-    const editorClassName = className(
-      "ReactCodeMirror",
-      this.props.className || "",
-      { "ReactCodeMirror--focused": this.state.isFocused }
-    );
+    const editorClassName = className("ReactCodeMirror", {
+      "ReactCodeMirror--focused": this.state.isFocused,
+    });
     return (
       <div className={editorClassName}>
         <textarea
           ref={this._textareaRef}
-          name={this.props.path}
           defaultValue={this.props.value}
           autoComplete="off"
         />

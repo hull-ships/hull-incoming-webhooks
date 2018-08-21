@@ -1,14 +1,17 @@
 /* global describe, it, beforeEach, afterEach */
-import Minihull from "minihull";
-import axios from "axios";
-import assert from "assert";
-import _ from "lodash";
+const Minihull = require("minihull");
+const axios = require("axios");
+const assert = require("assert");
+const _ = require("lodash");
 
-import { encrypt } from "../../server/lib/crypto";
-import bootstrap from "./support/bootstrap";
+const { encrypt } = require("../../server/lib/crypto");
+const bootstrap = require("./support/bootstrap");
+
+const minihull = new Minihull();
+const connectorId = minihull.fakeId();
 
 describe("Connector for webhooks endpoint", function test() {
-  let minihull;
+  // let minihull;
   let server;
 
   const private_settings = {
@@ -16,11 +19,16 @@ describe("Connector for webhooks endpoint", function test() {
   };
 
   beforeEach((done) => {
-    minihull = new Minihull();
+    // minihull = new Minihull();
     server = bootstrap();
     minihull.listen(8001);
-    minihull.stubConnector({ id: "123456789012345678901234", private_settings });
-    minihull.stubSegments([]);
+    minihull.stubConnector({
+      id: connectorId,
+      private_settings
+    });
+    // minihull.stubConnector({ id: "123456789012345678901234", private_settings });
+    minihull.stubAccountsSegments([]);
+    // minihull.stubSegments([]);
 
     setTimeout(() => {
       done();
