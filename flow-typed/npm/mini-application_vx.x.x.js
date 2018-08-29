@@ -1,4 +1,4 @@
-// flow-typed signature: 7ba2b5b86ae76668d9ee204d3ac9fb65
+// flow-typed signature: 7c48ece60708a9d531cc95ce2111bcca
 // flow-typed version: <<STUB>>/mini-application_v^1.1.0/flow_v0.69.0
 
 /**
@@ -27,6 +27,10 @@ declare module 'mini-application/src/mini-application' {
 }
 
 declare module 'mini-application/src/repl' {
+  declare module.exports: any;
+}
+
+declare module 'mini-application/test' {
   declare module.exports: any;
 }
 
@@ -76,6 +80,9 @@ declare module 'mini-application/src/mini-application.js' {
 }
 declare module 'mini-application/src/repl.js' {
   declare module.exports: $Exports<'mini-application/src/repl'>;
+}
+declare module 'mini-application/test.js' {
+  declare module.exports: $Exports<'mini-application/test'>;
 }
 declare module 'mini-application/test/events-test.js' {
   declare module.exports: $Exports<'mini-application/test/events-test'>;

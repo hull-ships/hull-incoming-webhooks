@@ -123,12 +123,9 @@
     "flow-typed": "^2.4.0",
     "jest": "^22.4.2",
     "mini-application": "^1.1.0",
-    "minihull": "^3.0.0",
+    "minihull": "^3.0.2",
     "mocha": "^5.2.0",
     "nock": "^9.0.14",
     "prettier": "^1.12.1"
-  },
-  "resolutions": {
-    "mini-application/sinon": "6.1.2"
   }
 }
