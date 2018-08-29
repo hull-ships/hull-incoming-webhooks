@@ -5,6 +5,7 @@ const express = require("express");
 const { devMode } = require("hull/lib/utils");
 const { Cache } = require("hull/lib/infra");
 const dotenv = require("dotenv");
+const { middleware } = require("./lib/crypto");
 const webpackConfig = require("../webpack.config");
 const webhookRequest = require("./models/webhook-request");
 
@@ -58,7 +59,7 @@ const connector = new Hull.Connector(options);
 if (NODE_ENV === "development") {
   devMode(app, webpackConfig);
 }
-
+app.use(middleware(connector.hostSecret));
 connector.setupApp(app);
 server(app, { hostSecret: options.hostSecret, connector, WebhookModel });
 connector.startApp(app);

@@ -3,8 +3,6 @@ import type { TWebhookRequest } from "../types";
 
 const mongoose = require("mongoose");
 
-const Schema = mongoose.Schema;
-
 module.exports = function WebhookRequest({
   mongoUrl,
   collectionSize,
@@ -27,13 +25,16 @@ module.exports = function WebhookRequest({
   mongoose.Promise = global.Promise;
 
   // $FlowFixMe Error do not fit with mongoose doc (http://mongoosejs.com/docs/guide.html#capped)
-  // const schema = new Schema(fields, options).index({ connectorId: 1, _id: -1 });
-  const schema = mongoose.Schema(fields, options).index({ connectorId: 1, _id: -1 });
+  const schema = new mongoose.Schema(fields, options).index({
+    connectorId: 1,
+    _id: -1,
+  });
 
-  mongoose.connect(
+  const connection = mongoose.connect(
     mongoUrl,
-    { useNewUrlParser: true }
+    { useMongoClient: true }
   );
 
-  return mongoose.model(collectionName, schema);
+  // $FlowFixMe Error do not fit with mongoose doc
+  return connection.model(collectionName, schema);
 };

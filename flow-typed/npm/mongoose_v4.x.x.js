@@ -1,5 +1,5 @@
-// flow-typed signature: 2cc0769b661064b1ba797c33f9c3233b
-// flow-typed version: 6f5d5940e2/mongoose_v5.x.x/flow_>=v0.50.x
+// flow-typed signature: d88b996f320b22add9075651e2177fd0
+// flow-typed version: 5d74dbc7f9/mongoose_v4.x.x/flow_>=v0.50.x
 
 /*** FIX broken globals import 'bson' (((( ***/
 // import 'bson';
@@ -122,18 +122,6 @@ type Mongoose$SchemaPlugin<Opts> = (
   opts: Opts
 ) => void;
 
-declare class MongoDBClientSession {
-  id: string;
-  abortTransaction(): Promise<any>;
-  advanceOperationTime(operationTime: any): void;
-  commitTransaction(): Promise<any>;
-  endSession(opts?: Object): Promise<any>;
-  equals(session: MongoDBClientSession): boolean;
-  incrementTransactionNumber(): void;
-  inTransaction(): boolean;
-  startTransaction(opts?: Object): void;
-}
-
 declare class Mongoose$Schema<Doc> {
   static Types: Mongoose$Types;
   constructor(
@@ -215,48 +203,19 @@ type UpdateResult = {
   ok?: boolean
 };
 
-// A list of Model static methods: http://mongoosejs.com/docs/api.html#Model
 declare class Mongoose$Document {
-  static aggregate(pipeline: Object[]): Aggregate$Query;
-  static bulkWrite(opts: Object[]): Promise<any>;
-  static count(criteria?: Object): Promise<number>;
-  static countDocuments(criteria?: Object): Promise<number>;
-  static create(doc: $Shape<this> | Array<$Shape<this>>): Promise<this>;
-  static deleteMany(criteria: Object): Promise<any>;
-  static deleteOne(criteria: Object): Promise<any>;
-  static discriminator(name: string, schema: Mongoose$Schema<any>): Class<this>;
-  static distinct(field: string, criteria?: Object): Promise<any>;
-  static ensureIndexes(opts?: Object): Promise<any>;
-  static estimatedDocumentCount(opts?: Object): Promise<number>;
   static find(
     criteria?: Object,
     projection?: MongooseProjection,
     options?: Object
   ): Mongoose$Query<Array<this>, this>;
-  static findById(
-    id: MongoId,
-    projection?: MongooseProjection,
-    options?: Object
-  ): Mongoose$Query<?this, this>;
-  static findByIdAndDelete(
-    id: MongoId,
-    options?: Object
-  ): Mongoose$Query<?this, this>;
-  static findByIdAndRemove(
-    id: MongoId,
-    options?: Object
-  ): Mongoose$Query<?this, this>;
-  static findByIdAndUpdate(
-    id: MongoId,
-    data: Object,
-    options?: Object
-  ): Mongoose$Query<?this, this>;
   static findOne(
     criteria?: Object,
     projection?: MongooseProjection
   ): Mongoose$Query<?this, this>;
-  static findOneAndDelete(
-    criteria: ?Object,
+  static findById(
+    id: MongoId,
+    projection?: MongooseProjection,
     options?: Object
   ): Mongoose$Query<?this, this>;
   static findOneAndRemove(
@@ -268,37 +227,18 @@ declare class Mongoose$Document {
     data: Object,
     options?: Object
   ): Mongoose$Query<?this, this>;
-  static geoSearch(
-    conditions: Object,
-    opts: {
-      near: [number, number],
-      maxDistance: number,
-      limit?: number,
-      lean?: boolean
-    }
-  ): Promise<Array<this>>;
-  static hydrate(data: Object): Mongoose$Document;
-  static init(): Promise<Object>;
-  static insertMany(docs: Object | Object[], opts?: Object): Promise<any>;
-  static listIndexes(): Promise<Array<any>>;
-  static mapReduce(o: Object): Promise<any>;
-  static populate(
-    doc: Mongoose$Document | Array<Mongoose$Document>,
-    options: Object
-  ): Promise<Mongoose$Document | Array<Mongoose$Document>>;
-  static remove(criteria: Object): Promise<mixed>;
-  static replaceOne(
-    conditions: Object,
-    doc: Mongoose$Document
-  ): Mongoose$Query<?this, this>;
-  static startSession(opts?: Object): Promise<MongoDBClientSession>;
-  static syncIndexes(opts?: Object): Promise<any>;
-  static update(
-    criteria: Object,
-    update: Object,
+  static findByIdAndRemove(
+    id: MongoId,
     options?: Object
-  ): Promise<UpdateResult> & { exec(): Promise<UpdateResult> };
-  static updateMany(
+  ): Mongoose$Query<?this, this>;
+  static findByIdAndUpdate(
+    id: MongoId,
+    data: Object,
+    options?: Object
+  ): Mongoose$Query<?this, this>;
+  static count(criteria?: Object): Promise<number>;
+  static remove(criteria: Object): Promise<mixed>;
+  static update(
     criteria: Object,
     update: Object,
     options?: Object
@@ -308,13 +248,28 @@ declare class Mongoose$Document {
     update: Object,
     options?: Object
   ): Promise<UpdateResult> & { exec(): Promise<UpdateResult> };
-  static watch(pipeline?: Array<any>, opts?: Object): events$EventEmitter;
+  static updateMany(
+    criteria: Object,
+    update: Object,
+    options?: Object
+  ): Promise<UpdateResult> & { exec(): Promise<UpdateResult> };
+  static create(doc: $Shape<this> | Array<$Shape<this>>): Promise<this>;
   static where(criteria?: Object): Mongoose$Query<this, this>;
+  static aggregate(pipeline: Object[]): Aggregate$Query;
+  static bulkWrite(ops: Object[]): Promise<any>;
+  static deleteMany(criteria: Object): Promise<any>;
+  static deleteOne(criteria: Object): Promise<any>;
+  static distinct(field: string, criteria?: Object): Promise<any>;
+  static ensureIndexes(opts?: Object): Promise<any>;
+  static hydrate(data: Object): Mongoose$Document;
+  static insertMany(docs: Object | Object[], opts?: Object): Promise<any>;
+  static mapReduce(o: Object): Promise<any>;
   static collection: Mongoose$Collection;
   static db: any;
   static modelName: string;
   static schema: Mongoose$Schema<this>;
   static on(type: string, cb: Function): void;
+  static discriminator(name: string, schema: Mongoose$Schema<any>): Class<this>;
 
   collection: Mongoose$Collection;
   constructor(data?: $Shape<this>): this;
@@ -477,8 +432,8 @@ declare class Aggregate$Query extends Promise<any> {
   collation(opts?: Object): Aggregate$Query;
   count(str: string): Promise<number>;
   cursor(opts?: Object): Mongoose$QueryCursor<Object>;
-  exec(cb?: Function): Promise<any>;
-  explain(cb?: Function): Aggregate$Query;
+  exec(cb?:Function): Promise<any>;
+  explain(cb?:Function): Aggregate$Query;
   facet(opts?: Object): Aggregate$Query;
   graphLookup(opts?: Object): Aggregate$Query;
   group(opts?: Object): Aggregate$Query;

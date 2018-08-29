@@ -24,7 +24,7 @@ module.exports = function bootstrap() {
     port: 8000,
     cache,
     clientConfig: { protocol: "http", firehoseUrl: "firehose" },
-    mongoDbConnectionUrl: "mongodb://localhost:27017",
+    mongoDbConnectionUrl: "mongodb://localhost",
     dbName: "incoming-webhooks-tests"
   };
 
@@ -34,11 +34,4 @@ module.exports = function bootstrap() {
   connector.setupApp(app);
   server(app, { hostSecret: options.hostSecret, connector, WebhookModel });
   return connector.startApp(app);
-
-  // let app = express();
-  // const connector = new Connector(options);
-  // app.use(middleware(connector.hostSecret));
-  // connector.setupApp(app);
-  // app = server(connector, options, app);
-  // return connector.startApp(app);
 }

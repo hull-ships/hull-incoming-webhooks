@@ -38,12 +38,9 @@
     "start": "node -r newrelic build",
     "start:dev": "NODE_ENV=development LOG_LEVEL=debug babel-watch -L server",
     "dev": "yarn start:dev",
-    "test": "yarn run test:lint && yarn run test:flow",
+    "test": "yarn test:lint && yarn test:flow && yarn test:unit && yarn test:integration",
     "test:lint": "eslint server src",
     "test:flow": "flow check",
-    "_test:combined": "NODE_ENV=test jest ./test",
-    "_test:unit": "NODE_ENV=test jest ./test/unit",
-    "_test:integration": "NODE_ENV=test jest ./test/integration",
     "test:unit": "NODE_ENV=test mocha --require babel-register -R spec ./test/unit",
     "test:integration": "NODE_ENV=test mocha --require babel-register -R spec ./test/integration",
     "postinstall": "yarn run flow:install && yarn run build",
@@ -79,7 +76,7 @@
     "hull": "0.13.16",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
-    "mongoose": "^5.2.7",
+    "mongoose": "4.11.11",
     "newrelic": "^4.0.0",
     "node-sass": "^4.9.2",
     "postcss-flexbugs-fixes": "^3.3.0",
@@ -125,9 +122,13 @@
     "flow-bin": "^0.69.0",
     "flow-typed": "^2.4.0",
     "jest": "^22.4.2",
-    "minihull": "3.0.0",
+    "mini-application": "^1.1.0",
+    "minihull": "^3.0.0",
     "mocha": "^5.2.0",
     "nock": "^9.0.14",
     "prettier": "^1.12.1"
+  },
+  "resolutions": {
+    "mini-application/sinon": "6.1.2"
   }
 }
