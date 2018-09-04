@@ -1,12 +1,19 @@
-import { Connector } from "hull";
-import express from "express";
+const Hull = require("hull");
+const express = require("express");
 
-import { Cache } from "hull/lib/infra";
+const { Cache } = require("hull/lib/infra");
 
-import { middleware } from "../../../server/lib/crypto";
-import server from "../../../server/server";
+const { middleware } = require("../../../server/lib/crypto");
+const webhookRequest = require("../../../server/models/webhook-request");
+const server = require("../../../server/server");
 
-export default function bootstrap() {
+const WebhookModel = webhookRequest({
+  mongoUrl: "mongodb://localhost:27017/incoming-webhooks-tests",
+  collectionSize: 524288000,
+  collectionName: "webhook_requests",
+});
+
+module.exports = function bootstrap() {
   const cache = new Cache({
     store: "memory",
     ttl: 1
@@ -21,10 +28,10 @@ export default function bootstrap() {
     dbName: "incoming-webhooks-tests"
   };
 
-  let app = express();
-  const connector = new Connector(options);
+  const app = express();
+  const connector = new Hull.Connector(options);
   app.use(middleware(connector.hostSecret));
   connector.setupApp(app);
-  app = server(connector, options, app);
+  server(app, { hostSecret: options.hostSecret, connector, WebhookModel });
   return connector.startApp(app);
 }

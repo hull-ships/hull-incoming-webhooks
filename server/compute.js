@@ -1,12 +1,15 @@
-import vm from "vm";
-import _ from "lodash";
-import moment from "moment";
-import urijs from "urijs";
-import deepFreeze from "deep-freeze";
-import request from "request";
-import Promise from "bluebird";
+// @flow
+
+const vm = require("vm");
+const _ = require("lodash");
+const moment = require("moment");
+const urijs = require("urijs");
+const deepFreeze = require("deep-freeze");
+const request = require("request");
+const Promise = require("bluebird");
 
 const lodash = _.functions(_).reduce((l, key) => {
+  // $FlowFixMe An indexer property is missing in Lodash [1].
   l[key] = (...args) => _[key](...args);
   return l;
 }, {});
@@ -52,7 +55,13 @@ function getSandbox(ship) {
   return sandboxes[ship.id];
 }
 
-module.exports = function compute(webhookRequest, ship = {}, client = {}, options = {}) {
+// TODO: find more relevant Type for webhookRequest
+module.exports = function compute(
+  webhookRequest: *,
+  ship: Object = {},
+  client: Object = {},
+  options: Object = {}
+) {
   const { preview } = options;
   const { private_settings = {} } = ship;
   const code = _.get(options, "code", _.get(private_settings, "code", ""));
@@ -81,20 +90,48 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   sandbox.errors = errors;
   sandbox.logs = logs;
 
-  const track = (userIdentity, userIdentityOptions) => (eventName, properties = {}, context = {}) => {
-    if (eventName) tracks.push({ userIdentity, userIdentityOptions, event: { eventName, properties, context } });
+  const track = (userIdentity, userIdentityOptions) => (
+    eventName,
+    properties = {},
+    context = {}
+  ) => {
+    if (eventName)
+      tracks.push({
+        userIdentity,
+        userIdentityOptions,
+        event: { eventName, properties, context },
+      });
   };
 
-  const traits = (userIdentity, userIdentityOptions) => (properties = {}, context = {}) => {
-    userTraitsList.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
+  const traits = (userIdentity, userIdentityOptions) => (
+    properties = {},
+    context = {}
+  ) => {
+    userTraitsList.push({
+      userIdentity,
+      userIdentityOptions,
+      userTraits: [{ properties, context }],
+    });
   };
 
-  const links = (userIdentity, userIdentityOptions) => (accountIdentity = {}, accountIdentityOptions = {}) => {
-    accountLinksList.push({ userIdentity, userIdentityOptions, accountIdentity, accountIdentityOptions });
+  const links = (userIdentity, userIdentityOptions) => (
+    accountIdentity = {},
+    accountIdentityOptions = {}
+  ) => {
+    accountLinksList.push({
+      userIdentity,
+      userIdentityOptions,
+      accountIdentity,
+      accountIdentityOptions,
+    });
     return {
       traits: (properties = {}, context = {}) => {
-        accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
-      }
+        accountTraitsList.push({
+          accountIdentity,
+          accountIdentityOptions,
+          accountTraits: [{ properties, context }],
+        });
+      },
     };
   };
 
@@ -102,12 +139,14 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     try {
       client.asUser(userIdentity);
     } catch (err) {
-      errors.push(`Encountered error while calling asUser : ${_.get(err, "message", "")}`);
+      errors.push(
+        `Encountered error while calling asUser : ${_.get(err, "message", "")}`
+      );
     }
     return {
       track: track(userIdentity, userIdentityOptions),
       traits: traits(userIdentity, userIdentityOptions),
-      account: links(userIdentity, userIdentityOptions)
+      account: links(userIdentity, userIdentityOptions),
     };
   };
 
@@ -116,24 +155,31 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
       if (accountIdentity) {
         return {
           traits: (properties = {}, context = {}) => {
-            accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
-          }
+            accountTraitsList.push({
+              accountIdentity,
+              accountIdentityOptions,
+              accountTraits: [{ properties, context }],
+            });
+          },
         };
       }
       return errors.push("Account identity cannot be empty");
     },
-    user
+    user,
   };
 
   sandbox.request = (opts, callback) => {
     isAsync = true;
-    return request.defaults({ timeout: 3000 })(opts, (error, response, body) => {
-      try {
-        callback(error, response, body);
-      } catch (err) {
-        errors.push(err.toString());
+    return request.defaults({ timeout: 3000 })(
+      opts,
+      (error, response, body) => {
+        try {
+          callback(error, response, body);
+        } catch (err) {
+          errors.push(err.toString());
+        }
       }
-    });
+    );
   };
 
   function log(...args) {
@@ -159,7 +205,8 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   sandbox.console = { log, warn: log, error: logError, debug, info };
 
   try {
-    const script = new vm.Script(`
+    const script = new vm.Script(
+      `
       try {
         results.push(function() {
           "use strict";
@@ -167,26 +214,40 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
         }());
       } catch (err) {
         errors.push(err.toString());
-      }`);
+      }`,
+      {}
+    );
     script.runInContext(sandbox);
   } catch (err) {
     errors.push(err.toString());
   }
 
-  if (sandbox.results.length && isAsync && !_.some(_.compact(sandbox.results), (r) => _.isFunction(r.then))) {
+  if (
+    sandbox.results.length &&
+    isAsync &&
+    !_.some(_.compact(sandbox.results), r => _.isFunction(r.then))
+  ) {
     errors.push("It seems you’re using 'request' which is asynchronous.");
-    errors.push("You need to return a 'new Promise' and 'resolve' or 'reject' it in you 'request' callback.");
+    errors.push(
+      "You need to return a 'new Promise' and 'resolve' or 'reject' it in you 'request' callback."
+    );
   }
 
   return Promise.all(sandbox.results)
-    .catch((err) => {
+    .catch(err => {
       errors.push(err.toString());
     })
     .then(() => {
       if (preview && tracks.length > 10) {
         logs.unshift([tracks]);
-        logs.unshift([`You're trying to send ${tracks.length} 'track' calls at a time. We will only process the first 10`]);
-        logs.unshift(["You can't send more than 10 tracking calls in one batch."]);
+        logs.unshift([
+          `You're trying to send ${
+            tracks.length
+          } 'track' calls at a time. We will only process the first 10`,
+        ]);
+        logs.unshift([
+          "You can't send more than 10 tracking calls in one batch.",
+        ]);
         tracks = _.slice(tracks, 0, 10);
       }
 
@@ -195,14 +256,26 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
         logsForLogger,
         errors,
         code,
-        userTraits: _.map(userTraitsList, ({ userIdentity, userIdentityOptions, userTraits }) =>
-          ({ userIdentity, userIdentityOptions, userTraits: _.reduce(userTraits, buildPayload, {}) })),
+        userTraits: _.map(
+          userTraitsList,
+          ({ userIdentity, userIdentityOptions, userTraits }) => ({
+            userIdentity,
+            userIdentityOptions,
+            userTraits: _.reduce(userTraits, buildPayload, {}),
+          })
+        ),
         events: tracks,
         accountLinks: accountLinksList,
         payload: sandbox.payload,
         success: true,
-        accountTraits: _.map(accountTraitsList, ({ accountIdentity, accountIdentityOptions, accountTraits }) =>
-          ({ accountIdentity, accountIdentityOptions, accountTraits: _.reduce(accountTraits, buildPayload, {}) })),
+        accountTraits: _.map(
+          accountTraitsList,
+          ({ accountIdentity, accountIdentityOptions, accountTraits }) => ({
+            accountIdentity,
+            accountIdentityOptions,
+            accountTraits: _.reduce(accountTraits, buildPayload, {}),
+          })
+        ),
       };
     });
 };

@@ -11,8 +11,8 @@ export default class PreviewPane extends Component {
   constructor() {
     super();
     this.state = {
-      activeTab: "Current"
-    }
+      activeTab: "Current",
+    };
   }
 
   getIcon() {
@@ -27,7 +27,7 @@ export default class PreviewPane extends Component {
     }
 
     if (_.get(this.props.result, "success")) {
-      return "valid"
+      return "valid";
     }
 
     return "cross";
@@ -38,35 +38,65 @@ export default class PreviewPane extends Component {
   };
 
   currentOrPrevious(current, previous) {
-    return this.state.activeTab === "Current" ? current : previous
+    return this.state.activeTab === "Current" ? current : previous;
   }
 
   render() {
-    const { result, onCodeUpdate, code, currentWebhook, md, sm, lg, xs, computing, ship, token, hostname } = this.props;
+    const {
+      result,
+      onCodeUpdate,
+      code,
+      currentWebhook,
+      md,
+      sm,
+      lg,
+      xs,
+      computing,
+      ship,
+      token,
+      hostname,
+    } = this.props;
     const previousResult = _.get(currentWebhook, "result", {});
     const previousCode = _.get(previousResult, "code", "");
 
-    return (<Col className="flexColumn pl-1 resultPane" md={md} sm={sm} lg={lg} xs={xs}>
-      <Row>
-        <Col sm={6}>
-          <Tabs justified defaultActiveKey={this.state.activeTab} id="preview-tabs" onSelect={this.changeTab}>
-            <Tab eventKey="Current" title="Current Code"/>
-            <Tab eventKey="Previous" title="At Webhook reception" />
-          </Tabs>
-        </Col>
-        <Col sm={6} className="mt-05">
-          <WebhookUrl ship={ship} token={token} hostname={hostname} className="text-right"/>
-          <Help className="text-right"/>
-        </Col>
-      </Row>
+    return (
+      <Col
+        className="flexColumn pl-1 resultPane"
+        md={md}
+        sm={sm}
+        lg={lg}
+        xs={xs}
+      >
+        <Row>
+          <Col sm={6}>
+            <Tabs
+              justified
+              defaultActiveKey={this.state.activeTab}
+              id="preview-tabs"
+              onSelect={this.changeTab}
+            >
+              <Tab eventKey="Current" title="Current Code" />
+              <Tab eventKey="Previous" title="At Webhook reception" />
+            </Tabs>
+          </Col>
+          <Col sm={6} className="mt-05">
+            <WebhookUrl
+              ship={ship}
+              token={token}
+              hostname={hostname}
+              className="text-right"
+            />
+          </Col>
+        </Row>
 
-      <ResultsPane
-        title={this.state.activeTab}
-        result={this.currentOrPrevious(result, previousResult)}
-        code={this.currentOrPrevious(code, previousCode)}
-        computing={computing}
-        onCodeUpdate={this.currentOrPrevious(onCodeUpdate, undefined)}
-      />
-    </Col>);
+        <ResultsPane
+          title={this.state.activeTab}
+          result={this.currentOrPrevious(result, previousResult)}
+          code={this.currentOrPrevious(code, previousCode)}
+          computing={computing}
+          onCodeUpdate={this.currentOrPrevious(onCodeUpdate, undefined)}
+        />
+      </Col>
+    );
   }
 }

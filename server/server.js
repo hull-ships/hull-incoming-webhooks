@@ -1,45 +1,83 @@
-/* @flow */
-import { Connector } from "hull";
+// @flow
 
-import express from "express";
+import type { $Application, $Response } from "express";
+import type { TRequest } from "hull";
 
-import getLastWebhooks from "./middlewares/get-last-webhooks";
-import { encrypt } from "./lib/crypto";
-import webhookHandler from "./actions/webhook-handler";
-import computeHandler from "./actions/compute-handler";
-import devMode from "./dev-mode";
-import errorHandler from "./middlewares/error-handler";
-import statusCheck from "./actions/status-check";
+const express = require("express");
+const { smartNotifierHandler } = require("hull/lib/utils");
+const bodyParser = require("body-parser");
 
-export default function Server(connector: Connector, options: Object = {}, app: express, WebhookModel: Object) {
-  const { hostSecret } = options;
+const notificationsConfiguration = require("./notifications-configuration");
+const { webhookHandler, statusCheck } = require("./actions");
 
-  app.get("/admin.html", (req, res) => {
-    res.render("admin.html");
+const getLastWebhooks = require("./middlewares/get-last-webhooks");
+const { encrypt } = require("./lib/crypto");
+const computeHandler = require("./actions/compute-handler");
+
+function server(
+  app: $Application,
+  { token, connector, hostSecret, WebhookModel }: Object
+): $Application {
+  app.get("/admin.html", (req: TRequest, res: $Response) => {
+    res.render("admin.html", { hostname: req.hostname, token });
   });
 
-  app.get("/conf", (req, res) => {
-    if (req.hostname && req.hull.config && req.hull.config.organization && req.hull.config.secret && req.hull.config.ship) {
-      res.send({ hostname: req.hostname, token: encrypt(req.hull.config, hostSecret) });
+  app.all("/webhook", bodyParser.json(), webhookHandler);
+
+  app.all("/status", statusCheck);
+
+  app.use(
+    "/batch",
+    smartNotifierHandler({
+      userHandlerOptions: {
+        groupTraits: false,
+      },
+      handlers: notificationsConfiguration,
+    })
+  );
+
+  app.use(
+    "/smart-notifier",
+    smartNotifierHandler({
+      handlers: notificationsConfiguration,
+    })
+  );
+
+  app.get("/conf", (req: TRequest, res: $Response) => {
+    if (
+      req.hostname &&
+      req.hull.config &&
+      req.hull.config.organization &&
+      req.hull.config.secret &&
+      req.hull.config.ship
+    ) {
+      res.send({
+        hostname: req.hostname,
+        token: encrypt(req.hull.config, hostSecret),
+      });
     }
     res.status(403).send();
   });
 
   app.get("/last-webhooks", getLastWebhooks(WebhookModel));
 
-  app.post("/webhooks/:connectorId/:token", express.urlencoded({ extended: true }), express.json(), webhookHandler(WebhookModel));
+  app.post(
+    "/webhooks/:connectorId/:token",
+    express.urlencoded({ extended: true }),
+    express.json(),
+    webhookHandler(WebhookModel)
+  );
 
-  app.post("/webhooks/:connectorId", express.urlencoded({ extended: true }), express.json(), webhookHandler(WebhookModel));
+  app.post(
+    "/webhooks/:connectorId",
+    express.urlencoded({ extended: true }),
+    express.json(),
+    webhookHandler(WebhookModel)
+  );
 
   app.post("/compute", computeHandler({ hostSecret, connector }));
 
-  app.all("/status", statusCheck);
-
-  if (options.devMode) {
-    app.use(devMode());
-  }
-
-  errorHandler(app);
-
   return app;
 }
+
+module.exports = server;

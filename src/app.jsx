@@ -35,17 +35,30 @@ export default class App extends Component {
   }
 
   handleWebhookChange(date) {
-    this.props.engine.setLastWebhook(_.find(this.state.lastWebhooks, webhook => webhook.date === date));
+    this.props.engine.setLastWebhook(
+      _.find(this.state.lastWebhooks, webhook => webhook.date === date)
+    );
   }
 
   render() {
-    const { lastWebhooks, currentWebhook, loadingWebhooks, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
+    const {
+      lastWebhooks,
+      currentWebhook,
+      loadingWebhooks,
+      initialized,
+      hostname,
+      token,
+      computing,
+      error,
+      ship = {},
+      result,
+    } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
 
     if (initialized && token && hostname && lastWebhooks && currentWebhook) {
-      return (_.get(lastWebhooks, "length", 0) > 0) ?
-        (<div>
+      return _.get(lastWebhooks, "length", 0) > 0 ? (
+        <div>
           <Grid fluid className="pt-1">
             <Row className="flexRow">
               <Payload
@@ -78,9 +91,23 @@ export default class App extends Component {
               />
             </Row>
           </Grid>
-        </div>) : (webhookUrlContent(hostname, ship.id, token, "webhook-url", "Start by sending data to Hull...", "As soon as you send your first payload, you can start hacking."));
+        </div>
+      ) : (
+        webhookUrlContent(
+          hostname,
+          ship.id,
+          token,
+          "webhook-url",
+          "Start by sending data to Hull...",
+          "As soon as you send your first payload, you can start hacking."
+        )
+      );
     }
 
-    return <div className="text-center pt-2"><h4>Loading...</h4></div>;
+    return (
+      <div className="text-center pt-2">
+        <h4>Loading...</h4>
+      </div>
+    );
   }
 }

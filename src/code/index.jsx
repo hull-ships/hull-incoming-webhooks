@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import Codemirror from '../ui/react-codemirror';
+import React, { Component } from "react";
+import Codemirror from "../ui/react-codemirror";
 import _ from "lodash";
 
-require('codemirror/mode/javascript/javascript');
+require("codemirror/mode/javascript/javascript");
 
 export default class Code extends Component {
   render() {
@@ -13,12 +13,13 @@ export default class Code extends Component {
       lineNumbers: true,
       gutters: ["CodeMirror-lint-markers"],
       lint: true,
-      readOnly: !_.isFunction(onChange)
+      readOnly: !_.isFunction(onChange),
     };
 
-    return <div className={className}>
-      <Codemirror value={value} onChange={onChange} options={options} />
-    </div>
+    return (
+      <div className={className}>
+        <Codemirror value={value} onChange={onChange} options={options} />
+      </div>
+    );
   }
 }
-

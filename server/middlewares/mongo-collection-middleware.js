@@ -1,10 +1,11 @@
 // @flow
-import { Request, Response, Next } from "express";
+import type { $Response, NextFunction } from "express";
+import type { THullRequest } from "hull";
 
-export default function (model: Object) {
-  return (req: Request, res: Response, next: Next) => {
+module.exports = function MongoCollectionMiddleware(model: Object) {
+  return (req: THullRequest, res: $Response, next: NextFunction) => {
     req.hull.service = req.hull.service || {};
     req.hull.service.WebhookModel = model;
     return next();
   };
-}
+};

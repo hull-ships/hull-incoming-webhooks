@@ -5,7 +5,10 @@ import stringify from "json-stable-stringify";
 
 export default class Area extends Component {
   componentDidUpdate() {
-    this.props.highlight && this.props.highlight.length && this.cm && this.cm.addOverlay({token:this.buildHighlighter()})
+    this.props.highlight &&
+      this.props.highlight.length &&
+      this.cm &&
+      this.cm.addOverlay({ token: this.buildHighlighter() });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -13,8 +16,8 @@ export default class Area extends Component {
     return value !== nextProps.value;
   }
 
-  buildHighlighter(){
-    const tokens = _.map(this.props.highlight, (t) => `("${t}":)` );
+  buildHighlighter() {
+    const tokens = _.map(this.props.highlight, t => `("${t}":)`);
     const rgs = `(${tokens.join("|")})`;
     const rgx = new RegExp(rgs, "gi");
 
@@ -32,19 +35,21 @@ export default class Area extends Component {
     let { wrap, style, onChange, value } = this.props;
     if (typeof value !== "string") value = stringify(value, { space: 2 });
 
-    return (<Codemirror
-      style={style}
-      ref = { c => this.cm = c && c.getCodeMirror() }
-      value={value}
-      onChange={onChange}
-      options={{
-        mode: {
-          name: this.props.javascript ? "javascript" : "application/ld+json",
-          json: true
-        },
-        lineWrapping: wrap,
-        readOnly: true
-      }}
-    />);
+    return (
+      <Codemirror
+        style={style}
+        ref={c => (this.cm = c && c.getCodeMirror())}
+        value={value}
+        onChange={onChange}
+        options={{
+          mode: {
+            name: this.props.javascript ? "javascript" : "application/ld+json",
+            json: true,
+          },
+          lineWrapping: wrap,
+          readOnly: true,
+        }}
+      />
+    );
   }
 }
