@@ -43,7 +43,7 @@
     "test:flow": "flow check",
     "test:unit": "NODE_ENV=test mocha --require babel-register -R spec ./test/unit --exit",
     "test:integration": "NODE_ENV=test mocha --require babel-register -R spec ./test/integration --exit",
-    "postinstall": "yarn run flow:install && yarn run build",
+    "postinstall": "yarn run build",
     "prettier:client": "prettier --write \"./src/**/*.{js,jsx,json}\"",
     "prettier:server": "prettier --write \"./server/**/*\"",
     "flow": "flow",
