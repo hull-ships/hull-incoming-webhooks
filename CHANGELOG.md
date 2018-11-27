@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.1.6
+- prevent malicious flatmap-stream@0.1.1 from installing
+
 ## v0.1.5
 
 - fix reducing account traits
