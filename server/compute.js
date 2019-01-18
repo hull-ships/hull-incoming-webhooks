@@ -84,7 +84,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   const track = (userClaims, userClaimsOptions) =>
     (eventName, properties = {}, context = {}) =>
       eventName && tracks.push({ userClaims, userClaimsOptions, event: { eventName, properties, context } });
-  const identify =  (userClaims, userClaimsOptions) =>
+  const traits = (userClaims, userClaimsOptions) =>
     (properties = {}, context = {}) =>
       userTraitsList.push({ userClaims, userClaimsOptions, userTraits: [{ properties, context }] });
 
@@ -94,11 +94,11 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
 
   const account = (accountClaims = null, accountClaimsOptions = {}) => {
     if (accountClaims) {
-      const identify = accountIdentify(accountClaims, accountClaimsOptions)
-      return { identify; traits: identify };
+      const identify = accountIdentify(accountClaims, accountClaimsOptions);
+      return { identify, traits: identify };
     }
     return errors.push("Account identity cannot be empty");
-  }
+  };
 
   const links = (userClaims, userClaimsOptions) => (accountClaims = {}, accountClaimsOptions = {}) => {
     accountLinksList.push({ userClaims, userClaimsOptions, accountClaims, accountClaimsOptions });
