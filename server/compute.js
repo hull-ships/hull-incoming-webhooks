@@ -89,13 +89,21 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     userTraitsList.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
   };
 
+
+  const account = (accountIdentity = null, accountIdentityOptions = {}) => {
+    if (accountIdentity) {
+      return {
+        traits: (properties = {}, context = {}) => {
+          accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
+        }
+      };
+    }
+    return errors.push("Account identity cannot be empty");
+  }
+
   const links = (userIdentity, userIdentityOptions) => (accountIdentity = {}, accountIdentityOptions = {}) => {
     accountLinksList.push({ userIdentity, userIdentityOptions, accountIdentity, accountIdentityOptions });
-    return {
-      traits: (properties = {}, context = {}) => {
-        accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
-      }
-    };
+    return account(accountIdentity, accountIdentityOptions);
   };
 
   const user = (userIdentity = {}, userIdentityOptions = {}) => {
@@ -111,18 +119,12 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     };
   };
 
+
   sandbox.hull = {
-    account: (accountIdentity = null, accountIdentityOptions = {}) => {
-      if (accountIdentity) {
-        return {
-          traits: (properties = {}, context = {}) => {
-            accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
-          }
-        };
-      }
-      return errors.push("Account identity cannot be empty");
-    },
-    user
+    account,
+    user,
+    asAcount: account,
+    asUser: user
   };
 
   sandbox.request = (opts, callback) => {
