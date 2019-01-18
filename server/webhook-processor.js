@@ -43,7 +43,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
             .then(() => {
               successfulUsers += 1;
             })
-            .catch(errors => asUser.logger.error("incoming.user.error", { errors }));
+            .catch(err => asUser.logger.error("incoming.user.error", { errors: err }));
         })).then(() => metric.increment("ship.incoming.users", successfulUsers)));
       }
 
@@ -61,7 +61,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
               succeededEvents++;
               return asUser.logger.info("incoming.event.success");
             },
-            errors => asUser.logger.error("incoming.event.error", { user: userClaims, errors })
+            err => asUser.logger.error("incoming.event.error", { user: userClaims, errors: err })
           );
         })).then(() => metric.increment("ship.incoming.events", succeededEvents)));
       }
@@ -76,7 +76,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
               user: link.userClaims
             })
           )
-            .catch(errors => asUser.logger.info("incoming.account.link.error", { user: link.userClaims, errors }));
+            .catch(err => asUser.logger.info("incoming.account.link.error", { user: link.userClaims, errors: err }));
         })));
       }
 
@@ -92,10 +92,10 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
             .then(() => {
               succeededAccounts += 1;
             })
-            .catch(errors => asAccount.logger.error("incoming.account.error", {
+            .catch(err => asAccount.logger.error("incoming.account.error", {
               accountTraits: flatten({}, "", a.accountTraits),
               accountClaims: a.accountClaims,
-              errors
+              err
             }));
         })).then(() => metric.increment("ship.incoming.accounts", succeededAccounts)));
       }
@@ -128,9 +128,9 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
 
       return Promise.all(promises).then(() => webhook.save());
     })
-    .catch(errors =>
+    .catch(err =>
       client.logger.error("incoming.user.error", {
         hull_summary: `Error Processing user: ${_.get(err, "message", "Unexpected error")}`,
-        errors
+        err
       }));
 };
