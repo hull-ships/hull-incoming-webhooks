@@ -53,7 +53,7 @@ export default class PreviewPane extends Component {
             <Tab eventKey="Previous" title="At Webhook reception" />
           </Tabs>
         </Col>
-        <Col sm={6} className="mt-05">
+        <Col sm={6}>
           <WebhookUrl ship={ship} token={token} hostname={hostname} className="text-right"/>
         </Col>
       </Row>

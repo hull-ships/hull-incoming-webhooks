@@ -21,9 +21,8 @@ export default class WebhookUrl extends Component {
   render() {
     const { token, hostname, ship } = this.props;
 
-    return (<div>
-      <Button bsClass="help-button webhook-url-button btn" bsStyle="secondary" bsSize="small" onClick={this.open.bind(this)}>Show Webhook URL</Button>
-
+    return (<div class='pt-2'>
+      <Button bsClass="webhook-url-button btn" bsStyle="secondary" bsSize="small" onClick={this.open.bind(this)}>Show Webhook URL</Button>
       <Modal show={this.state.showModal} bsSize='large' onHide={this.close.bind(this)}>
         <Modal.Body>
           {webhookUrlContent(hostname, ship.id, token, "webhook-url-modal")}
