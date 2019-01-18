@@ -97,12 +97,25 @@ You can use the `hull.asUser(...).track()` function to emit events, but before w
 Here is how to use the function signature:
 
 ```javascript
-    hull
-      .asUser({ external_id: <value> })
-      .track( "<event_name>" , { PROPERTY_NAME: <value>, PROPERTY2_NAME: <value> })
+    const user = hull.asUser({ external_id: <value> });
+    user.track( "<event_name>" , { PROPERTY_NAME: <value>, PROPERTY2_NAME: <value> })
+
+    user.track("new support ticket", {
+      messages: 3,
+      priority: "high"
+    }, {
+      source: "zendesk",
+      type: 'ticket',
+      event_id: 'uuid1234' // Pass a unique ID to ensure event de-duplication
+      ip: null, // don't store ip - it's a server call
+      referer: null, // don't store referer - it's a server call
+      created_at: '2013-02-08 09:30:26.123+07:00' // ISO 8601. moment.js does it very well
+    });
 ```
 
-The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event.
+See https://github.com/hull/hull-client-node/#tracking-user-events for the full signature.
+
+The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event. The third parameter is an optional parameter containing context metadata
 
 Now that we know how to deal with users, let’s have a look how to handle accounts.
 
