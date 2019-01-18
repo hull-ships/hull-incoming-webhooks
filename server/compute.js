@@ -81,22 +81,22 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   sandbox.errors = errors;
   sandbox.logs = logs;
 
-  const track = (userIdentity, userIdentityOptions) => (eventName, properties = {}, context = {}) => {
-    if (eventName) tracks.push({ userIdentity, userIdentityOptions, event: { eventName, properties, context } });
-  };
+  const track = (userIdentity, userIdentityOptions) =>
+    (eventName, properties = {}, context = {}) =>
+      eventName && tracks.push({ userIdentity, userIdentityOptions, event: { eventName, properties, context } });
 
-  const traits = (userIdentity, userIdentityOptions) => (properties = {}, context = {}) => {
-    userTraitsList.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
-  };
+  const identify =  (userIdentity, userIdentityOptions) =>
+    (properties = {}, context = {}) =>
+      userTraitsList.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
 
+  const accountIdentify = (accountIdentity, accountIdentityOptions) =>
+    (properties = {}, context = {}) =>
+      accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
 
   const account = (accountIdentity = null, accountIdentityOptions = {}) => {
     if (accountIdentity) {
-      return {
-        traits: (properties = {}, context = {}) => {
-          accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
-        }
-      };
+      const identify = accountIdentify(accountIdentity, accountIdentityOptions)
+      return { identify; traits: identify };
     }
     return errors.push("Account identity cannot be empty");
   }
@@ -115,10 +115,10 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     return {
       track: track(userIdentity, userIdentityOptions),
       traits: traits(userIdentity, userIdentityOptions),
+      identify: traits(userIdentity, userIdentityOptions),
       account: links(userIdentity, userIdentityOptions)
     };
   };
-
 
   sandbox.hull = {
     account,
