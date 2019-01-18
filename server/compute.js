@@ -81,42 +81,41 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   sandbox.errors = errors;
   sandbox.logs = logs;
 
-  const track = (userIdentity, userIdentityOptions) =>
+  const track = (userClaims, userClaimsOptions) =>
     (eventName, properties = {}, context = {}) =>
-      eventName && tracks.push({ userIdentity, userIdentityOptions, event: { eventName, properties, context } });
-
-  const identify =  (userIdentity, userIdentityOptions) =>
+      eventName && tracks.push({ userClaims, userClaimsOptions, event: { eventName, properties, context } });
+  const identify =  (userClaims, userClaimsOptions) =>
     (properties = {}, context = {}) =>
-      userTraitsList.push({ userIdentity, userIdentityOptions, userTraits: [{ properties, context }] });
+      userTraitsList.push({ userClaims, userClaimsOptions, userTraits: [{ properties, context }] });
 
-  const accountIdentify = (accountIdentity, accountIdentityOptions) =>
+  const accountIdentify = (accountClaims, accountClaimsOptions) =>
     (properties = {}, context = {}) =>
-      accountTraitsList.push({ accountIdentity, accountIdentityOptions, accountTraits: [{ properties, context }] });
+      accountTraitsList.push({ accountClaims, accountClaimsOptions, accountTraits: [{ properties, context }] });
 
-  const account = (accountIdentity = null, accountIdentityOptions = {}) => {
-    if (accountIdentity) {
-      const identify = accountIdentify(accountIdentity, accountIdentityOptions)
+  const account = (accountClaims = null, accountClaimsOptions = {}) => {
+    if (accountClaims) {
+      const identify = accountIdentify(accountClaims, accountClaimsOptions)
       return { identify; traits: identify };
     }
     return errors.push("Account identity cannot be empty");
   }
 
-  const links = (userIdentity, userIdentityOptions) => (accountIdentity = {}, accountIdentityOptions = {}) => {
-    accountLinksList.push({ userIdentity, userIdentityOptions, accountIdentity, accountIdentityOptions });
-    return account(accountIdentity, accountIdentityOptions);
+  const links = (userClaims, userClaimsOptions) => (accountClaims = {}, accountClaimsOptions = {}) => {
+    accountLinksList.push({ userClaims, userClaimsOptions, accountClaims, accountClaimsOptions });
+    return account(accountClaims, accountClaimsOptions);
   };
 
-  const user = (userIdentity = {}, userIdentityOptions = {}) => {
+  const user = (userClaims = {}, userClaimsOptions = {}) => {
     try {
-      client.asUser(userIdentity);
+      client.asUser(userClaims);
     } catch (err) {
       errors.push(`Encountered error while calling asUser : ${_.get(err, "message", "")}`);
     }
     return {
-      track: track(userIdentity, userIdentityOptions),
-      traits: traits(userIdentity, userIdentityOptions),
-      identify: traits(userIdentity, userIdentityOptions),
-      account: links(userIdentity, userIdentityOptions)
+      track: track(userClaims, userClaimsOptions),
+      traits: traits(userClaims, userClaimsOptions),
+      identify: traits(userClaims, userClaimsOptions),
+      account: links(userClaims, userClaimsOptions)
     };
   };
 
@@ -197,14 +196,14 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
         logsForLogger,
         errors,
         code,
-        userTraits: _.map(userTraitsList, ({ userIdentity, userIdentityOptions, userTraits }) =>
-          ({ userIdentity, userIdentityOptions, userTraits: _.reduce(userTraits, buildPayload, {}) })),
+        userTraits: _.map(userTraitsList, ({ userClaims, userClaimsOptions, userTraits }) =>
+          ({ userClaims, userClaimsOptions, userTraits: _.reduce(userTraits, buildPayload, {}) })),
         events: tracks,
         accountLinks: accountLinksList,
         payload: sandbox.payload,
         success: true,
-        accountTraits: _.map(accountTraitsList, ({ accountIdentity, accountIdentityOptions, accountTraits }) =>
-          ({ accountIdentity, accountIdentityOptions, accountTraits: _.reduce(accountTraits, buildPayload, {}) })),
+        accountTraits: _.map(accountTraitsList, ({ accountClaims, accountClaimsOptions, accountTraits }) =>
+          ({ accountClaims, accountClaimsOptions, accountTraits: _.reduce(accountTraits, buildPayload, {}) })),
       };
     });
 };

@@ -29,7 +29,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
       userTraits = reducePayload(filterInvalidIdentities(userTraits, client, "user"), "userTraits");
       events = filterInvalidIdentities(events, client, "event");
       accountTraits = reduceAccountPayload(filterInvalidIdentities(accountTraits, client, "account"), "accountTraits");
-      accountLinks = reducePayload(filterInvalidIdentities(accountLinks, client, "account.link"), "accountIdentity");
+      accountLinks = reducePayload(filterInvalidIdentities(accountLinks, client, "account.link"), "accountClaims");
       const promises = [];
 
       client.logger.info("compute.user.debug", { userTraits, accountTraits });
@@ -38,20 +38,20 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
       if (_.size(userTraits)) {
         let successfulUsers = 0;
         promises.push(Promise.all(userTraits.map(u => {
-          const asUser = client.asUser(u.userIdentity, u.userIdentityOptions);
+          const asUser = client.asUser(u.userClaims, u.userClaimsOptions);
           return asUser.traits(flatten({}, "", u.userTraits)).then(() => asUser.logger.info("incoming.user.success", { ...flatten({}, "", u.userTraits) }))
             .then(() => {
               successfulUsers += 1;
             })
-            .catch(err => asUser.logger.error("incoming.user.error", { errors: err }));
+            .catch(errors => asUser.logger.error("incoming.user.error", { errors }));
         })).then(() => metric.increment("ship.incoming.users", successfulUsers)));
       }
 
       // Emit events
       if (_.size(events)) {
         let succeededEvents = 0;
-        promises.push(Promise.all(events.map(({ userIdentity, event, userIdentityOptions }) => {
-          const asUser = client.asUser(userIdentity, userIdentityOptions);
+        promises.push(Promise.all(events.map(({ userClaims, event, userClaimsOptions }) => {
+          const asUser = client.asUser(userClaims, userClaimsOptions);
           const { eventName, properties, context } = event;
           return asUser.track(eventName, properties, {
             ip: "0",
@@ -61,7 +61,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
               succeededEvents++;
               return asUser.logger.info("incoming.event.success");
             },
-            err => asUser.logger.error("incoming.event.error", { user: userIdentity, errors: err })
+            errors => asUser.logger.error("incoming.event.error", { user: userClaims, errors })
           );
         })).then(() => metric.increment("ship.incoming.events", succeededEvents)));
       }
@@ -69,14 +69,14 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
       // Link accounts with users
       if (_.size(accountLinks)) {
         promises.push(Promise.all(accountLinks.map(link => {
-          const asUser = client.asUser(link.userIdentity, link.userIdentityOptions);
-          return asUser.account(link.accountIdentity, link.accountIdentityOptions).traits({}).then(() =>
+          const asUser = client.asUser(link.userClaims, link.userClaimsOptions);
+          return asUser.account(link.accountClaims, link.accountClaimsOptions).traits({}).then(() =>
             asUser.logger.info("incoming.account.link.success", {
-              account: link.accountIdentity,
-              user: link.userIdentity
+              account: link.accountClaims,
+              user: link.userClaims
             })
           )
-            .catch(err => asUser.logger.info("incoming.account.link.error", { user: link.userIdentity, errors: err }));
+            .catch(errors => asUser.logger.info("incoming.account.link.error", { user: link.userClaims, errors }));
         })));
       }
 
@@ -84,18 +84,18 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
       if (_.size(accountTraits)) {
         let succeededAccounts = 0;
         promises.push(Promise.all(accountTraits.map(a => {
-          const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
+          const asAccount = client.asAccount(a.accountClaims, a.accountClaimsOptions);
           return asAccount.traits({ ...flatten({}, "", a.accountTraits) }).then(() => asAccount.logger.info("incoming.account.success", {
             accountTraits: flatten({}, "", a.accountTraits),
-            accountIdentity: a.accountIdentity
+            accountClaims: a.accountClaims
           }))
             .then(() => {
               succeededAccounts += 1;
             })
-            .catch(err => asAccount.logger.error("incoming.account.error", {
+            .catch(errors => asAccount.logger.error("incoming.account.error", {
               accountTraits: flatten({}, "", a.accountTraits),
-              accountIdentity: a.accountIdentity,
-              errors: err
+              accountClaims: a.accountClaims,
+              errors
             }));
         })).then(() => metric.increment("ship.incoming.accounts", succeededAccounts)));
       }
@@ -116,8 +116,8 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
       webhookPayload.result = result;
       webhookPayload.result.events = events;
       webhookPayload.result.accountLinks = accountLinks;
-      webhookPayload.result.userTraits = userTraits.map(u => _.omit(u, "userIdentityOptions"));
-      webhookPayload.result.accountTraits = accountTraits.map(a => _.omit(a, "accountIdentityOptions"));
+      webhookPayload.result.userTraits = userTraits.map(u => _.omit(u, "userClaimsOptions"));
+      webhookPayload.result.accountTraits = accountTraits.map(a => _.omit(a, "accountClaimsOptions"));
 
       const webhook = new WebhookModel({
         connectorId: ship.id,
@@ -128,9 +128,9 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
 
       return Promise.all(promises).then(() => webhook.save());
     })
-    .catch(err =>
+    .catch(errors =>
       client.logger.error("incoming.user.error", {
         hull_summary: `Error Processing user: ${_.get(err, "message", "Unexpected error")}`,
-        errors: err
+        errors
       }));
 };

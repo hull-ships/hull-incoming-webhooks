@@ -3,7 +3,6 @@ import { Row, Col, Tabs, Tab } from "react-bootstrap";
 import _ from "lodash";
 
 import Icon from "../ui/icon";
-import Help from "../ui/help";
 import WebhookUrl from "../ui/webhook-url";
 import ResultsPane from "./results";
 
@@ -56,7 +55,6 @@ export default class PreviewPane extends Component {
         </Col>
         <Col sm={6} className="mt-05">
           <WebhookUrl ship={ship} token={token} hostname={hostname} className="text-right"/>
-          <Help className="text-right"/>
         </Col>
       </Row>
 

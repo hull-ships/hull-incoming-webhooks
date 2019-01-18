@@ -27,10 +27,10 @@ function computeHandler(req: Request, res: Response) {
       if (logs && logs.length) {
         logs.map(line => req.hull.client.logger.debug("preview.console.log", line));
       }
-      result.userTraits = reducePayload(filterInvalidIdentities(result.userTraits.map(u => _.omit(u, ["userIdentityOptions"])), client, "user"), "userTraits");
+      result.userTraits = reducePayload(filterInvalidIdentities(result.userTraits.map(u => _.omit(u, ["userClaimsOptions"])), client, "user"), "userTraits");
       result.events = filterInvalidIdentities(result.events, client, "event");
-      result.accountTraits = reducePayload(filterInvalidIdentities(result.accountTraits.map(a => _.omit(a, ["accountIdentityOptions"])), client, "account"), "accountTraits");
-      result.accountLinks = reducePayload(filterInvalidIdentities(result.accountLinks.map(a => _.omit(a, ["userIdentityOptions", "accountIdentityOptions"])), client, "account.link"), "accountIdentity");
+      result.accountTraits = reducePayload(filterInvalidIdentities(result.accountTraits.map(a => _.omit(a, ["accountClaimsOptions"])), client, "account"), "accountTraits");
+      result.accountLinks = reducePayload(filterInvalidIdentities(result.accountLinks.map(a => _.omit(a, ["userClaimsOptions", "accountClaimsOptions"])), client, "account.link"), "accountClaims");
       res.send({ ship, result }).end();
     }).catch(error => {
       return res.status(500).json({ error });

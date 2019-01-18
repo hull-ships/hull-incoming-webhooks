@@ -36,10 +36,10 @@ export default class Results extends Component {
     let output = "";
     if (_.size(userTraits) || _.size(accountLinks)) {
       const traits = userTraits.map(user => {
-        const account = _.get(_.find(accountLinks, acc => _.isEqual(acc.userIdentity, user.userIdentity)), "accountIdentity");
+        const account = _.get(_.find(accountLinks, acc => _.isEqual(acc.userClaims, user.userClaims)), "accountClaims");
         return `
 // User identified by
-${JSON.stringify(user.userIdentity, null, 2)}
+${JSON.stringify(user.userClaims, null, 2)}
 // Attributes
 ${JSON.stringify(user.userTraits || {}, null, 2)}
 ${account ? `// Linked to account identified by:
@@ -49,12 +49,12 @@ ${JSON.stringify(account, null, 2)}` : ""}
 
       const links = accountLinks.filter(acc => {
         return !_.some(userTraits, user =>
-          _.isEqual(user.userIdentity, acc.userIdentity));
+          _.isEqual(user.userClaims, acc.userClaims));
       }).map(account => `
 // User identified by
-${JSON.stringify(account.userIdentity, null, 2)}
+${JSON.stringify(account.userClaims, null, 2)}
 // Linked to account identified by
-${JSON.stringify(account.accountIdentity, null, 2)}`);
+${JSON.stringify(account.accountClaims, null, 2)}`);
 
       output = `/* USER TRAITS AND LINKS */
 ${traits}
@@ -70,8 +70,8 @@ ${traits}
     }
     if (events.length) {
       const eventString = _.map(events, e => {
-        const identity = JSON.stringify((e.userIdentity || e.accountIdentity), null, 2);
-        return `${e.userIdentity ? "User " : e.accountIdentity ? "Account " : ""}Identity:
+        const identity = JSON.stringify((e.userClaims || e.accountClaims), null, 2);
+        return `${e.userClaims ? "User " : e.accountClaims ? "Account " : ""}Identity:
 ${identity}
 Event:
 // Name
