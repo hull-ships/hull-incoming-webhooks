@@ -122,7 +122,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
   sandbox.hull = {
     account,
     user,
-    asAcount: account,
+    asAccount: account,
     asUser: user
   };
 
@@ -178,6 +178,7 @@ module.exports = function compute(webhookRequest, ship = {}, client = {}, option
     errors.push("It seems you’re using 'request' which is asynchronous.");
     errors.push("You need to return a 'new Promise' and 'resolve' or 'reject' it in you 'request' callback.");
   }
+
 
   return Promise.all(sandbox.results)
     .catch((err) => {
