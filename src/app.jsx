@@ -46,7 +46,7 @@ export default class App extends Component {
     if (initialized && token && hostname && lastWebhooks && currentWebhook) {
       return (_.get(lastWebhooks, "length", 0) > 0) ?
         (<div>
-          <Grid fluid className="pt-05">
+          <Grid fluid className="pt-05 pb-05 main-container" >
             <Row className="flexRow">
               <Payload
                 className="flexColumn payloadPane"
