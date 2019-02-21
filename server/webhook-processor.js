@@ -5,9 +5,7 @@ const debug = require("debug")("hull-incoming-webhooks:webhook-processor");
 import {
   withValidUserClaims,
   withValidAccountClaims,
-  withValidUserOrAccountClaims,
-  groupByClaim,
-  flatten
+  withValidUserOrAccountClaims
 } from "./lib/map-filter-results";
 
 module.exports = function handle(
@@ -19,56 +17,57 @@ module.exports = function handle(
     .then(result => {
       debug("compute.result", result);
       const { logsForLogger, errors } = result;
-      let { events, userTraits, accountTraits, accountLinks } = result;
-      events = withValidUserClaims(client)(events);
-      userTraits = groupByClaim(
-        "userClaims",
-        withValidUserClaims(client)(userTraits)
+      const events = withValidUserClaims(client)(result.events);
+      const userTraits = withValidUserClaims(client)(result.userTraits);
+      const accountTraits = withValidAccountClaims(client)(
+        result.accountTraits
       );
-      accountTraits = groupByClaim(
-        "accountClaims",
-        withValidAccountClaims(client)(accountTraits)
-      );
-      accountLinks = groupByClaim(
-        "accountClaims",
-        withValidUserOrAccountClaims(client)(accountLinks)
+      const accountLinks = withValidUserOrAccountClaims(client)(
+        result.accountLinks
       );
       const promises = [];
 
       client.logger.info("compute.user.debug", { userTraits, accountTraits });
 
+      const callTraits = (hullClient, data, entity = "user") => {
+        let successful = 0;
+        return Promise.all(
+          data.map(({ traits, claims, claimsOptions }) => {
+            const c = hullClient(claims, claimsOptions);
+            return c.traits(traits).then(
+              () => {
+                successful++;
+                return c.logger.info(`incoming.${entity}.success`, traits);
+              },
+              err => {
+                return c.logger.error(`incoming.${entity}.error`, {
+                  errors: err
+                });
+              }
+            );
+          })
+        ).then(() => {
+          metric.increment(`ship.incoming.${entity}s`, successful);
+        });
+      };
+
       // Update user traits
       if (_.size(userTraits)) {
-        let successfulUsers = 0;
-        promises.push(
-          Promise.all(
-            userTraits.map(({ userTraits, userClaims, userClaimsOptions}) => {
-              const asUser = client.asUser(userClaims, userClaimsOptions);
-              return asUser
-                .traits(flatten({}, "", userTraits))
-                .then(() =>
-                  asUser.logger.info("incoming.user.success", {
-                    ...flatten({}, "", userTraits)
-                  })
-                )
-                .then(() => {
-                  successfulUsers += 1;
-                })
-                .catch(err =>
-                  asUser.logger.error("incoming.user.error", { errors: err })
-                );
-            })
-          ).then(() => metric.increment("ship.incoming.users", successfulUsers))
-        );
+        promises.push(callTraits(client.asUser, userTraits, "user"));
+      }
+
+      // Update account traits
+      if (_.size(accountTraits)) {
+        promises.push(callTraits(client.asAccount, accountTraits, "account"));
       }
 
       // Emit events
       if (_.size(events)) {
-        let succeededEvents = 0;
+        let successfulEvents = 0;
         promises.push(
           Promise.all(
-            events.map(({ userClaims, event, userClaimsOptions }) => {
-              const asUser = client.asUser(userClaims, userClaimsOptions);
+            events.map(({ event, claims, claimsOptions }) => {
+              const asUser = client.asUser(claims, claimsOptions);
               const { eventName, properties, context } = event;
               return asUser
                 .track(eventName, properties, {
@@ -78,18 +77,18 @@ module.exports = function handle(
                 })
                 .then(
                   () => {
-                    succeededEvents++;
+                    successfulEvents++;
                     return asUser.logger.info("incoming.event.success");
                   },
                   err =>
                     asUser.logger.error("incoming.event.error", {
-                      user: userClaims,
+                      user: claims,
                       errors: err
                     })
                 );
             })
           ).then(() =>
-            metric.increment("ship.incoming.events", succeededEvents)
+            metric.increment("ship.incoming.events", successfulEvents)
           )
         );
       }
@@ -99,61 +98,23 @@ module.exports = function handle(
         promises.push(
           Promise.all(
             accountLinks.map(link => {
-              const asUser = client.asUser(
-                link.userClaims,
-                link.userClaimsOptions
-              );
+              const asUser = client.asUser(link.claims, link.claimsOptions);
               return asUser
                 .account(link.accountClaims, link.accountClaimsOptions)
                 .traits({})
                 .then(() =>
                   asUser.logger.info("incoming.account.link.success", {
                     account: link.accountClaims,
-                    user: link.userClaims
+                    user: link.claims
                   })
                 )
                 .catch(err =>
                   asUser.logger.info("incoming.account.link.error", {
-                    user: link.userClaims,
+                    user: link.claims,
                     errors: err
                   })
                 );
             })
-          )
-        );
-      }
-
-      // Update account traits
-      if (_.size(accountTraits)) {
-        let succeededAccounts = 0;
-        promises.push(
-          Promise.all(
-            accountTraits.map(a => {
-              const asAccount = client.asAccount(
-                a.accountClaims,
-                a.accountClaimsOptions
-              );
-              return asAccount
-                .traits({ ...flatten({}, "", a.accountTraits) })
-                .then(() =>
-                  asAccount.logger.info("incoming.account.success", {
-                    accountTraits: flatten({}, "", a.accountTraits),
-                    accountClaims: a.accountClaims
-                  })
-                )
-                .then(() => {
-                  succeededAccounts += 1;
-                })
-                .catch(err =>
-                  asAccount.logger.error("incoming.account.error", {
-                    accountTraits: flatten({}, "", a.accountTraits),
-                    accountClaims: a.accountClaims,
-                    err
-                  })
-                );
-            })
-          ).then(() =>
-            metric.increment("ship.incoming.accounts", succeededAccounts)
           )
         );
       }

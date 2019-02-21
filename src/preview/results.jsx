@@ -15,25 +15,22 @@ const conditional = (data, text) => {
 };
 const joinLines = fp.join("\n");
 
-const renderClaimOptions = (options = {}) =>
+const renderClaimsOptions = (options = {}) =>
   _.size(options) ? `,${short(options)}` : "";
 
-const renderUserClaim = ({ userClaims, userClaimsOptions }) =>
-  `Hull.asUser(${short(userClaims)}${renderClaimOptions(userClaimsOptions)})`;
+const renderUserClaim = ({ claims, claimsOptions }) =>
+  `Hull.asUser(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
 
-const renderUserTraits = ({ userClaims, userTraits, userClaimsOptions }) =>
-  `${renderUserClaim({ userClaims, userClaimsOptions })}
-.traits(${nice(userTraits)}});`;
+const renderAccountClaim = ({ claims, claimsOptions }) =>
+  `Hull.asAccount(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
 
-const renderAccountTraits = ({
-  accountClaims,
-  accountClaimsOptions,
-  accountTraits
-}) =>
-  `Hull.asAccount(${short(accountClaims)}${renderClaimOptions(
-    accountClaimsOptions
-  )})
-.traits(${nice(accountTraits)}});`;
+const renderUserTraits = ({ claims, traits, claimsOptions }) =>
+  `${renderUserClaim({ claims, claimsOptions })}
+.traits(${nice(traits)}});`;
+
+const renderAccountTraits = ({ claims, traits, claimsOptions }) =>
+  `${renderAccountClaim({ claims, claimsOptions })}
+.traits(${nice(traits)}});`;
 
 const mapTraits = method =>
   fp.flow(
@@ -50,8 +47,8 @@ const renderLogs = fp.flow(
 
 const mapAccountLinks = fp.flow(
   fp.map(
-    ({ accountClaims, userClaims }) => `/* Account */ ${short(accountClaims)}
-/* -> User */ ${short(userClaims)}
+    ({ claims, accountClaims }) => `/* Account */ ${short(accountClaims)}
+/* -> User */ ${short(claims)}
 `
   ),
   joinLines
@@ -62,10 +59,10 @@ const renderEventBody = ({ eventName, context, properties }) =>
 
 const renderEvent = ({
   event,
-  userClaims,
-  userClaimsOptions
+  claims,
+  claimsOptions
 }) => `// <--------- Event --------->
-${renderUserClaim({ userClaims, userClaimsOptions })}
+${renderUserClaim({ claims, claimsOptions })}
 .track(${renderEventBody(event)})`;
 
 const mapEvents = fp.flow(
@@ -84,10 +81,10 @@ export default class Results extends Component {
 
     const {
       userTraits = [],
-      errors = [],
-      events = [],
       accountTraits = [],
       accountLinks = [],
+      errors = [],
+      events = [],
       logs = []
     } = result;
 

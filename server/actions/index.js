@@ -1,13 +1,12 @@
 // @flow
 import type { $Response } from "express";
-import type { TRequestIncomingWebhooks } from "../types";
 
 const check = require("syntax-error");
 const _ = require("lodash");
 
 const processWebhook = require("../webhook-processor");
 
-function pickValuesFromRequest(req: TRequestIncomingWebhooks) {
+function pickValuesFromRequest(req) {
   const requestParams = _.pick(req, [
     "body",
     "headers",
@@ -30,7 +29,7 @@ function pickValuesFromRequest(req: TRequestIncomingWebhooks) {
 module.exports.webhookHandler = function webhookHandler(
   WebhookModel: Function
 ) {
-  return (req: TRequestIncomingWebhooks, res: $Response) => {
+  return (req, res: $Response) => {
     res.send(200);
 
     const payload = {
@@ -47,7 +46,7 @@ module.exports.webhookHandler = function webhookHandler(
 };
 
 module.exports.statusCheck = (
-  req: TRequestIncomingWebhooks,
+  req,
   res: $Response
 ) => {
   const { ship, client } = req.hull;
