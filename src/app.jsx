@@ -1,6 +1,6 @@
 /* eslint no-unused-vars:0, no-useless-constructor:0, import/no-unresolved:0 */
 import React, { Component } from "react";
-import { Grid, Row } from "react-bootstrap";
+import { Grid, Row, Modal } from "react-bootstrap";
 import _ from "lodash";
 
 import webhookUrlContent from "./ui/webhook-url-content";
@@ -35,18 +35,78 @@ export default class App extends Component {
   }
 
   handleWebhookChange(date) {
-    this.props.engine.setLastWebhook(_.find(this.state.lastWebhooks, webhook => webhook.date === date));
+    this.props.engine.setLastWebhook(
+      _.find(this.state.lastWebhooks, webhook => webhook.date === date)
+    );
+  }
+  renderSetupHeader() {
+    return (
+      <div>
+      <h3 className="mt-1 mb-0 text-center">Configure your incoming webhook</h3>
+        <h1 className="mt-0 mb-0 text-center">🤓</h1>
+        <p>
+          We haven't received data from the outside yet. Start by configuring
+          your external service to send a webhook to the following URL.
+        </p>
+      </div>
+    );
+  }
+
+  renderSetupMessage() {
+    const {
+      lastWebhooks,
+      currentWebhook,
+      loadingWebhooks,
+      initialized,
+      hostname,
+      token,
+      computing,
+      error,
+      ship = {},
+      result
+    } = this.state;
+    const { private_settings = {} } = ship;
+    const { code = "" } = private_settings;
+
+    return (
+      <Modal verticallyCenter show={_.get(lastWebhooks, "length", 0) === 0}>
+        <Modal.Body>
+          <div className="ps-2 pb-1">
+            {webhookUrlContent(
+              hostname,
+              ship.id,
+              token,
+              "webhook-url",
+              this.renderSetupHeader(),
+              "As soon as you send your first payload, you can start hacking."
+            )}
+          </div>
+        </Modal.Body>
+      </Modal>
+    );
   }
 
   render() {
-    const { lastWebhooks, currentWebhook, loadingWebhooks, initialized, hostname, token, computing, error, ship = {}, result } = this.state;
+    const {
+      lastWebhooks,
+      currentWebhook,
+      loadingWebhooks,
+      initialized,
+      hostname,
+      token,
+      computing,
+      error,
+      ship = {},
+      result
+    } = this.state;
     const { private_settings = {} } = ship;
     const { code = "" } = private_settings;
 
     if (initialized && token && hostname && lastWebhooks && currentWebhook) {
-      return (_.get(lastWebhooks, "length", 0) > 0) ?
-        (<div>
-          <Grid fluid className="pt-05 pb-05 main-container" >
+      return (
+        <div>
+          {this.renderSetupMessage()}
+          <Grid fluid className="pt-05 pb-05 main-container">
             <Row className="flexRow">
               <Payload
                 className="flexColumn payloadPane"
@@ -78,9 +138,14 @@ export default class App extends Component {
               />
             </Row>
           </Grid>
-        </div>) : (webhookUrlContent(hostname, ship.id, token, "webhook-url", "Start by sending data to Hull...", "As soon as you send your first payload, you can start hacking."));
+        </div>
+      );
     }
 
-    return <div className="text-center pt-2"><h4>Loading...</h4></div>;
+    return (
+      <div className="text-center pt-2">
+        <h4>Loading...</h4>
+      </div>
+    );
   }
 }
