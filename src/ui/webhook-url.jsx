@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-import { Modal, Button } from "react-bootstrap";
-
-import webhookUrlContent from "./webhook-url-content";
-import Icon from "./icon";
+import { Button } from "react-bootstrap";
+import InputSelect from "./webhook-url-content";
 
 export default class WebhookUrl extends Component {
   constructor(props) {
@@ -21,16 +19,25 @@ export default class WebhookUrl extends Component {
   render() {
     const { token, hostname, ship } = this.props;
 
-    return (<div>
-      <Button bsClass="webhook-url-button btn" bsStyle="secondary" bsSize="small" onClick={this.open.bind(this)}>Show Webhook URL</Button>
-      <Modal show={this.state.showModal} bsSize='large' onHide={this.close.bind(this)}>
-        <Modal.Body>
-          {webhookUrlContent(hostname, ship.id, token, "webhook-url-modal")}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={this.close.bind(this)}>Close</Button>
-        </Modal.Footer>
-      </Modal>
-    </div>);
+    return (
+      <div>
+        <Button
+          bsClass="btn"
+          bsStyle="secondary"
+          bsSize="small"
+          onClick={this.open.bind(this)}
+        >
+          Show Webhook Configuration
+        </Button>
+        <InputSelect
+          show={this.state.showModal}
+          host={hostname}
+          connectorId={ship.id}
+          token={token}
+          content="Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
+          actions={<Button onClick={this.close.bind(this)}>Close</Button>}
+        />
+      </div>
+    );
   }
 }

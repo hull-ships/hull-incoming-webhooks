@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { Grid, Row, Modal } from "react-bootstrap";
 import _ from "lodash";
 
-import webhookUrlContent from "./ui/webhook-url-content";
+import InputSelect from "./ui/webhook-url-content";
 import Payload from "./payload";
 import Preview from "./preview";
 
@@ -39,18 +39,6 @@ export default class App extends Component {
       _.find(this.state.lastWebhooks, webhook => webhook.date === date)
     );
   }
-  renderSetupHeader() {
-    return (
-      <div>
-      <h3 className="mt-1 mb-0 text-center">Configure your incoming webhook</h3>
-        <h1 className="mt-0 mb-0 text-center">🤓</h1>
-        <p>
-          We haven't received data from the outside yet. Start by configuring
-          your external service to send a webhook to the following URL.
-        </p>
-      </div>
-    );
-  }
 
   renderSetupMessage() {
     const {
@@ -69,20 +57,14 @@ export default class App extends Component {
     const { code = "" } = private_settings;
 
     return (
-      <Modal verticallyCenter show={_.get(lastWebhooks, "length", 0) === 0}>
-        <Modal.Body>
-          <div className="ps-2 pb-1">
-            {webhookUrlContent(
-              hostname,
-              ship.id,
-              token,
-              "webhook-url",
-              this.renderSetupHeader(),
-              "As soon as you send your first payload, you can start hacking."
-            )}
-          </div>
-        </Modal.Body>
-      </Modal>
+      <InputSelect
+        show={_.get(lastWebhooks, "length", 0) === 0}
+        host={hostname}
+        connectorId={ship.id}
+        token={token}
+        content="We haven't received data from the outside yet. Copy the URL below and configure your external service to POST a valid JSON-formatted payload to it."
+        footer="You need to refresh the page after you have sent your webhook to unlock the workspace"
+      />
     );
   }
 
