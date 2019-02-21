@@ -1,4 +1,5 @@
 /* global Hull */
+
 import { queryParams } from "./utils";
 import React from "react";
 import ReactDOM from "react-dom";

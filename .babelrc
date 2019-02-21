@@ -1,3 +1,4 @@
 {
-  "presets": ["es2015", "stage-0", "react"]
+  "presets": ["@babel/preset-env"],
+  "plugins": ["@babel/transform-flow-strip-types", "@babel/syntax-object-rest-spread"]
 }

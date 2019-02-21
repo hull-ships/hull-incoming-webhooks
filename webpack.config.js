@@ -38,7 +38,8 @@ module.exports = {
         exclude: /node_modules/,
         loader: "babel",
         query: {
-          presets: ['es2015', 'stage-0']
+          presets: ["@babel/preset-env", "@babel/preset-react"],
+          plugins: ["@babel/transform-flow-strip-types", "@babel/syntax-object-rest-spread"]
         }
       },
       {
@@ -46,7 +47,8 @@ module.exports = {
         loader: 'babel',
         exclude: /node_modules/,
         query: {
-          presets: ['es2015', 'react', 'stage-0']
+          presets: ["@babel/preset-env", "@babel/preset-react"],
+          plugins: ["@babel/transform-flow-strip-types", "@babel/syntax-object-rest-spread"]
         }
       }
     ]

@@ -28,7 +28,10 @@ async function computeHandler(req: Request, res: Response) {
       code,
       preview: true
     });
-    const { logs, userTraits, accountTraits, accountLinks, events } = computed;
+    const {
+      logs, userTraits, accountTraits, accountLinks, events
+    } = computed;
+    console.log(accountLinks);
     try {
       if (logs && logs.length) {
         logs.map(line => client.logger.debug("preview.console.log", line));

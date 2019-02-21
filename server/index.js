@@ -4,10 +4,10 @@ import compression from "compression";
 import Hull from "hull";
 import { Cache } from "hull/lib/infra";
 
+import dotenv from "dotenv";
 import { middleware } from "./lib/crypto";
 import server from "./server";
 import webhookRequest from "./models/webhook-request";
-import dotenv from "dotenv";
 
 dotenv.config();
 

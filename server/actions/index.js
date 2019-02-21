@@ -1,5 +1,5 @@
 // @flow
-import type { $Response } from "express";
+import type { $Request, $Response } from "express";
 
 const check = require("syntax-error");
 const _ = require("lodash");
@@ -14,27 +14,25 @@ function pickValuesFromRequest(req) {
     "ip",
     "method",
     "params",
-    "query",
+    "query"
   ]);
-  return _.update(requestParams, "headers", value =>
-    _.omit(value, [
-      "x-forwarded-for",
-      "x-forwarded-proto",
-      "x-newrelic-id",
-      "x-newrelic-transaction",
-    ])
-  );
+  return _.update(requestParams, "headers", value => _.omit(value, [
+    "x-forwarded-for",
+    "x-forwarded-proto",
+    "x-newrelic-id",
+    "x-newrelic-transaction"
+  ]));
 }
 
 module.exports.webhookHandler = function webhookHandler(
   WebhookModel: Function
 ) {
-  return (req, res: $Response) => {
+  return (req: $Request, res: $Response) => {
     res.send(200);
 
     const payload = {
       webhookData: pickValuesFromRequest(req),
-      date: new Date(),
+      date: new Date()
     };
     const { client } = req.hull;
     client.logger.debug("connector.request.data", payload.webhookData);
@@ -45,10 +43,7 @@ module.exports.webhookHandler = function webhookHandler(
   };
 };
 
-module.exports.statusCheck = (
-  req,
-  res: $Response
-) => {
+module.exports.statusCheck = (req: $Request, res: $Response) => {
   const { ship, client } = req.hull;
   const messages = [];
   let status = "ok";

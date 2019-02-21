@@ -18,7 +18,7 @@ export default function ({ mongoUrl, collectionSize, collectionName }) {
   mongoose.Promise = global.Promise;
 
   const schema = new mongoose.Schema(fields, options)
-                             .index({ connectorId: 1, _id: -1 });
+    .index({ connectorId: 1, _id: -1 });
 
   const connection = mongoose.connect(mongoUrl, { useMongoClient: true });
   return connection.model(collectionName, schema);
