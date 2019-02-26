@@ -139,20 +139,20 @@ module.exports = function handle(
       webhookPayload.result.events = events;
       webhookPayload.result.accountLinks = accountLinks;
       webhookPayload.result.userTraits = userTraits.map(u =>
-        _.omit(u, "userClaimsOptions")
+        _.omit(u, "claimsOptions")
       );
       webhookPayload.result.accountTraits = accountTraits.map(a =>
-        _.omit(a, "accountClaimsOptions")
+        _.omit(a, "claimsOptions")
       );
 
-      const webhook = new WebhookModel({
-        connectorId: ship.id,
-        result: webhookPayload.result,
-        webhookData: payload,
-        date: cachedWebhookPayload.date
-      });
-
-      return Promise.all(promises).then(() => webhook.save());
+      return Promise.all(promises).then(() =>
+        WebhookModel.create({
+          connectorId: ship.id,
+          result: webhookPayload.result,
+          webhookData: payload,
+          date: cachedWebhookPayload.date
+        })
+      );
     })
     .catch(err =>
       client.logger.error("incoming.user.error", {
