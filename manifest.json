@@ -10,11 +10,13 @@
       "title": "Code Editor",
       "url": "admin.html",
       "size": "large",
+      "setup": false,
+      "workspace": true,
       "editable": true
     }
   ],
   "readme" : "readme.md",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "private_settings": [
     {
       "name":"code",

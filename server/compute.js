@@ -26,20 +26,23 @@ function applyUtils(sandbox = {}) {
 }
 
 // Creates a flat object from `/` and `source` parameters
-const reducePayload = traits => _.reduce(
-  traits,
-  (payload, { properties, context = {} } = {}) => {
-    if (properties) {
-      const { source } = context;
-      _.map(
-        _.mapKeys(properties, (v, k) => (source ? `${source}/${k}` : k).replace(".", "/")),
-        (v, k) => _.setWith(payload, k, v)
-      );
-    }
-    return payload;
-  },
-  {}
-);
+const reducePayload = traits =>
+  _.reduce(
+    traits,
+    (payload, { properties, context = {} } = {}) => {
+      if (properties) {
+        const { source } = context;
+        _.map(
+          _.mapKeys(properties, (v, k) =>
+            (source ? `${source}/${k}` : k).replace(".", "/")
+          ),
+          (v, k) => _.setWith(payload, k, v)
+        );
+      }
+      return payload;
+    },
+    {}
+  );
 
 const sandboxes = {};
 function getSandbox(ship) {
@@ -60,7 +63,7 @@ module.exports = function compute(
 
   const sandbox = getSandbox(ship);
 
-  Object.keys(webhookRequest).forEach((userKey) => {
+  Object.keys(webhookRequest).forEach(userKey => {
     sandbox[userKey] = webhookRequest[userKey];
   });
 
@@ -86,8 +89,9 @@ module.exports = function compute(
     eventName,
     properties = {},
     context = {}
-  ) => eventName
-    && events.push({
+  ) =>
+    eventName &&
+    events.push({
       claims,
       claimsOptions,
       event: { eventName, properties, context }
@@ -96,11 +100,12 @@ module.exports = function compute(
   const genericIdentify = target => (claims, claimsOptions) => (
     properties = {},
     context = {}
-  ) => target.push({
-    claims,
-    claimsOptions,
-    traits: [{ properties, context }]
-  });
+  ) =>
+    target.push({
+      claims,
+      claimsOptions,
+      traits: [{ properties, context }]
+    });
 
   const identify = genericIdentify(userTraitsList);
   const accountIdentify = genericIdentify(accountTraitsList);
@@ -186,7 +191,11 @@ module.exports = function compute(
   }
 
   sandbox.console = {
-    log, warn: log, error: logError, debug, info
+    log,
+    warn: log,
+    error: logError,
+    debug,
+    info
   };
 
   try {
@@ -205,9 +214,9 @@ module.exports = function compute(
   }
 
   if (
-    sandbox.results.length
-    && isAsync
-    && !_.some(_.compact(sandbox.results), r => _.isFunction(r.then))
+    sandbox.results.length &&
+    isAsync &&
+    !_.some(_.compact(sandbox.results), r => _.isFunction(r.then))
   ) {
     errors.push("It seems you’re using 'request' which is asynchronous.");
     errors.push(
@@ -216,7 +225,7 @@ module.exports = function compute(
   }
 
   return Promise.all(sandbox.results)
-    .catch((err) => {
+    .catch(err => {
       errors.push(err.toString());
     })
     .then(() => {

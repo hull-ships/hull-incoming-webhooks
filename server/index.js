@@ -39,7 +39,6 @@ const WebhookModel = webhookRequest({
   collectionName: MONGO_COLLECTION_NAME || "webhook_requests"
 });
 
-
 const options = {
   hostSecret: SECRET || "1234",
   devMode: NODE_ENV === "development",

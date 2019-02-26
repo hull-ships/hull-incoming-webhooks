@@ -28,23 +28,23 @@ async function computeHandler(req: Request, res: Response) {
       code,
       preview: true
     });
-    const {
-      logs, userTraits, accountTraits, accountLinks, events
-    } = computed;
-    console.log(accountLinks);
+    const { logs, userTraits, accountTraits, accountLinks, events } = computed;
+
     try {
       if (logs && logs.length) {
         logs.map(line => client.logger.debug("preview.console.log", line));
       }
 
       const result = {
+        ...computed,
         events: withValidUserClaims(client)(events),
         accountLinks: withValidUserOrAccountClaims(client)(accountLinks),
         userTraits: withValidUserClaims(client)(userTraits),
         accountTraits: withValidAccountClaims(client)(accountTraits)
       };
 
-      return res.send({ ship, result }).end();
+      res.send({ ship, result });
+      return res.end();
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error });
