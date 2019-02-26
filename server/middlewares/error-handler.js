@@ -3,8 +3,9 @@ import express from "express";
 import Hull from "hull";
 import _ from "lodash";
 
-export default function (app: express) {
-  app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+export default function(app: express) {
+  app.use((err, req, res, _next) => {
+    // eslint-disable-line no-unused-vars
     if (err) {
       const data = {
         status: _.get(err, "status"),
@@ -19,7 +20,9 @@ export default function (app: express) {
         logger.error("request.error", err.message, err.status, data);
       }
       if (!res.headersSent) {
-        return res.status(_.get(err, "status") || 500).send({ message: _.get(err, "message") });
+        return res
+          .status(_.get(err, "status") || 500)
+          .send({ message: _.get(err, "message") });
       }
     }
     if (!res.headersSent) {

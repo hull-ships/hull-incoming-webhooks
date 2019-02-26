@@ -21,7 +21,10 @@ export function decrypt(text, password) {
 
 export function middleware(password) {
   return (req, res, next) => {
-    const pathName = _.get(url.parse(req.url).pathname.match("/webhooks/(?:[a-zA-Z0-9]*)/(.*)"), "[1]");
+    const pathName = _.get(
+      url.parse(req.url).pathname.match("/webhooks/(?:[a-zA-Z0-9]*)/(.*)"),
+      "[1]"
+    );
     if (pathName) {
       req.hull = req.hull || {};
       req.hull.config = decrypt(pathName, password);

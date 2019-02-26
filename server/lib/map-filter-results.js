@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-export const isValidClaim = (payload, client) => (subject) => {
+export const isValidClaim = (payload, client) => subject => {
   const { claims } = payload;
   try {
     const method = subject === "account" ? client.asAccount : client.asUser;
@@ -14,7 +14,10 @@ export const isValidClaim = (payload, client) => (subject) => {
     return false;
   }
 };
-export const withValidClaims = subjects => client => payload => _.filter(payload, p => _.every(_.castArray(subjects), isValidClaim(p, client)));
+export const withValidClaims = subjects => client => payload =>
+  _.filter(payload, p =>
+    _.every(_.castArray(subjects), isValidClaim(p, client))
+  );
 
 export const withValidUserClaims = withValidClaims("user");
 export const withValidAccountClaims = withValidClaims("account");

@@ -16,12 +16,14 @@ function pickValuesFromRequest(req) {
     "params",
     "query"
   ]);
-  return _.update(requestParams, "headers", value => _.omit(value, [
-    "x-forwarded-for",
-    "x-forwarded-proto",
-    "x-newrelic-id",
-    "x-newrelic-transaction"
-  ]));
+  return _.update(requestParams, "headers", value =>
+    _.omit(value, [
+      "x-forwarded-for",
+      "x-forwarded-proto",
+      "x-newrelic-id",
+      "x-newrelic-transaction"
+    ])
+  );
 }
 
 module.exports.webhookHandler = function webhookHandler(

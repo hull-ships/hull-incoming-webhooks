@@ -10,14 +10,12 @@ import {
 const debug = require("debug")("hull-incoming-webhooks:webhook-processor");
 
 module.exports = function handle(
-  payload: Object = {},
-  {
-    ship, client, metric, cachedWebhookPayload
-  }: Object,
-  WebhookModel: Object
+  payload = {},
+  { ship, client, metric, cachedWebhookPayload },
+  WebhookModel
 ) {
   return compute(payload, ship, client)
-    .then((result) => {
+    .then(result => {
       debug("compute.result", result);
       const { logsForLogger, errors } = result;
       const events = withValidUserClaims(client)(result.events);
@@ -42,7 +40,7 @@ module.exports = function handle(
                 successful += 1;
                 return c.logger.info(`incoming.${entity}.success`, traits);
               },
-              (err) => {
+              err => {
                 return c.logger.error(`incoming.${entity}.error`, {
                   errors: err
                 });
@@ -83,13 +81,16 @@ module.exports = function handle(
                     successfulEvents += 1;
                     return asUser.logger.info("incoming.event.success");
                   },
-                  err => asUser.logger.error("incoming.event.error", {
-                    user: claims,
-                    errors: err
-                  })
+                  err =>
+                    asUser.logger.error("incoming.event.error", {
+                      user: claims,
+                      errors: err
+                    })
                 );
             })
-          ).then(() => metric.increment("ship.incoming.events", successfulEvents))
+          ).then(() =>
+            metric.increment("ship.incoming.events", successfulEvents)
+          )
         );
       }
 
@@ -97,19 +98,23 @@ module.exports = function handle(
       if (_.size(accountLinks)) {
         promises.push(
           Promise.all(
-            accountLinks.map((link) => {
+            accountLinks.map(link => {
               const asUser = client.asUser(link.claims, link.claimsOptions);
               return asUser
                 .account(link.accountClaims, link.accountClaimsOptions)
                 .traits({})
-                .then(() => asUser.logger.info("incoming.account.link.success", {
-                  account: link.accountClaims,
-                  user: link.claims
-                }))
-                .catch(err => asUser.logger.info("incoming.account.link.error", {
-                  user: link.claims,
-                  errors: err
-                }));
+                .then(() =>
+                  asUser.logger.info("incoming.account.link.success", {
+                    account: link.accountClaims,
+                    user: link.claims
+                  })
+                )
+                .catch(err =>
+                  asUser.logger.info("incoming.account.link.error", {
+                    user: link.claims,
+                    errors: err
+                  })
+                );
             })
           )
         );
@@ -123,7 +128,9 @@ module.exports = function handle(
       }
 
       if (logsForLogger && logsForLogger.length) {
-        logsForLogger.map(log => client.logger.info("compute.console.log", { log }));
+        logsForLogger.map(log =>
+          client.logger.info("compute.console.log", { log })
+        );
       }
 
       const webhookPayload = cachedWebhookPayload;
@@ -131,8 +138,12 @@ module.exports = function handle(
       webhookPayload.result = result;
       webhookPayload.result.events = events;
       webhookPayload.result.accountLinks = accountLinks;
-      webhookPayload.result.userTraits = userTraits.map(u => _.omit(u, "userClaimsOptions"));
-      webhookPayload.result.accountTraits = accountTraits.map(a => _.omit(a, "accountClaimsOptions"));
+      webhookPayload.result.userTraits = userTraits.map(u =>
+        _.omit(u, "userClaimsOptions")
+      );
+      webhookPayload.result.accountTraits = accountTraits.map(a =>
+        _.omit(a, "accountClaimsOptions")
+      );
 
       const webhook = new WebhookModel({
         connectorId: ship.id,
@@ -143,12 +154,14 @@ module.exports = function handle(
 
       return Promise.all(promises).then(() => webhook.save());
     })
-    .catch(err => client.logger.error("incoming.user.error", {
-      hull_summary: `Error Processing user: ${_.get(
-        err,
-        "message",
-        "Unexpected error"
-      )}`,
-      err
-    }));
+    .catch(err =>
+      client.logger.error("incoming.user.error", {
+        hull_summary: `Error Processing user: ${_.get(
+          err,
+          "message",
+          "Unexpected error"
+        )}`,
+        err
+      })
+    );
 };
