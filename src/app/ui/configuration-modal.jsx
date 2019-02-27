@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable jsx-a11y/accessible-emoji */
 import React, { Component } from "react";
-import { Modal } from "react-bootstrap";
+import Modal from "react-bootstrap/Modal";
 
 type Props = {
   host: any,
@@ -33,7 +33,7 @@ export default class ConfigurationModal extends Component<Props> {
       onHide
     } = this.props;
     return (
-      <Modal backdrop onHide={onHide} show={show}>
+      <Modal centered backdrop onHide={onHide} show={show}>
         <Modal.Body>
           <div className="ps-2">
             <div>

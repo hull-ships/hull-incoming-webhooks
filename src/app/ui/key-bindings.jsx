@@ -1,7 +1,9 @@
 // @flow
 import React from "react";
 import _ from "lodash";
-import { Modal, Table, Button } from "react-bootstrap";
+import Modal from "react-bootstrap/Modal";
+import Table from "react-bootstrap/Table";
+import Button from "react-bootstrap/Button";
 
 const SHORTCUTS = {
   "Cmd-/": "Toggle Comment",
@@ -55,12 +57,18 @@ const SHORTCUTS = {
 // };
 
 const KeyBindings = ({ onHide, show }: { onHide: Function, show: boolean }) => (
-  <Modal backdrop onHide={onHide} show={show}>
+  <Modal
+    dialogClassName="modal-wide"
+    centered
+    backdrop
+    onHide={onHide}
+    show={show}
+  >
     <Modal.Header closeButton>
       <Modal.Title>Keyboard Shortcuts</Modal.Title>
     </Modal.Header>
     <Modal.Body>
-      <Table striped bordered hover responsive size="xs" condensed>
+      <Table striped borderless hover responsive size="sm">
         <thead>
           <tr>
             <th>Shortcut</th>
@@ -70,7 +78,9 @@ const KeyBindings = ({ onHide, show }: { onHide: Function, show: boolean }) => (
         <tbody>
           {_.map(SHORTCUTS, (v, k) => (
             <tr key={k}>
-              <td>{k}</td>
+              <td>
+                <code>{k}</code>
+              </td>
               <td>{v}</td>
             </tr>
           ))}

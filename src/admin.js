@@ -7,6 +7,7 @@ import ReactDOM from "react-dom";
 import queryParams from "./app/utils";
 import App from "./app/main";
 import Engine from "./app/engine";
+import "./style/index.scss";
 
 ready(() => {
   const { ship, organization, secret } = queryParams();

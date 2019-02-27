@@ -68,7 +68,7 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
         loader: "file-loader"
       },
       {
-        test: /\.(css|scss$)/,
+        test: /\.(sa|sc|c)ss$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
       }
     ]

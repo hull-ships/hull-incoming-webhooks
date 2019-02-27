@@ -1,6 +1,8 @@
 // @flow
 import React, { Fragment } from "react";
-import { DropdownButton, MenuItem, Button } from "react-bootstrap";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import DropdownItem from "react-bootstrap/DropdownItem";
+import Button from "react-bootstrap/Button";
 import _ from "lodash";
 import type { Webhook } from "../../../types";
 import PayloadTitle from "./payload-title";
@@ -22,8 +24,7 @@ const List = ({
 }) => (
   <Fragment>
     <Button
-      bsClass="btn refresh-button"
-      btnStyle="link"
+      bsPrefix="btn refresh-button"
       disabled={loading}
       onClick={onRefresh}
     >
@@ -31,22 +32,22 @@ const List = ({
     </Button>
     <DropdownButton
       className="last-payload-button"
-      bsStyle="pill"
-      bsSize="small"
+      variant="primary"
+      size="sm"
       id="last-payload"
       title={<PayloadTitle entry={current} />}
       key={_.get(current, "date")}
       onSelect={onSelect}
     >
       {history.map((entry, idx) => (
-        <MenuItem
+        <DropdownItem
           key={entry.date}
           id={`last-entry-${idx}`}
           eventKey={entry.date}
           style={{ textAlign: "left" }}
         >
           <PayloadTitle entry={entry} showDate />
-        </MenuItem>
+        </DropdownItem>
       ))}
     </DropdownButton>
   </Fragment>

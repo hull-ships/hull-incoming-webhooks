@@ -1,13 +1,11 @@
 // @flow
 /* eslint no-unused-vars:0, no-useless-constructor:0, import/no-unresolved:0 */
 import React, { Component } from "react";
-import {
-  DropdownButton,
-  Tabs,
-  Tab,
-  ButtonGroup,
-  Button
-} from "react-bootstrap";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import Nav from "react-bootstrap/Nav";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Button from "react-bootstrap/Button";
+
 import _ from "lodash";
 import type { Ship, Result, Webhook } from "../../types";
 import type Engine from "./engine";
@@ -126,16 +124,33 @@ export default class App extends Component<Props, State> {
   };
 
   renderSetupMessage() {
-    const { lastWebhooks, hostname, token, ship = {} } = this.state;
+    const {
+      showWebhookConfig,
+      lastWebhooks,
+      hostname,
+      token,
+      ship = {}
+    } = this.state;
+    const hasAnyWebhooks = !!_.get(lastWebhooks, "length", 0);
+    const content = hasAnyWebhooks
+      ? "Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
+      : "We haven't received data from the outside yet. Copy the URL below and configure your external service to POST a valid JSON-formatted payload to it.";
+    const actions = hasAnyWebhooks ? (
+      <Button onClick={this.hideWebhookConfig}>Close</Button>
+    ) : null;
+    const footer = hasAnyWebhooks
+      ? null
+      : "You need to refresh the page after you have sent your webhook to unlock the workspace";
     return (
       <ConfigurationModal
-        show={_.get(lastWebhooks, "length", 0) === 0}
+        show={showWebhookConfig || !hasAnyWebhooks}
         host={hostname}
         onHide={() => {}}
         connectorId={ship.id}
         token={token}
-        content="We haven't received data from the outside yet. Copy the URL below and configure your external service to POST a valid JSON-formatted payload to it."
-        footer="You need to refresh the page after you have sent your webhook to unlock the workspace"
+        content={content}
+        actions={actions}
+        footer={footer}
       />
     );
   }
@@ -162,6 +177,7 @@ export default class App extends Component<Props, State> {
       return (
         <div>
           {this.renderSetupMessage()}
+          <KeyBindings show={showBindings} onHide={this.hideBindings} />
           <div className="main-container flexRow">
             <div className="flexColumn flexGrow third">
               <Header title="Recent webhooks">
@@ -178,23 +194,31 @@ export default class App extends Component<Props, State> {
               <Payload
                 className="payloadPane"
                 current={currentWebhook}
-                // loading={loadingWebhooks}
-                // lastWebhooks={lastWebhooks}
                 onSelect={this.handleChangeCurrent}
                 onRefresh={this.handleRefresh}
               />
             </div>
             <div className="flexColumn flexGrow third">
               <Header>
-                <Tabs
-                  justified
-                  defaultActiveKey={activeTab}
-                  id="preview-tabs"
+                <Nav
+                  variant="tabs"
+                  defaultActiveKey="Current"
+                  activeKey={activeTab}
+                  justify
                   onSelect={this.changeTab}
+                  className="justify-content-center"
+                  size="sm"
+                  id="preview-tabs"
                 >
-                  <Tab eventKey="Current" title="Current Code" />
-                  <Tab eventKey="Previous" title="At Webhook reception" />
-                </Tabs>
+                  <Nav.Item>
+                    <Nav.Link eventKey="Current">Current Code</Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="Previous">
+                      At Webhook reception
+                    </Nav.Link>
+                  </Nav.Item>
+                </Nav>
               </Header>
               <CodeTitle title="Code" />
               <CodePane
@@ -207,37 +231,20 @@ export default class App extends Component<Props, State> {
             </div>
             <div className="flexColumn flexGrow third">
               <Header>
-                <ButtonGroup>
+                <ButtonGroup size="sm">
                   <Button
-                    bsClass="btn"
-                    bsStyle="pill"
-                    bsSize="small"
+                    variant="outline-secondary"
                     onClick={this.showWebhookConfig}
                   >
                     Configuration
                   </Button>
                   <Button
-                    bsClass="btn"
-                    bsStyle="pill"
-                    bsSize="small"
+                    variant="outline-secondary"
                     onClick={this.showBindings}
                   >
                     Keyboard Shortcuts
                   </Button>
                 </ButtonGroup>
-                <ConfigurationModal
-                  show={showWebhookConfig}
-                  host={hostname}
-                  connectorId={id}
-                  token={token}
-                  footer={null}
-                  onHide={this.hideWebhookConfig}
-                  content="Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
-                  actions={
-                    <Button onClick={this.hideWebhookConfig}>Close</Button>
-                  }
-                />
-                <KeyBindings show={showBindings} onHide={this.hideBindings} />
               </Header>
 
               {result && ship && (
