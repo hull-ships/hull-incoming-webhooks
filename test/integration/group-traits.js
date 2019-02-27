@@ -20,7 +20,7 @@ describe("Connector for webhooks endpoint", function test() {
     server = bootstrap();
     minihull.listen(8001);
     minihull.stubConnector({ id: "123456789012345678901234", private_settings });
-    minihull.stubSegments([]);
+    minihull.stubUsersSegments([]);
 
     setTimeout(() => {
       done();

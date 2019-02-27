@@ -10,18 +10,20 @@
       "title": "Code Editor",
       "url": "admin.html",
       "size": "large",
+      "setup": false,
+      "workspace": true,
       "editable": true
     }
   ],
   "readme" : "readme.md",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "private_settings": [
     {
       "name":"code",
       "title": "Code",
       "description":"Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
       "type": "string",
-      "default":"console.log(\"Hello !\");\nhull.user({ id: \"123\" }).traits({ coconuts: 12 });\nhull.user({ id: \"123\" }).track(\"sample event\");",
+      "default":"//console.log(\"Hello !\");\n//hull.asUser({ email: body.email }).traits({ coconuts: 12 });\n//hull.asUser({ email: body.email }).track(\"sample event\");",
       "format": "hidden"
     }
   ],

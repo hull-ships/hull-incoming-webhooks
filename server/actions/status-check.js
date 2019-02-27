@@ -7,13 +7,15 @@ export default function statusCheck(req, res) {
   let status = "ok";
   if (!_.get(ship.private_settings, "code")) {
     status = "error";
-    messages.push("Settings are empty");
+    messages.push(
+      "No code is stored. Start by sending a webhook and writing some code"
+    );
   }
 
   const err = check(ship.private_settings.code);
   if (err) {
     status = "error";
-    messages.push("Settings are referencing invalid values");
+    messages.push("Your code seems to have errors.");
   }
 
   res.json({ messages, status });

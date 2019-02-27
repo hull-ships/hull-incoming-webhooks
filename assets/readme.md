@@ -1,6 +1,6 @@
 # Incoming Webhooks
 
-The Incoming Webhooks Connector enables you to process Webhooks from external systems and update your user and account data in Hull by writing Javascript.
+The Incoming Webhooks Connector lets you process Webhooks from external systems and ingest them to update user and account data in Hull by writing Javascript.
 
 ## Getting Started
 
@@ -29,7 +29,7 @@ You can only view the code at webhook reception but are not allowed to make any 
 
 The Incoming Webhooks Connector allows you to receive data from external systems, write Javascript to transform this data and update users and accounts in Hull. Furthermore, you can emit events in Hull to track behavioral data.
 
-This Connector supports to `create users` and `create accounts`. It allows you to `create traits` and `update traits` for both, users and accounts.  In addition, you can `create events` and `link accounts` for users.
+This Connector can `create users` and `create accounts`. It allows you to `create attributes` and `update attributes` for both, users and accounts.  In addition, you can `create events` and `link accounts` for users.
 
 To make the Connector even more powerful, you can use the `request` library [https://github.com/request/request](https://github.com/request/request) to call external services.
 
@@ -52,7 +52,8 @@ Now that you have a good overview of which variables you can access to obtain in
 You can use the following function call to either **reference an existing user** or **create a new one**.
 
 ```javascript
-    hull.user({external_id: <value>, email: <value>})
+    hull 
+      .asUser({ external_id: <value>, email: <value> })
 ```
 
 It is recommended to use the `external_id` if your payload contains it or rely on the `email` as fallback option. You can pass both identifiers if they are available, but the `external_id` will always take precedence over the `email`. For the purpose of simplicity, the following code will only show the `external_id` identifier.
@@ -60,7 +61,9 @@ It is recommended to use the `external_id` if your payload contains it or rely o
 Lets first explore how you can **change attributes for a user**. There are three different types of attributes, top-level, ungrouped and grouped attributes. ***Top-level and ungrouped attributes*** can be set with the not-overloaded function call
 
 ```javascript
-    hull.user({external_id: <value>}).traits({ ATTRIBUTE_NAME: <value> })
+    hull
+      .asUser({ external_id: <value> })
+      .traits({ ATTRIBUTE_NAME: <value> })
 ```
 
 For naming conventions, see the Golden Rules section below.
@@ -68,44 +71,70 @@ For naming conventions, see the Golden Rules section below.
 Of course you can set multiple attributes at once by passing a more complex object like:
 
 ```javascript
-    hull.user({external_id: <value>}).traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
+    hull.asUser({ external_id: <value>}).traits({ ATTRIBUTE_NAME: <value> , ATTRIBUTE2_NAME: <value> })
 ```
 
-Using this function signature, these attributes are stored in the `traits` attributes group.
-If you want to make use of ***grouped attributes***, you can use the overloaded signature of the function, passing the group name as source in the second parameter:
+Using this function signature, these attributes are stored in the `traits` attributes group. If you want to make use of ***grouped attributes***, you can either use the "/" character in the attribute name or use the overloaded signature of the function, passing the group name as source in the second parameter:
 
 ```javascript
-    hull.user({external_id: <value>}).traits({ ATTRIBUTE_NAME: <value> }, { source: <group_name> })
+    hull
+      .asUser({ external_id: <value> })
+      .traits({ "foo/bar": <value> })
+
+    hull
+      .asUser({ external_id: <value> })
+      .traits({ "bar": <value> }, { source: "foo" })
 ```
+
+Keep in mind only one level of nesting is supported when using the "/" character.
 
 If you want to “delete” an attribute, you can use the same function calls as described above and simply set `null`  as value.
 
 Now that we know how to handle attributes, let’s have a look at how to **emit events for a user**.
-You can use the `hull.track` function to emit events, but before we go into further details be aware of the following:
+You can use the `hull.asUser(...).track()` function to emit events, but before we go into further details be aware of the following:
 ***You cannot issue more than 10 track calls per received webhook.***
 
 Here is how to use the function signature:
 
 ```javascript
-    hull.user({external_id: <value>}).track( "<event_name>" , { PROPERTY_NAME: <value>, PROPERTY2_NAME: <value> })
+    const user = hull.asUser({ external_id: <value> });
+    user.track( "<event_name>" , { PROPERTY_NAME: <value>, PROPERTY2_NAME: <value> })
+
+    user.track("new support ticket", {
+      messages: 3,
+      priority: "high"
+    }, {
+      source: "zendesk",
+      type: 'ticket',
+      event_id: 'uuid1234' // Pass a unique ID to ensure event de-duplication
+      ip: null, // don't store ip - it's a server call
+      referer: null, // don't store referer - it's a server call
+      created_at: '2013-02-08 09:30:26.123+07:00' // ISO 8601. moment.js does it very well
+    });
 ```
 
-The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event.
+See https://github.com/hull/hull-client-node/#tracking-user-events for the full signature.
+
+The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event. The third parameter is an optional parameter containing context metadata
 
 Now that we know how to deal with users, let’s have a look how to handle accounts.
 
 You can **link an account to the current user** by calling the `hull.account` function with claims that identify the account. Supported claims are `domain`, `id` and `external_id`. To link an account that is identified by the domain, you would write
 
 ```javascript
-    hull.user({external_id: <value>}).account({ domain: <value> })
+    hull
+      .asUser({ external_id: <value> })
+      .account({ domain: <value> })
 ```
 
 which would either create the account if it doesn’t exist or link the current user to the existing account.
 
-To **change attributes for an account**, you can use the chained function call `hull.account().traits()`. In contrast to the user, accounts do only support top-level attributes. You can specify the attributes in the same way as for a user by passing an object into the chained `traits` function like
+To **change attributes for an account**, you can use the chained function call `hull.asAccount(...).traits()`. In contrast to the user, accounts do only support top-level attributes. You can specify the attributes in the same way as for a user by passing an object into the chained `traits()` function like
 
 ```javascript
-    hull.account({domain: <value>}).traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
+    hull
+      .asAccount({domain: <value>})
+      .traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
 ```
 
 ## External Libraries
@@ -124,12 +153,12 @@ Please visit the linked pages for documentation and further information about th
 ## Golden Rules
 
 - DO use snake_case rather than camelCase in your naming.
-- DO write human readable keys for traits. Don’t use names like `ls` for lead score, just name it `lead_score`.
+- DO write human readable keys for attributes. Don’t use names like `ls` for lead score, just name it `lead_score`.
 - DO use `_at` or `_date` as suffix to your trait name to let hull recognize the values as valid dates. You can pass either
   - a valid unix timestamp in seconds or milliseconds or
   - a valid string formatted according to ISO-8601
-- DO make sure that you use the proper type for new traits because this cannot be changed later. For example, if you pass `"1234"` as the value for trait `customerId`, the trait will be always a treated as string, even if you intended it to be a number.
-- DO NOT write code that generates dynamic keys for traits
+- DO make sure that you use the proper type for new attributes because this cannot be changed later. For example, if you pass `"1234"` as the value for attribute `customerId`, the attribute will be always a treated as string, even if you intended it to be a number.
+- DO NOT write code that generates dynamic keys for attributes
 - DO NOT use large arrays because they are slowing down the compute performance of your data. Arrays with up to 50 values are okay.
 
 ## Debugging and Logging
