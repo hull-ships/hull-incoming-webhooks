@@ -3,19 +3,20 @@ import { Connector } from "hull";
 
 import express from "express";
 
-import getLastWebhooks from "./middlewares/get-last-webhooks";
 import { encrypt } from "./lib/crypto";
-import webhookHandler from "./actions/webhook-handler";
-import computeHandler from "./actions/compute-handler";
-import devMode from "./dev-mode";
+import getRecent from "./middlewares/get-recent";
 import errorHandler from "./middlewares/error-handler";
-import statusCheck from "./actions/status-check";
+import incomingHandler from "./actions/incoming-handler";
+import previewHandler from "./actions/preview-handler";
+import statusHandler from "./actions/status-handler";
+import devMode from "./dev-mode";
+import type { ConfResponse } from "../types";
 
 export default function Server(
   connector: Connector,
   options: Object = {},
   app: express,
-  WebhookModel: Object
+  Model: Object
 ) {
   const { hostSecret } = options;
 
@@ -31,33 +32,38 @@ export default function Server(
       req.hull.config.secret &&
       req.hull.config.ship
     ) {
-      res.send({
+      const conf: ConfResponse = {
         hostname: req.hostname,
         token: encrypt(req.hull.config, hostSecret)
-      });
+      };
+      res.send(conf);
     }
     res.status(403).send();
   });
 
-  app.get("/last-webhooks", getLastWebhooks(WebhookModel));
+  app.get("/last-webhooks", getRecent(Model));
 
   app.post(
     "/webhooks/:connectorId/:token",
     express.urlencoded({ extended: true }),
     express.json(),
-    webhookHandler(WebhookModel)
+    incomingHandler(Model)
   );
 
   app.post(
     "/webhooks/:connectorId",
     express.urlencoded({ extended: true }),
     express.json(),
-    webhookHandler(WebhookModel)
+    incomingHandler(Model)
   );
 
-  app.post("/compute", computeHandler({ hostSecret, connector }));
+  app.post(
+    "/compute",
+    express.json(),
+    previewHandler({ hostSecret, connector })
+  );
 
-  app.all("/status", statusCheck);
+  app.all("/status", statusHandler);
 
   if (options.devMode) {
     devMode(app, {

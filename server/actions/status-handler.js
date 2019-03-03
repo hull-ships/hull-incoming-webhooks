@@ -1,7 +1,9 @@
+// @flow
+import type { $Request, $Response } from "express";
 import check from "syntax-error";
 import _ from "lodash";
 
-export default function statusCheck(req, res) {
+export default function statusCheck(req: $Request, res: $Response) {
   const { ship, client } = req.hull;
   const messages = [];
   let status = "ok";

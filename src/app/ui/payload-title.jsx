@@ -2,8 +2,7 @@
 
 import React from "react";
 import Badge from "react-bootstrap/Badge";
-import _ from "lodash";
-import type { Webhook } from "../../../types";
+import type { Entry } from "../../../types";
 
 const LABELS = {
   post: "success",
@@ -12,26 +11,26 @@ const LABELS = {
   put: "warning"
 };
 
-const WebhookTitle = ({
+const PayloadTitle = ({
   entry,
   showDate = false
 }: {
-  entry?: Webhook,
+  entry?: Entry,
   showDate?: boolean
 }) =>
   !entry ? (
-    "No Webhook received"
+    "Nothing to show"
   ) : (
     <span>
       <Badge
         size="sm"
-        variant={LABELS[_.get(entry, "webhookData.method", "").toLowerCase()]}
+        variant={LABELS[entry.payload.method.toLowerCase()]}
         style={{ marginRight: 5 }}
       >
-        {_.get(entry, "webhookData.method")}
+        {entry.payload.method}
       </Badge>
       <span className="entry-content">
-        {_.get(entry, "webhookData.headers.user-agent")}
+        {entry.payload.headers["user-agent"]}
       </span>
       {showDate ? (
         <small style={{ display: "block" }}>{entry.date}</small>
@@ -39,4 +38,4 @@ const WebhookTitle = ({
     </span>
   );
 
-export default WebhookTitle;
+export default PayloadTitle;

@@ -33,7 +33,7 @@ const cache = new Cache({
 });
 
 // Mongo connection setup
-const WebhookModel = webhookRequest({
+const Model = webhookRequest({
   mongoUrl: MONGO_URL,
   collectionSize: MONGO_COLLECTION_SIZE || 524288000,
   collectionName: MONGO_COLLECTION_NAME || "webhook_requests"
@@ -54,6 +54,6 @@ app.use(middleware(connector.hostSecret));
 
 connector.setupApp(app);
 
-app = server(connector, options, app, WebhookModel);
+app = server(connector, options, app, Model);
 
 connector.startApp(app);

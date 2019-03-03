@@ -5,7 +5,7 @@ import fp from "lodash/fp";
 
 import Area from "../ui/area";
 import CodeTitle from "../ui/code-title";
-import type { Results } from "../../../types";
+import type { Result } from "../../../types";
 
 const nice = (obj = {}) => JSON.stringify(obj, null, 2);
 const short = (obj = {}) => JSON.stringify(obj);
@@ -71,7 +71,7 @@ const mapEvents = fp.flow(
 );
 
 type Props = {
-  result: Results
+  result: Result
 };
 
 const Preview = ({ result }: Props) => {

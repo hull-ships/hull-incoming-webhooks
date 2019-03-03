@@ -7,54 +7,44 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 
 import _ from "lodash";
-import type { Ship, Result, Webhook } from "../../types";
+import type { EngineState, Ship, Result, Entry } from "../../types";
 import type Engine from "./engine";
 
 import KeyBindings from "./ui/key-bindings";
 import ConfigurationModal from "./ui/configuration-modal";
 import CodePane from "./code";
-import Payload from "./payload";
+import Area from "./ui/area";
 import Preview from "./preview";
 import Header from "./ui/header";
-import WebhookHistory from "./ui/webhook-history";
+import PayloadSelector from "./ui/payload-selector";
 import CodeTitle from "./ui/code-title";
 
 type Props = {
   engine: Engine
 };
 
-type State = {
-  showWebhookConfig: boolean,
+type State = EngineState & {
+  showConfig: boolean,
   showBindings: boolean,
-  currentWebhook?: Webhook,
-  lastWebhooks: Array<Webhook>,
-  loadingWebhooks: boolean,
-  initialized?: boolean,
-  hostname?: string,
-  token?: string,
-  computing?: boolean,
-  error?: any,
-  ship?: Ship,
   activeTab: string,
   result?: Result
 };
 
+const DEFAULT_STATE = {
+  showConfig: false,
+  showBindings: false,
+  activeTab: "Current"
+};
+
 export default class App extends Component<Props, State> {
-  state = {
-    activeTab: "Current",
-    showWebhookConfig: false,
-    showBindings: false,
-    loadingWebhooks: false,
-    lastWebhooks: [],
-    currentWebhook: undefined,
-    initialized: false,
-    hostname: "",
-    token: "",
-    computing: false,
-    ship: undefined,
-    result: undefined,
-    error: ""
-  };
+  constructor() {
+    super();
+    const { engine } = this.props;
+    this.state = {
+      ...DEFAULT_STATE,
+      ...engine.getState()
+    };
+  }
 
   componentWillMount() {
     const { engine } = this.props;
@@ -68,16 +58,12 @@ export default class App extends Component<Props, State> {
 
   _onChange = () => {
     const { engine } = this.props;
-    console.log("On Change called", engine.getState());
     this.setState(engine.getState());
   };
 
-  handleChangeCurrent = (date: string) => {
+  selectEntry = (date: string) => {
     const { engine } = this.props;
-    const { lastWebhooks = [] } = this.state;
-    engine.setLastWebhook(
-      _.find(lastWebhooks, webhook => webhook.date === date)
-    );
+    engine.selectEntryByDate(date);
   };
 
   handleCodeUpdate = (code: string) => {
@@ -87,20 +73,18 @@ export default class App extends Component<Props, State> {
 
   handleRefresh = () => {
     const { engine } = this.props;
-    engine.fetchLastWebhooks();
+    engine.fetchRecent();
   };
 
   hideBindings = () => this.setState({ showBindings: false });
 
   showBindings = () => this.setState({ showBindings: true });
 
-  hideWebhookConfig = () => this.setState({ showWebhookConfig: false });
+  hideInstructions = () => this.setState({ showConfig: false });
 
-  showWebhookConfig = () => this.setState({ showWebhookConfig: true });
+  showInstructions = () => this.setState({ showConfig: true });
 
-  changeTab = (eventKey: string) => {
-    this.setState({ activeTab: eventKey });
-  };
+  changeTab = (activeTab: string) => this.setState({ activeTab });
 
   currentOrPrevious = (current: any, previous: any) => {
     const { activeTab } = this.state;
@@ -112,7 +96,7 @@ export default class App extends Component<Props, State> {
     if (activeTab === "Current") {
       return _.get(this.state, "ship.private_settings.code", "");
     }
-    return _.get(this.state, "currentWebhook.result.code", "");
+    return _.get(this.state, "current.result.code", "");
   };
 
   getResults = () => {
@@ -120,47 +104,42 @@ export default class App extends Component<Props, State> {
     if (activeTab === "Current") {
       return _.get(this.state, "result", {});
     }
-    return _.get(this.state, "currentWebhook.result", "");
+    return _.get(this.state, "current.result", "");
   };
 
   renderSetupMessage() {
-    const {
-      showWebhookConfig,
-      lastWebhooks,
-      hostname,
-      token,
-      ship = {}
-    } = this.state;
-    const hasAnyWebhooks = !!_.get(lastWebhooks, "length", 0);
+    const { config, showConfig, recent, hostname, token } = this.state;
+    const hasAnyWebhooks = !!_.get(recent, "length", 0);
     const content = hasAnyWebhooks
       ? "Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
       : "We haven't received data from the outside yet. Copy the URL below and configure your external service to POST a valid JSON-formatted payload to it.";
     const actions = hasAnyWebhooks ? (
-      <Button onClick={this.hideWebhookConfig}>Close</Button>
+      <Button onClick={this.hideInstructions}>Close</Button>
     ) : null;
     const footer = hasAnyWebhooks
       ? null
       : "You need to refresh the page after you have sent your webhook to unlock the workspace";
     return (
-      <ConfigurationModal
-        show={showWebhookConfig || !hasAnyWebhooks}
-        host={hostname}
-        onHide={() => {}}
-        connectorId={ship.id}
-        token={token}
-        content={content}
-        actions={actions}
-        footer={footer}
-      />
+      config && (
+        <ConfigurationModal
+          show={showConfig || !hasAnyWebhooks}
+          host={hostname}
+          onHide={() => {}}
+          connectorId={config.id}
+          token={token}
+          content={content}
+          actions={actions}
+          footer={footer}
+        />
+      )
     );
   }
 
   render() {
     const {
-      currentWebhook,
-      loadingWebhooks,
-      lastWebhooks,
-      ship,
+      current,
+      loadingRecent,
+      recent,
       token,
       hostname,
       error,
@@ -168,10 +147,10 @@ export default class App extends Component<Props, State> {
       initialized,
       result,
       activeTab,
-      showWebhookConfig,
+      showConfig,
       showBindings
     } = this.state;
-    const { id, private_settings = {} } = ship || {};
+    const { payload } = current || {};
 
     if (initialized && token && hostname) {
       return (
@@ -181,21 +160,21 @@ export default class App extends Component<Props, State> {
           <div className="main-container flexRow">
             <div className="flexColumn flexGrow third">
               <Header title="Recent webhooks">
-                <WebhookHistory
-                  loading={computing || loadingWebhooks}
-                  current={currentWebhook}
-                  history={lastWebhooks}
-                  onSelect={this.handleChangeCurrent}
+                <PayloadSelector
+                  loading={computing || loadingRecent}
+                  current={current}
+                  recent={recent}
+                  onSelect={this.selectEntry}
                   onRefresh={this.handleRefresh}
                 />
                 <hr className="payload-divider" />
               </Header>
               <CodeTitle title="Payload" />
-              <Payload
-                className="payloadPane"
-                current={currentWebhook}
-                onSelect={this.handleChangeCurrent}
-                onRefresh={this.handleRefresh}
+              <Area
+                className="flexGrow"
+                value={payload}
+                type="info"
+                javascript={false}
               />
             </div>
             <div className="flexColumn flexGrow third">
@@ -225,7 +204,6 @@ export default class App extends Component<Props, State> {
                 computing={computing}
                 code={this.getCode()}
                 editable={activeTab === "Current"}
-                currentWebhook={currentWebhook}
                 onChange={this.handleCodeUpdate}
               />
             </div>
@@ -234,7 +212,7 @@ export default class App extends Component<Props, State> {
                 <ButtonGroup size="sm">
                   <Button
                     variant="outline-secondary"
-                    onClick={this.showWebhookConfig}
+                    onClick={this.showInstructions}
                   >
                     Configuration
                   </Button>
@@ -247,7 +225,7 @@ export default class App extends Component<Props, State> {
                 </ButtonGroup>
               </Header>
 
-              {result && ship && (
+              {result && (
                 <Preview
                   title={activeTab}
                   result={this.getResults()}
@@ -262,6 +240,7 @@ export default class App extends Component<Props, State> {
 
     return (
       <div className="text-center pt-2">
+        div.test
         <h4>Loading...</h4>
       </div>
     );

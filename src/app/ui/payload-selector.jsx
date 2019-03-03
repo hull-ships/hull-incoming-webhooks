@@ -4,20 +4,20 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import DropdownItem from "react-bootstrap/DropdownItem";
 import Button from "react-bootstrap/Button";
 import _ from "lodash";
-import type { Webhook } from "../../../types";
+import type { Entry } from "../../../types";
 import PayloadTitle from "./payload-title";
 import Sync from "./sync";
 import Spinner from "./spinner";
 
 const List = ({
   loading,
-  history = [],
+  recent = [],
   current,
   onSelect,
   onRefresh
 }: {
-  current?: Webhook,
-  history?: Array<Webhook>,
+  current?: Entry,
+  recent?: Array<Entry>,
   loading: boolean,
   onRefresh: () => void,
   onSelect: string => void
@@ -39,7 +39,7 @@ const List = ({
       key={_.get(current, "date")}
       onSelect={onSelect}
     >
-      {history.map((entry, idx) => (
+      {recent.map((entry, idx) => (
         <DropdownItem
           key={entry.date}
           id={`last-entry-${idx}`}
