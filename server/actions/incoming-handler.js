@@ -5,7 +5,7 @@ import _ from "lodash";
 
 import compute from "../lib/compute";
 import ingest from "../lib/ingest";
-import type { Payload, Result } from "../../types";
+import type { Payload } from "../../types";
 
 const pickValuesFromRequest = ({
   body,

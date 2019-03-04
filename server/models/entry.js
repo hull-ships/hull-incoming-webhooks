@@ -1,9 +1,20 @@
+// @flow
 import mongoose from "mongoose";
 
-export default function({ mongoUrl, collectionSize, collectionName }) {
+type ModelParams = {
+  mongoUrl: string,
+  collectionSize: string | number,
+  collectionName: string
+};
+export default function({
+  mongoUrl,
+  collectionSize,
+  collectionName
+}: ModelParams) {
   const fields = {
     connectorId: String,
-    webhookData: Object,
+    payload: Object,
+    code: String,
     result: Object,
     date: Date
   };

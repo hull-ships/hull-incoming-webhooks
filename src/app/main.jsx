@@ -18,6 +18,7 @@ import Preview from "./preview";
 import Header from "./ui/header";
 import PayloadSelector from "./ui/payload-selector";
 import CodeTitle from "./ui/code-title";
+import Spinner from "./ui/spinner";
 
 type Props = {
   engine: Engine
@@ -37,14 +38,11 @@ const DEFAULT_STATE = {
 };
 
 export default class App extends Component<Props, State> {
-  constructor() {
-    super();
-    const { engine } = this.props;
-    this.state = {
-      ...DEFAULT_STATE,
-      ...engine.getState()
-    };
-  }
+  state = {
+    ...DEFAULT_STATE,
+    // eslint-disable-next-line react/destructuring-assignment
+    ...this.props.engine.getState()
+  };
 
   componentWillMount() {
     const { engine } = this.props;
@@ -92,44 +90,53 @@ export default class App extends Component<Props, State> {
   };
 
   getCode = () => {
-    const { activeTab } = this.state;
+    const { activeTab, code, current = {} } = this.state;
     if (activeTab === "Current") {
-      return _.get(this.state, "ship.private_settings.code", "");
+      return code;
     }
-    return _.get(this.state, "current.result.code", "");
+    return current.code;
   };
 
   getResults = () => {
-    const { activeTab } = this.state;
+    const { result, current = {}, activeTab } = this.state;
     if (activeTab === "Current") {
-      return _.get(this.state, "result", {});
+      return result;
     }
-    return _.get(this.state, "current.result", "");
+    return current.result;
   };
 
   renderSetupMessage() {
-    const { config, showConfig, recent, hostname, token } = this.state;
-    const hasAnyWebhooks = !!_.get(recent, "length", 0);
-    const content = hasAnyWebhooks
+    const {
+      loadingRecent,
+      config,
+      showConfig,
+      recent,
+      hostname,
+      token
+    } = this.state;
+    const hasRecent = !!_.get(recent, "length", 0);
+    const content = hasRecent
       ? "Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
       : "We haven't received data from the outside yet. Copy the URL below and configure your external service to POST a valid JSON-formatted payload to it.";
-    const actions = hasAnyWebhooks ? (
+    const actions = hasRecent ? (
       <Button onClick={this.hideInstructions}>Close</Button>
     ) : null;
-    const footer = hasAnyWebhooks
-      ? null
-      : "You need to refresh the page after you have sent your webhook to unlock the workspace";
+    const footerMessage = loadingRecent ? (
+      <Spinner className="loading-spinner" />
+    ) : (
+      "Attempting fetch in 2s"
+    );
     return (
       config && (
         <ConfigurationModal
-          show={showConfig || !hasAnyWebhooks}
+          show={showConfig || !hasRecent}
           host={hostname}
           onHide={() => {}}
-          connectorId={config.id}
+          connectorId={config.ship}
           token={token}
           content={content}
           actions={actions}
-          footer={footer}
+          footer={hasRecent ? null : footerMessage}
         />
       )
     );
@@ -152,96 +159,89 @@ export default class App extends Component<Props, State> {
     } = this.state;
     const { payload } = current || {};
 
-    if (initialized && token && hostname) {
+    if (!token || !hostname) {
       return (
-        <div>
-          {this.renderSetupMessage()}
-          <KeyBindings show={showBindings} onHide={this.hideBindings} />
-          <div className="main-container flexRow">
-            <div className="flexColumn flexGrow third">
-              <Header title="Recent webhooks">
-                <PayloadSelector
-                  loading={computing || loadingRecent}
-                  current={current}
-                  recent={recent}
-                  onSelect={this.selectEntry}
-                  onRefresh={this.handleRefresh}
-                />
-                <hr className="payload-divider" />
-              </Header>
-              <CodeTitle title="Payload" />
-              <Area
-                className="flexGrow"
-                value={payload}
-                type="info"
-                javascript={false}
-              />
-            </div>
-            <div className="flexColumn flexGrow third">
-              <Header>
-                <Nav
-                  variant="tabs"
-                  defaultActiveKey="Current"
-                  activeKey={activeTab}
-                  justify
-                  onSelect={this.changeTab}
-                  className="justify-content-center"
-                  size="sm"
-                  id="preview-tabs"
-                >
-                  <Nav.Item>
-                    <Nav.Link eventKey="Current">Current Code</Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey="Previous">
-                      At Webhook reception
-                    </Nav.Link>
-                  </Nav.Item>
-                </Nav>
-              </Header>
-              <CodeTitle title="Code" />
-              <CodePane
-                computing={computing}
-                code={this.getCode()}
-                editable={activeTab === "Current"}
-                onChange={this.handleCodeUpdate}
-              />
-            </div>
-            <div className="flexColumn flexGrow third">
-              <Header>
-                <ButtonGroup size="sm">
-                  <Button
-                    variant="outline-secondary"
-                    onClick={this.showInstructions}
-                  >
-                    Configuration
-                  </Button>
-                  <Button
-                    variant="outline-secondary"
-                    onClick={this.showBindings}
-                  >
-                    Keyboard Shortcuts
-                  </Button>
-                </ButtonGroup>
-              </Header>
-
-              {result && (
-                <Preview
-                  title={activeTab}
-                  result={this.getResults()}
-                  computing={computing}
-                />
-              )}
-            </div>
-          </div>
+        <div className="text-center pt-2">
+          <h4>Loading...</h4>
         </div>
       );
     }
-
     return (
-      <div className="text-center pt-2">
-        div.test
-        <h4>Loading...</h4>
+      <div>
+        {this.renderSetupMessage()}
+        <KeyBindings show={showBindings} onHide={this.hideBindings} />
+        <div className="main-container flexRow">
+          <div className="flexColumn flexGrow third">
+            <Header title="Recent webhooks">
+              <PayloadSelector
+                loading={computing || loadingRecent}
+                current={current}
+                recent={recent}
+                onSelect={this.selectEntry}
+                onRefresh={this.handleRefresh}
+              />
+              <hr className="payload-divider" />
+            </Header>
+            <CodeTitle title="Payload" />
+            <Area
+              className="flexGrow"
+              value={payload}
+              type="info"
+              javascript={false}
+            />
+          </div>
+          <div className="flexColumn flexGrow third">
+            <Header>
+              <Nav
+                variant="tabs"
+                defaultActiveKey="Current"
+                activeKey={activeTab}
+                justify
+                onSelect={this.changeTab}
+                className="justify-content-center"
+                size="sm"
+                id="preview-tabs"
+              >
+                <Nav.Item>
+                  <Nav.Link eventKey="Current">Current Code</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="Previous">At Webhook reception</Nav.Link>
+                </Nav.Item>
+              </Nav>
+            </Header>
+            <CodeTitle title="Code" />
+            <CodePane
+              computing={computing}
+              code={this.getCode()}
+              editable={activeTab === "Current"}
+              onChange={this.handleCodeUpdate}
+            />
+          </div>
+          <div className="flexColumn flexGrow third">
+            <Header>
+              <ButtonGroup size="sm">
+                <Button
+                  variant="outline-secondary"
+                  onClick={this.showInstructions}
+                >
+                  Configuration
+                </Button>
+                <Button variant="outline-secondary" onClick={this.showBindings}>
+                  Keyboard Shortcuts
+                </Button>
+              </ButtonGroup>
+            </Header>
+
+            {result && (
+              <Preview
+                title={activeTab}
+                result={this.getResults()}
+                computing={computing}
+              />
+            )}
+          </div>
+        </div>
       </div>
     );
   }

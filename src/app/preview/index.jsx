@@ -71,10 +71,10 @@ const mapEvents = fp.flow(
 );
 
 type Props = {
-  result: Result
+  result?: Result
 };
 
-const Preview = ({ result }: Props) => {
+const Preview = ({ result = {} }: Props) => {
   const {
     userTraits = [],
     accountTraits = [],
@@ -102,7 +102,7 @@ const Preview = ({ result }: Props) => {
       <CodeTitle title="Errors" error />
       <Area
         highlight={highlight}
-        value={errors}
+        value={errors.join("\n-----\n")}
         type="danger"
         javascript={false}
       />

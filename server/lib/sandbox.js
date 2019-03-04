@@ -3,26 +3,10 @@
 import vm from "vm";
 import request from "request";
 import _ from "lodash";
-import type { HullConnector, Result } from "hull";
+import type { Result } from "hull";
 import type { RunOptions } from "../../types";
 import buildHullContext from "./hull-context";
 import getFrozenLibs from "./frozen-libs";
-
-const sandboxes = {};
-
-function buildSandbox(ship: HullConnector, context: {}) {
-  const s = sandboxes[ship.id];
-  // find or create sandobx and memoize;
-  if (!s) sandboxes[ship.id] = vm.createContext({});
-  return {
-    ...sandboxes[ship.id],
-    ...context,
-    ship,
-    payload: {},
-    responses: [],
-    ...getFrozenLibs()
-  };
-}
 
 function buildRequest(result: Result): any => any {
   return (opts, callback) => {
@@ -92,27 +76,33 @@ export default async function runScript({
     isAsync: false
   };
 
-  const sandbox = buildSandbox(ship, {
+  const sandbox = {
     ...context,
+    ship,
+    payload: {},
+    responses: [],
+    errors: result.errors,
     request: buildRequest(result),
     hull: buildHullContext(client, result),
     console: buildConsole(result, preview),
-    responses: []
-  });
+    ...getFrozenLibs()
+  };
 
   try {
-    const script = new vm.Script(`
-      try {
-        responses.push(function() {
-          "use strict";
-          ${code}
-        }());
-      } catch (err) {
-        errors.push(err.toString());
-      }`);
-    script.runInContext(sandbox);
+    vm.runInNewContext(
+      `(function() {
+        "use strict";
+        ${code}
+      }());`,
+      sandbox,
+      {
+        filename: "script",
+        lineOffset: -2,
+        columnOffset: 7
+      }
+    );
   } catch (err) {
-    result.errors.push(err.toString());
+    result.errors.push(err.stack.split("at ContextifyScript")[0]);
   }
   const { responses } = sandbox;
   if (

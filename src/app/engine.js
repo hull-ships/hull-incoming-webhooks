@@ -68,11 +68,17 @@ export default class Engine extends EventEmitter {
 
   setup() {
     this.fetchToken();
-    this.fetchRecent(() => {
-      const { recent } = this.state;
-      return this.selectEntry(_.head(recent));
-    });
+    this.attemptFetchRecent();
   }
+
+  attemptFetchRecent = async () => {
+    const success = await this.fetchRecent();
+    if (!success) {
+      return setTimeout(this.attemptFetchRecent, 2000);
+    }
+    const { recent } = this.state;
+    return this.selectEntry(_.head(recent));
+  };
 
   updateParent = (code: string) => updateParent({ private_settings: { code } });
 
@@ -87,17 +93,15 @@ export default class Engine extends EventEmitter {
 
   selectEntry = (current: Entry) => {
     this.setState({ current });
+    if (!current) return;
     const { payload } = current;
-    return this.compute({ code: this.state.code, payload });
+    this.compute({ code: this.state.code, payload });
   };
 
   selectEntryByDate = (date: string) => {
     const { recent } = this.state;
     this.selectEntry(_.find(recent, entry => entry.date === date));
   };
-
-  finishWithSuccess = (state: {}, callback?: AnyFunction) =>
-    this.setState({ ...state, loadingRecent: false }, callback);
 
   request = async (payload: {
     url: string,
@@ -126,11 +130,12 @@ export default class Engine extends EventEmitter {
       }
       this.setState({ ...data, loadingToken: false });
     } catch (err) {
+      console.log(err);
       this.setState({ token: "", hostname: "", loadingToken: false });
     }
   };
 
-  fetchRecent = async (callback?: Function) => {
+  fetchRecent = async () => {
     this.setState({ loadingRecent: true });
     try {
       const {
@@ -143,39 +148,51 @@ export default class Engine extends EventEmitter {
       if (status !== 200) {
         throw new Error("Can't fetch recent webhooks");
       }
-      this.setState({ recent, loadingRecent: false }, callback);
+      this.setState({ recent, loadingRecent: false });
+      return true;
     } catch (err) {
+      console.log(err);
       this.setState({
         error: err.toString(),
         loadingRecent: false
       });
+      return false;
     }
-    return true;
   };
 
-  compute = _.debounce(async (request: PreviewRequest) => {
-    const { computing } = this.state;
-    if (computing) {
-      return computing;
-    }
-    this.setState({ computing: true });
+  compute = _.debounce(
+    async (request: PreviewRequest) => {
+      // const { computing } = this.state;
+      // if (computing) {
+      //   return computing;
+      // }
+      this.setState({ computing: true });
 
-    try {
-      const { data, status }: AxiosComputeResult = await this.request({
-        url: "compute",
-        method: "post",
-        data: request
-      });
-      if (status !== 200) {
-        throw new Error("Can't compute result");
+      try {
+        const { data, status }: AxiosComputeResult = await this.request({
+          url: "compute",
+          method: "post",
+          data: request
+        });
+        if (status !== 200) {
+          throw new Error("Can't compute result");
+        }
+        this.setState({
+          computing: false,
+          result: data,
+          initialized: true
+        });
+      } catch (err) {
+        console.log(err);
+        this.setState({
+          computing: false,
+          error: err.toString(),
+          initialized: true
+        });
       }
-      this.finishWithSuccess({ result: data, initialized: true });
-    } catch (err) {
-      this.setState({
-        error: err.toString(),
-        initialized: true
-      });
-    }
-    return true;
-  }, 1000);
+      return true;
+    },
+    1000,
+    { leading: true, trailing: true }
+  );
 }

@@ -44,7 +44,7 @@ export default class ConfigurationModal extends Component<Props> {
               <p>{content}</p>
             </div>
 
-            <div className="mt-1 mb-1">
+            <div style={{ marginBottom: "1rem" }}>
               <input
                 type="text"
                 onClick={this.autoSelect}

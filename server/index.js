@@ -7,7 +7,7 @@ import { Cache } from "hull/lib/infra";
 import dotenv from "dotenv";
 import { middleware } from "./lib/crypto";
 import server from "./server";
-import webhookRequest from "./models/webhook-request";
+import entryModel from "./models/entry";
 
 dotenv.config();
 
@@ -32,8 +32,12 @@ const cache = new Cache({
   ttl: 1
 });
 
+if (!MONGO_URL) {
+  throw new Error("need a MONGO_URL env var");
+}
+
 // Mongo connection setup
-const Model = webhookRequest({
+const Model = entryModel({
   mongoUrl: MONGO_URL,
   collectionSize: MONGO_COLLECTION_SIZE || 524288000,
   collectionName: MONGO_COLLECTION_NAME || "webhook_requests"

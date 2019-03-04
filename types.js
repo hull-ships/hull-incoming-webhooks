@@ -168,7 +168,7 @@ export type ConfResponse = {
 };
 
 export type Config = {
-  id: string,
+  ship: string,
   secret: string,
   orgUrl: string
 };

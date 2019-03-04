@@ -40,7 +40,6 @@ async function computeHandler(req: Request, res: Response) {
     res.send(result);
     return res.end();
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error });
   }
 }
