@@ -1,24 +1,23 @@
 // @flow
 import React from "react";
 import _ from "lodash";
-import Codemirror from "../ui/react-codemirror";
+import CodeEditor from "../ui/ace";
 
 require("codemirror/mode/javascript/javascript");
 
 type Props = {
   onChange: string => void,
-  editable: boolean,
+  readOnly: boolean,
   code: string
 };
 
-const Code = ({ editable, onChange, code }: Props) => (
-  <Codemirror
+const Code = ({ readOnly, onChange, code }: Props) => (
+  <CodeEditor
+    id="code-editor"
     value={code}
-    onChange={editable ? onChange : undefined}
-    options={{
-      mode: "javascript",
-      readOnly: !_.isFunction(onChange) && editable
-    }}
+    mode="javascript"
+    readOnly={readOnly || !_.isFunction(onChange)}
+    onChange={readOnly ? undefined : onChange}
   />
 );
 

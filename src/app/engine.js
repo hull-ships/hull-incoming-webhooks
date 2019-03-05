@@ -73,10 +73,10 @@ export default class Engine extends EventEmitter {
 
   attemptFetchRecent = async () => {
     const success = await this.fetchRecent();
-    if (!success) {
+    const { recent } = this.state;
+    if (!success || !recent.length) {
       return setTimeout(this.attemptFetchRecent, 2000);
     }
-    const { recent } = this.state;
     return this.selectEntry(_.head(recent));
   };
 
@@ -193,6 +193,6 @@ export default class Engine extends EventEmitter {
       return true;
     },
     1000,
-    { leading: true, trailing: true }
+    { leading: false, trailing: true }
   );
 }

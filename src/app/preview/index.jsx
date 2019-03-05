@@ -84,10 +84,6 @@ const Preview = ({ result = {} }: Props) => {
     logs = []
   } = result;
 
-  const highlight =
-    errors && errors.length && !_.isEmpty(userTraits)
-      ? []
-      : _.map(_.keys(userTraits.map(u => u.traits)), k => `traits_${k}`) || [];
   const hasErrors = _.size(errors);
 
   const output = {
@@ -100,23 +96,18 @@ const Preview = ({ result = {} }: Props) => {
   return hasErrors ? (
     <Fragment>
       <CodeTitle title="Errors" error />
-      <Area
-        highlight={highlight}
-        value={errors.join("\n-----\n")}
-        type="danger"
-        javascript={false}
-      />
+      <Area id="code-error" value={errors.join("\n-----\n")} mode="text" />
     </Fragment>
   ) : (
     <Fragment>
       {_.map(_.pickBy(output, v => !!v), (v, k) => (
         <Fragment>
           <CodeTitle title={k} />
-          <Area value={v} type="info" />
+          <Area id={`code-${k}`} value={v} type="info" mode="javascript" />
         </Fragment>
       ))}
       <CodeTitle title="Console" />
-      <Area value={renderLogs(logs)} type="info" javascript={false} />
+      <Area id="code-console" value={renderLogs(logs)} mode="javascript" />
     </Fragment>
   );
 };

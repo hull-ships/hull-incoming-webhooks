@@ -1,142 +1,50 @@
 @import "~bootstrap/dist/css/bootstrap.css";
-@import "./codemirror";
+@import "./modules/typography";
+@import "./modules/spinner";
+@import "./modules/layout";
 
-hr {
-  margin: 10px 0;
-}
-body {
-  background-color: white;
-  height: 100%;
-}
-pre {
-  margin:0;
-}
-.main-container{
-display: flex;
-position: absolute;
-position: absolute;
-left: 5px;
-right: 5px;
-bottom: 0;
-top: 5px;
-}
-.flexRow {
-flex-direction: row;
-display: flex;
-}
-.flexColumn {
-display: flex;
-flex-direction: column;
-}
-.flexGrow {
-flex-grow:1;
-}
-.header{
-  min-height: 42px;
-  padding: 0 5px;
-  align-items: center;
-  .btn-group {
-    align-items: center;
-  }
-}
-.third {
-width: 33.333%
-}
-.code-editor{
-display: flex;
-flex-direction: column;
-}
+
 .btn.last-payload-button {
-border-radius: 3px;
-}
-.CodeMirror {
-border: 1px solid #f7f7f7;
-font-size: 12px;
-height: 100%;
-}
-.CodeMirror pre {
-font-size: 11px;
-line-height:1.2;
-}
-.CodeMirror-gutters {
-min-height: 100%;
-border-right: 0;
-}
-.dropdown-menu {
-max-height: 70vh;
-overflow-y: auto;
-width: 100%;
-text-align: center;
-}
-hr.payload-divider {
-margin-top: 12px;
-margin-bottom: 5px;
-}
-#preview-tabs {
-width: 100%;
-}
-.refresh-button {
-padding: 0;
-background-color: #FFF;
-margin: 0px 20px;
-height: 30px;
-}
-.input-monospace {
-font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+	border-radius: 3px;
 }
 
-.loading-spinner{
-padding: 0;
+.dropdown-menu {
+	max-height: 70vh;
+	overflow-y: auto;
+	width: 100%;
+	text-align: center;
+}
+
+
+#preview-tabs {
+	width: 100%;
+}
+
+.refresh-button {
+	padding: 0;
+	background-color: #FFF;
+	margin: 0px 20px;
+	height: 30px;
+}
+
+.input-monospace {
+	font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
 }
 
 .content-tag {
-background: #f7f7f7;
-padding: 5px 10px;
-color: #3f4654;
-margin: 0;
-}
-.content-tag--error{
-color: #fff;
-background: #de7878;
+	background: #151617;
+	padding: 5px 10px;
+	color: #676f7d;
+	margin: 0;
+	font-size: 12px;
 }
 
-.lds-ring {
-display: inline-block;
-position: relative;
-width: 24px;
-height: 24px;
-}
-.lds-ring div {
-box-sizing: border-box;
-display: block;
-position: absolute;
-width: 23px;
-height: 23px;
-margin: 0px;
-border: 1px solid #8091AD;
-border-radius: 50%;
-animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-border-color: #8091AD transparent transparent transparent;
-}
-.lds-ring div:nth-child(1) {
-animation-delay: -0.45s;
-}
-.lds-ring div:nth-child(2) {
-animation-delay: -0.3s;
-}
-.lds-ring div:nth-child(3) {
-animation-delay: -0.15s;
-}
-@keyframes lds-ring {
-0% {
-  transform: rotate(0deg);
-}
-100% {
-  transform: rotate(360deg);
-}
+.content-tag--error {
+	color: #fff;
+	background: #de7878;
 }
 
 .modal-wide {
-    width: 800px;
-    max-width: none;
+	width: 800px;
+	max-width: none;
 }

@@ -184,10 +184,10 @@ export default class App extends Component<Props, State> {
             </Header>
             <CodeTitle title="Payload" />
             <Area
+              id="code-payload"
+              mode="json"
               className="flexGrow"
               value={payload}
-              type="info"
-              javascript={false}
             />
           </div>
           <div className="flexColumn flexGrow third">
@@ -214,7 +214,7 @@ export default class App extends Component<Props, State> {
             <CodePane
               computing={computing}
               code={this.getCode()}
-              editable={activeTab === "Current"}
+              readOnly={activeTab !== "Current"}
               onChange={this.handleCodeUpdate}
             />
           </div>

@@ -1,6 +1,6 @@
 // @flow
 
-import vm from "vm";
+import { VM } from "vm2";
 import request from "request";
 import _ from "lodash";
 import type { Result } from "hull";
@@ -89,18 +89,9 @@ export default async function runScript({
   };
 
   try {
-    vm.runInNewContext(
-      `(function() {
-        "use strict";
-        ${code}
-      }());`,
-      sandbox,
-      {
-        filename: "script",
-        lineOffset: -2,
-        columnOffset: 7
-      }
-    );
+    new VM({
+      sandbox
+    }).run(`(function() { "use strict"; ${code} }());`);
   } catch (err) {
     result.errors.push(err.stack.split("at ContextifyScript")[0]);
   }
