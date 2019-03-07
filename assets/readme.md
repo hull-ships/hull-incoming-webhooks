@@ -8,6 +8,9 @@ Go to the Connectors page of your Hull organization, click the button “Add Con
 ![Getting Started Step 1](./docs/dashboard-after-installation.png)
 
 Copy the displayed url and send at least one request to begin writing code.
+
+**IMPORTANT:** the only valid request handled by this connector is a POST with either json or urlencoded body, any other request will be rejected with error code 400.
+
 After you have sent your first request, you will be presented with the three column Dashboard layout. The left column displays the **Request** which is composed of the body, header and other metadata. The center column holds your Javascript **Code** that allows you to transform the request data to the **Output** of the right column. The Output itself displays the changed attributes of the user or account and any associated events.
 
 The request column contains the request you sent from an external system to Hull. The body contains a JSON object of your data but you can also leverage header and other meta information in your code.
@@ -152,3 +155,11 @@ You can access the operational logs via the tab “Logs” in the user interface
 | `incoming.account.link.success` | Logged after the user has been successfully linked with an account.      |
 | `incoming.account.link.error`   | Logged when an error occurred during linking a user to an account.       |
 | `incoming.user.error`           | Logged if an error is encountered during compute.                        |
+
+### My request is rejected with 404 error
+This means that the request is made with wrong http verb. It needs to be POST request. 
+
+### My request is rejected with 400 error
+This means that the request is not having a correct body. It needs to have json or urlencoded body.
+
+
