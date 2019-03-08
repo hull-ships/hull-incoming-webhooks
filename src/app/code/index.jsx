@@ -3,8 +3,6 @@ import React from "react";
 import _ from "lodash";
 import CodeEditor from "../ui/ace";
 
-require("codemirror/mode/javascript/javascript");
-
 type Props = {
   onChange: string => void,
   readOnly: boolean,
