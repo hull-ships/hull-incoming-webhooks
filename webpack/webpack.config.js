@@ -22,7 +22,7 @@ const getEntry = files =>
 const getPlugins = mode =>
   mode === "development"
     ? [new MiniCssExtractPlugin({ filename: "[name].css" })]
-    : [];
+    : [new MiniCssExtractPlugin({ filename: "[name].css" })];
 
 const buildConfig = ({ files, destination, mode = "production" }) => ({
   mode,
