@@ -142,7 +142,7 @@ export default class Engine extends EventEmitter {
         data: recent = [],
         status
       }: AxiosRecentResponse = await this.request({
-        url: "last-webhooks",
+        url: "recent",
         headers: CORS_HEADERS
       });
       if (status !== 200) {

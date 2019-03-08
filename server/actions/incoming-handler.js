@@ -30,7 +30,7 @@ const pickValuesFromRequest = ({
   ])
 });
 
-export default function handler(Model: Object) {
+export default function handler(EntryModel: Object) {
   return async (req: $Request, res: $Response) => {
     const { client, ship, metric } = req.hull;
     const { private_settings = {} } = ship;
@@ -69,7 +69,7 @@ export default function handler(Model: Object) {
           client,
           metric
         },
-        Model
+        EntryModel
       );
     } catch (err) {
       client.logger.error("incoming.user.error", {

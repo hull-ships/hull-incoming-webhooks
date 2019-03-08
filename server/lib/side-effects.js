@@ -11,18 +11,23 @@ export const callTraits = async (
   let successful = 0;
   try {
     const responses = await Promise.all(
-      data.map(async ({ traits, claims, claimsOptions }) => {
-        const client = hullClient(claims, claimsOptions);
-        try {
-          await client.traits(traits);
-          successful += 1;
-          return client.logger.info(`incoming.${entity}.success`, traits);
-        } catch (err) {
-          return client.logger.error(`incoming.${entity}.error`, {
-            errors: err
-          });
+      data.map(
+        async ({ traits: { attributes, context }, claims, claimsOptions }) => {
+          const client = hullClient(claims, claimsOptions);
+          try {
+            await client.traits(attributes, context);
+            successful += 1;
+            return client.logger.info(`incoming.${entity}.success`, {
+              attributes,
+              context
+            });
+          } catch (err) {
+            return client.logger.error(`incoming.${entity}.error`, {
+              errors: err
+            });
+          }
         }
-      })
+      )
     );
     metric.increment(`ship.incoming.${entity}s`, successful);
     return responses;

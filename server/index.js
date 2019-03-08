@@ -37,7 +37,7 @@ if (!MONGO_URL) {
 }
 
 // Mongo connection setup
-const Model = entryModel({
+const EntryModel = entryModel({
   mongoUrl: MONGO_URL,
   collectionSize: MONGO_COLLECTION_SIZE || 524288000,
   collectionName: MONGO_COLLECTION_NAME || "webhook_requests"
@@ -58,6 +58,6 @@ app.use(middleware(connector.hostSecret));
 
 connector.setupApp(app);
 
-app = server(connector, options, app, Model);
+app = server(connector, options, app, EntryModel);
 
 connector.startApp(app);

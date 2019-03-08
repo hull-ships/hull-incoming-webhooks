@@ -1,6 +1,6 @@
 // @flow
 import type { Hull, HullEventProperties, HullEventContext } from "hull";
-import flatten from "./flatten-attributes";
+
 import type {
   Claims,
   ClaimsOptions,
@@ -30,15 +30,16 @@ const trackFactory = (
   });
 };
 const identifyFactory = (
-  target: Array<Traits>,
   claims: Claims,
-  claimsOptions: ClaimsOptions
-) => (properties: Attributes, options: AttributesOptions) =>
+  claimsOptions: ClaimsOptions,
+  target: Array<Traits>
+) => (attributes: Attributes, context: AttributesOptions) => {
   target.push({
     claims,
     claimsOptions,
-    traits: flatten({ properties, options })
+    traits: { attributes, context }
   });
+};
 
 const buildHullContext = (
   client: Hull,
@@ -54,7 +55,7 @@ const buildHullContext = (
     );
   };
 
-  function asAccount(
+  function asAccountFactory(
     claims: AccountClaims,
     claimsOptions: AccountClaimsOptions,
     target: Array<Traits>
@@ -66,7 +67,7 @@ const buildHullContext = (
       return {};
     }
 
-    const identify = identifyFactory(target, claims, claimsOptions);
+    const identify = identifyFactory(claims, claimsOptions, target);
     return { identify, traits: identify };
   }
 
@@ -74,7 +75,7 @@ const buildHullContext = (
     accountClaims: AccountClaims,
     accountClaimsOptions: AccountClaimsOptions
   ) => {
-    const account = asAccount(
+    const account = asAccountFactory(
       accountClaims,
       accountClaimsOptions,
       accountTraits
@@ -91,6 +92,9 @@ const buildHullContext = (
     return account;
   };
 
+  function asAccount(claims: Claims, claimsOptions: ClaimsOptions) {
+    return asAccountFactory(claims, claimsOptions, accountTraits);
+  }
   function asUser(claims: Claims, claimsOptions: ClaimsOptions) {
     const validation = hasValidUserClaims(claims, claimsOptions, client);
     const { valid, error } = validation;

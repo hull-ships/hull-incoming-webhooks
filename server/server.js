@@ -16,7 +16,7 @@ export default function Server(
   connector: Connector,
   options: Object = {},
   app: express,
-  Model: Object
+  EntryModel: Object
 ) {
   const { hostSecret } = options;
 
@@ -41,20 +41,20 @@ export default function Server(
     res.status(403).send();
   });
 
-  app.get("/last-webhooks", getRecent(Model));
+  app.get("/recent", getRecent(EntryModel));
 
   app.post(
     "/webhooks/:connectorId/:token",
     express.urlencoded({ extended: true }),
     express.json(),
-    incomingHandler(Model)
+    incomingHandler(EntryModel)
   );
 
   app.post(
     "/webhooks/:connectorId",
     express.urlencoded({ extended: true }),
     express.json(),
-    incomingHandler(Model)
+    incomingHandler(EntryModel)
   );
 
   app.post(

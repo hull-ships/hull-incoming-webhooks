@@ -35,8 +35,8 @@ export type Traits = {
   claims: Claims,
   claimsOptions: ClaimsOptions,
   traits: {
-    properties: Attributes,
-    options: AttributesOptions
+    attributes: Attributes,
+    context: AttributesOptions
   }
 };
 

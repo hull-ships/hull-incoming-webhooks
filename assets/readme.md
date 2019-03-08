@@ -12,7 +12,7 @@ After you have sent your first request, you will be presented with the three col
 
 The request column contains the request you sent from an external system to Hull. The body contains a JSON object of your data but you can also leverage header and other meta information in your code.
 You can access the last 100 requests by selecting them from the dropdown list:
-![Getting Started Step 2](./docs/last-webhooks.png)
+![Getting Started Step 2](./docs/recent.png)
 
 The Refresh button allows you to easily reload this list, to check for new requests.
 

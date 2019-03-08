@@ -24,7 +24,7 @@ module.exports = async function ingest(
     metric: Metric,
     payload: Payload
   },
-  Model: Object
+  EntryModel: Object
 ) {
   debug("compute.result", result);
 
@@ -90,5 +90,5 @@ module.exports = async function ingest(
     payload,
     date: new Date().toString()
   };
-  return Model.create(entry);
+  return EntryModel && EntryModel.create(entry);
 };
