@@ -4,7 +4,7 @@ import type { HullConnector, Hull, Metric } from "hull";
 import { callLinks, callEvents, callTraits } from "./side-effects";
 import type { Entry, Payload, Result } from "../../types";
 
-const debug = require("debug")("hull-incoming-webhooks:webhook-processor");
+const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
@@ -26,7 +26,7 @@ module.exports = async function ingest(
   },
   EntryModel: Object
 ) {
-  debug("compute.result", result);
+  debug("ingest.result", result);
 
   const {
     events,
@@ -39,12 +39,7 @@ module.exports = async function ingest(
 
   const promises = [];
 
-  client.logger.info("compute.user.debug", {
-    userTraits,
-    accountTraits,
-    events,
-    accountLinks
-  });
+  client.logger.info("compute.user.debug", result);
 
   // Update user traits
   if (_.size(userTraits)) {
