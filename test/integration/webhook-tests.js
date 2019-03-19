@@ -8,6 +8,8 @@ import _ from "lodash";
 import { encrypt } from "../../server/lib/crypto";
 import bootstrap from "./support/bootstrap";
 
+var request = require('supertest');
+
 describe("Connector for webhooks endpoint", function test() {
   let minihull;
   let server;
@@ -79,5 +81,18 @@ describe("Connector for webhooks endpoint", function test() {
         }
       }, 1500);
     });
+  });
+
+  it("400 response on invalid json", done => {
+    const invalidJson = "{\"user\"}";
+    const expectedStatus = "400";
+
+    request("http://localhost:8000").post(`/webhooks/123456789012345678901234/${token}`)
+      .send(invalidJson)
+      .type("json")
+      .end((err, res) => {
+        assert.equal(res.status, expectedStatus);
+        done();
+      });
   });
 });
