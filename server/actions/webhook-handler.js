@@ -6,10 +6,6 @@ import processWebhook from "../webhook-processor";
 
 function pickValuesFromRequest(req: Request) {
   const requestParams = _.pick(req, ["body", "headers", "cookies", "ip", "method", "params", "query"]);
-
-  console.log("request params");
-  console.log(requestParams);
-
   return _.update(requestParams, "headers", value => _.omit(value, ["x-forwarded-for", "x-forwarded-proto", "x-newrelic-id", "x-newrelic-transaction"]));
 }
 
