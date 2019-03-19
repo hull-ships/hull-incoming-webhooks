@@ -11,7 +11,6 @@ function pickValuesFromRequest(req: Request) {
 
 export default function webhookHandler(WebhookModel: Object) {
   return (req: Request, res: Response) => {
-
     const payload = { webhookData: pickValuesFromRequest(req), date: new Date() };
 
     const body = payload.webhookData.body;
