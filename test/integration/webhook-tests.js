@@ -3,12 +3,11 @@
 import Minihull from "minihull";
 import axios from "axios";
 import assert from "assert";
+import request from "supertest";
 import _ from "lodash";
 
 import { encrypt } from "../../server/lib/crypto";
 import bootstrap from "./support/bootstrap";
-
-var request = require('supertest');
 
 describe("Connector for webhooks endpoint", function test() {
   let minihull;
