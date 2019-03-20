@@ -4,6 +4,7 @@ import { Connector } from "hull";
 import express from "express";
 
 import getLastWebhooks from "./middlewares/get-last-webhooks";
+import removeOldWebhooks from "./middlewares/remove-old-webhooks";
 import { encrypt } from "./lib/crypto";
 import webhookHandler from "./actions/webhook-handler";
 import computeHandler from "./actions/compute-handler";
@@ -26,6 +27,7 @@ export default function Server(connector: Connector, options: Object = {}, app: 
   });
 
   app.get("/last-webhooks", getLastWebhooks(WebhookModel));
+  app.all("/remove-old-webhooks", removeOldWebhooks(WebhookModel));
 
   app.post("/webhooks/:connectorId/:token", express.urlencoded({ extended: true }), express.json(), webhookHandler(WebhookModel));
 
