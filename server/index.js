@@ -35,8 +35,7 @@ const cache = new Cache({
 // Mongo connection setup
 const WebhookModel = webhookRequest({
   mongoUrl: MONGO_URL,
-  collectionSize: MONGO_COLLECTION_SIZE || 524288000,
-  collectionName: MONGO_COLLECTION_NAME || "webhook_requests"
+  collectionName: MONGO_COLLECTION_NAME || "groomed_webhook_requests"
 });
 
 

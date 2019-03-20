@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export default function ({ mongoUrl, collectionSize, collectionName }) {
+export default function ({ mongoUrl, collectionName }) {
   const fields = {
     connectorId: String,
     webhookData: Object,
@@ -8,12 +8,7 @@ export default function ({ mongoUrl, collectionSize, collectionName }) {
     date: Date
   };
 
-  const options = {
-    capped: {
-      size: collectionSize,
-      autoIndexId: true
-    }
-  };
+  const options = {};
 
   mongoose.Promise = global.Promise;
 
