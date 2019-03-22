@@ -16,7 +16,6 @@ export default function webhookHandler(WebhookModel: Object) {
     const body = payload.webhookData.body;
 
     if (!Object.keys(body).length) {
-      console.log("Invalid body found");
       return res.status(400).send();
     }
 
