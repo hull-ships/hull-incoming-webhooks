@@ -19,7 +19,7 @@ export default function webhookHandler(WebhookModel: Object) {
       const body = payload.webhookData.body;
       if (!Object.keys(body).length) {
         client.logger.debug("incoming.payload.empty");
-        //return res.status(400).send();
+        // return res.status(400).send();
       }
     } catch (error) {
       client.logger.debug(`Error getting body from payload: ${error.message}`);
