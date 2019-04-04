@@ -12,17 +12,20 @@ function pickValuesFromRequest(req: Request) {
 export default function webhookHandler(WebhookModel: Object) {
   return (req: Request, res: Response) => {
     const payload = { webhookData: pickValuesFromRequest(req), date: new Date() };
+    const { client } = req.hull;
 
-    const body = payload.webhookData.body;
-
-    if (!Object.keys(body).length) {
-      console.log("Invalid body found");
-      return res.status(400).send();
+    try {
+      const body = payload.webhookData.body;
+      if (!Object.keys(body).length) {
+        client.logger.debug("incoming.payload.empty");
+        return res.status(400).send();
+      }
+    } catch (error) {
+      client.logger.debug(`Error getting body from payload: ${error.message}`);
     }
 
     res.send();
 
-    const { client } = req.hull;
     client.logger.debug("connector.request.data", payload.webhookData);
     req.hull.cachedWebhookPayload = payload;
 

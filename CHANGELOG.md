@@ -1,5 +1,8 @@
 # Changelog
 
+## v.0.1.7
+- send 400 response code for empty json body in the webhook payload
+
 ## v0.1.6
 - prevent malicious flatmap-stream@0.1.1 from installing
 
