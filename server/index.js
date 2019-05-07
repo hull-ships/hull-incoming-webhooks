@@ -17,8 +17,7 @@ const {
   NODE_ENV,
   PORT,
   MONGO_URL,
-  MONGO_COLLECTION_NAME,
-  MONGO_COLLECTION_SIZE
+  MONGO_COLLECTION_NAME
 } = process.env;
 
 if (LOG_LEVEL) {
@@ -35,8 +34,7 @@ const cache = new Cache({
 // Mongo connection setup
 const WebhookModel = webhookRequest({
   mongoUrl: MONGO_URL,
-  collectionSize: MONGO_COLLECTION_SIZE || 524288000,
-  collectionName: MONGO_COLLECTION_NAME || "webhook_requests"
+  collectionName: MONGO_COLLECTION_NAME || "groomed_webhook_requests"
 });
 
 

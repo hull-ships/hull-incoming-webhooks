@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export default function ({ mongoUrl, collectionSize, collectionName }) {
+export default function ({ mongoUrl, collectionName }) {
   const fields = {
     connectorId: String,
     webhookData: Object,
@@ -8,17 +8,13 @@ export default function ({ mongoUrl, collectionSize, collectionName }) {
     date: Date
   };
 
-  const options = {
-    capped: {
-      size: collectionSize,
-      autoIndexId: true
-    }
-  };
+  const options = {};
 
   mongoose.Promise = global.Promise;
 
   const schema = new mongoose.Schema(fields, options)
-                             .index({ connectorId: 1, _id: -1 });
+                             .index({ connectorId: 1, _id: -1 })
+                             .index({ connectorId: 1, date: -1 });
 
   const connection = mongoose.connect(mongoUrl, { useMongoClient: true });
   return connection.model(collectionName, schema);

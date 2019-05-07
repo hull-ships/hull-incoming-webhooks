@@ -32,6 +32,11 @@
       "url": "/status",
       "type": "cron",
       "value": "*/30 * * * *"
+    },
+    {
+      "url": "/remove-old-webhooks",
+      "type": "interval",
+      "value": "15"
     }
   ]
 }
