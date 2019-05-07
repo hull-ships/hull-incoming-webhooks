@@ -82,16 +82,16 @@ describe("Connector for webhooks endpoint", function test() {
     });
   });
 
-  // it("400 response on invalid json", done => {
-  //   const invalidJson = "{\"user\"}";
-  //   const expectedStatus = "400";
-  //
-  //   request("http://localhost:8000").post(`/webhooks/123456789012345678901234/${token}`)
-  //     .send(invalidJson)
-  //     .type("json")
-  //     .end((err, res) => {
-  //       assert.equal(res.status, expectedStatus);
-  //       done();
-  //     });
-  // });
+  it("400 response on invalid json", done => {
+    const invalidJson = "{\"user\"}";
+    const expectedStatus = "400";
+
+    request("http://localhost:8000").post(`/webhooks/123456789012345678901234/${token}`)
+      .send(invalidJson)
+      .type("json")
+      .end((err, res) => {
+        assert.equal(res.status, expectedStatus);
+        done();
+      });
+  });
 });
