@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.7
+## v0.1.8
 - Added logic to come behind and remove all but the top 100 webhook historical requests every 15 minutes
 
 ## v0.1.6
