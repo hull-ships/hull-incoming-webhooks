@@ -11,7 +11,7 @@ function isGroup(o) {
 function flatten(obj, key, group) {
   return _.reduce(group, (m, v, k) => {
     const n = (key) ? `${key}/${k}` : k;
-    if (isGroup(v)) {
+    if (isGroup(v) && !n.includes("/")) {
       flatten(m, n, v);
     } else {
       m[n] = v;
