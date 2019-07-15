@@ -68,4 +68,48 @@ describe("Connector for webhooks endpoint", function test() {
       }, 1500);
     });
   });
+
+  it("should update user when webhook is sent", done => {
+    let check = false;
+
+    axios.post(`http://localhost:8000/webhooks/123456789012345678901234/${token}`, {
+      user: {
+        id: "123",
+        traits: {
+          customerio_status: {
+            status: {
+              val: {
+                customer_status: "active"
+              }
+            }
+          }
+        }
+      }
+    }).then(() => {
+      minihull.on("incoming.request", req => {
+        const batch = req.body.batch[0];
+
+        if (batch.type === "traits") {
+          const actualBody = _.get(batch.body, "my-group/customerio_status");
+          const expectedBody = {
+            status: {
+              val: {
+                customer_status: "active"
+              }
+            }
+          };
+          assert.equal(JSON.stringify(actualBody), JSON.stringify(expectedBody));
+          check = true;
+        }
+      });
+
+      setTimeout(() => {
+        if (!check) {
+          done(Error("check not satisfied"));
+        } else {
+          done();
+        }
+      }, 1500);
+    });
+  });
 });
