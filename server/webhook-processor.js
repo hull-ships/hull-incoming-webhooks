@@ -8,6 +8,20 @@ function isGroup(o) {
   return _.isPlainObject(o) && !_.isEqual(_.sortBy(_.keys(o)), ["operation", "value"]);
 }
 
+const count = (str, ch) => _.countBy(str)[ch] || 0;
+// TODO replace flatten with this function
+function flattenToDepth(obj, key, group, depth) {
+  return _.reduce(group, (m, v, k) => {
+    const n = (key) ? `${key}/${k}` : k;
+    if (isGroup(v) && count(n, "/") !== depth) {
+      flattenToDepth(m, n, v, depth);
+    } else {
+      m[n] = v;
+    }
+    return m;
+  }, obj);
+}
+
 function flatten(obj, key, group) {
   return _.reduce(group, (m, v, k) => {
     const n = (key) ? `${key}/${k}` : k;
@@ -39,6 +53,24 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let successfulUsers = 0;
         promises.push(Promise.all(userTraits.map(u => {
           const asUser = client.asUser(u.userIdentity, u.userIdentityOptions);
+
+          // Log flattening out user json object
+          try {
+            const flattenedTraits = flattenToDepth({}, "", u.userTraits, 1);
+            _.map(flattenedTraits, (v, k) => {
+              if (isGroup(v)) {
+                client.logger.info(`Nested object { ${JSON.stringify(k)}:${JSON.stringify(v)} } found in user traits`);
+              }
+            });
+          } catch (err) {
+            if (err && err.toString) {
+              const msg = err.toString();
+              client.logger.info("Unable to parse user traits", {
+                error: msg
+              });
+            }
+          }
+
           return asUser.traits(flatten({}, "", u.userTraits)).then(() => asUser.logger.info("incoming.user.success", { ...flatten({}, "", u.userTraits) }))
             .then(() => {
               successfulUsers += 1;
@@ -85,6 +117,24 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let succeededAccounts = 0;
         promises.push(Promise.all(accountTraits.map(a => {
           const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
+
+          // Log flattening out account json object
+          try {
+            const flattenedTraits = flattenToDepth({}, "", a.accountTraits, 1);
+            _.map(flattenedTraits, (v, k) => {
+              if (isGroup(v)) {
+                client.logger.info(`Nested object { ${JSON.stringify(k)}:${JSON.stringify(v)} } found in account traits`);
+              }
+            });
+          } catch (err) {
+            if (err && err.toString) {
+              const msg = err.toString();
+              client.logger.info("Unable to parse user traits", {
+                error: msg
+              });
+            }
+          }
+
           return asAccount.traits({ ...flatten({}, "", a.accountTraits) }).then(() => asAccount.logger.info("incoming.account.success", {
             accountTraits: flatten({}, "", a.accountTraits),
             accountIdentity: a.accountIdentity
