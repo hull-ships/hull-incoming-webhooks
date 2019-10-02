@@ -19,7 +19,7 @@ describe("Connector for webhooks endpoint", function test() {
     minihull = new Minihull();
     server = bootstrap();
     minihull.listen(8001);
-    minihull.stubConnector({ id: "123456789012345678901234", private_settings });
+    minihull.stubConnector({ id: "123456789012345678901234", private_settings, accept_incoming_webhooks: true });
     minihull.stubSegments([]);
 
     setTimeout(() => {

@@ -11,6 +11,9 @@ function pickValuesFromRequest(req: Request) {
 
 export default function webhookHandler(WebhookModel: Object) {
   return (req: Request, res: Response) => {
+    if (!req.hull.ship.accept_incoming_webhooks) {
+      return res.status(200).send("Connector is paused, skipping");
+    }
     const payload = { webhookData: pickValuesFromRequest(req), date: new Date() };
 
     const { client } = req.hull;
