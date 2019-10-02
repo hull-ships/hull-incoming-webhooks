@@ -1,7 +1,7 @@
 {
   "name": "hull-incoming-webhooks",
   "description": "Receive webhooks and enrich your data in Hull",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "homepage": "https://github.com/hull-ships/hull-incoming-webhooks",
   "license": "MIT",
   "author": "Hull <contact@hull.io> (https://github.com/hull)",
