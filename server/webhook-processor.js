@@ -39,6 +39,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let successfulUsers = 0;
         promises.push(Promise.all(userTraits.map(u => {
           const asUser = client.asUser(u.userIdentity, u.userIdentityOptions);
+
           return asUser.traits(flatten({}, "", u.userTraits)).then(() => asUser.logger.info("incoming.user.success", { ...flatten({}, "", u.userTraits) }))
             .then(() => {
               successfulUsers += 1;
@@ -85,6 +86,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         let succeededAccounts = 0;
         promises.push(Promise.all(accountTraits.map(a => {
           const asAccount = client.asAccount(a.accountIdentity, a.accountIdentityOptions);
+
           return asAccount.traits({ ...flatten({}, "", a.accountTraits) }).then(() => asAccount.logger.info("incoming.account.success", {
             accountTraits: flatten({}, "", a.accountTraits),
             accountIdentity: a.accountIdentity
