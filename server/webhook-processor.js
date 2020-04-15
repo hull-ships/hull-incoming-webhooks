@@ -128,7 +128,7 @@ module.exports = function handle(payload: Object = {}, { ship, client, metric, c
         date: cachedWebhookPayload.date
       });
 
-      return Promise.all(promises).then(() => webhook.save());
+      return Promise.all(promises).then(() => webhook.save({ checkKeys: false }));
     })
     .catch(err =>
       client.logger.error("incoming.user.error", {
