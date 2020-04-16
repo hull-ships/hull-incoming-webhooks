@@ -21,6 +21,7 @@ export default function removeOldWebhooks(WebhookModel: Object) {
       } else {
         res.status(200).json({ result: "not enough webhooks to groom" });
       }
+      return Promise.resolve();
     });
   };
 }

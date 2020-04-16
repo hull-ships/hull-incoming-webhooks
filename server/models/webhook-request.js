@@ -16,6 +16,6 @@ export default function ({ mongoUrl, collectionName }) {
                              .index({ connectorId: 1, _id: -1 })
                              .index({ connectorId: 1, date: -1 });
 
-  mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true });
+  mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });
   return mongoose.model(collectionName, schema);
 }
