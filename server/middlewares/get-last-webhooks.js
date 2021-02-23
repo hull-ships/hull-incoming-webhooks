@@ -6,7 +6,7 @@ import _ from "lodash";
 export default function getLastWebhooks(WebhookModel: Object) {
   return (req: Request, res: Response) => {
     const { client, ship = {} } = req.hull;
-    const query = WebhookModel.find({ connectorId: ship.id }).sort({ date: -1 }).limit(100);
+    const query = WebhookModel.find({ connectorId: ship.id }).sort({ date: -1 }).limit(10);
 
     query.lean().exec((err, docs) => {
       if (err) {
