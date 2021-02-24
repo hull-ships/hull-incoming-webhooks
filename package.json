@@ -81,8 +81,8 @@
     "svg-inline-react": "^1.0.3",
     "syntax-error": "^1.4.0",
     "urijs": "^1.19.6",
-    "webpack": "^1.15.0",
-    "webpack-dev-middleware": "^1.12.2",
+    "webpack": "^3.12",
+    "webpack-dev-middleware": "^2.0.6",
     "winston-logstash": "^0.4.0"
   },
   "devDependencies": {
@@ -103,8 +103,7 @@
     "sinon": "^1.17.7",
     "supertest": "^1.2.0",
     "updtr": "^0.2.3",
-    "watch": "^0.19.2",
-    "webpack": "^1.15.0"
+    "watch": "^0.19.2"
   },
   "main": "index.js"
 }
