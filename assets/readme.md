@@ -11,7 +11,7 @@ Copy the displayed url and send at least one request to begin writing code.
 After you have sent your first request, you will be presented with the three column Dashboard layout. The left column displays the **Request** which is composed of the body, header and other metadata. The center column holds your Javascript **Code** that allows you to transform the request data to the **Output** of the right column. The Output itself displays the changed attributes of the user or account and any associated events.
 
 The request column contains the request you sent from an external system to Hull. The body contains a JSON object of your data but you can also leverage header and other meta information in your code.
-You can access the last 100 requests by selecting them from the dropdown list:
+You can access the last 10 requests by selecting them from the dropdown list:
 ![Getting Started Step 2](./docs/last-webhooks.png)
 
 The Refresh button allows you to easily reload this list, to check for new requests.
