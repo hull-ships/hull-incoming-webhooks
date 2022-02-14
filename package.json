@@ -6,7 +6,7 @@
   "license": "MIT",
   "author": "Hull <contact@hull.io> (https://github.com/hull)",
   "engines": {
-    "node": "^10.x",
+    "node": "^12.x",
     "npm": "5.x",
     "yarn": "^1.17.x"
   },
@@ -61,12 +61,12 @@
     "event-stream": "3.3.5",
     "express": "^4.17.1",
     "fifo-array": "^0.1.2",
-    "hull": "^0.13.23",
+    "hull": "^0.14.0-beta.30",
     "json-stable-stringify": "^1.0.1",
     "jwt-simple": "^0.5.6",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "mongoose": "5.11.17",
+    "mongoose": "^6.2.1",
     "newrelic": "^7.1.1",
     "raven": "^0.12.3",
     "react": "^15.7.0",
