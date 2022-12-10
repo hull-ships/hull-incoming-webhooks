@@ -59,7 +59,7 @@
     "domready": "^1.0.8",
     "dotenv": "^4.0.0",
     "event-stream": "3.3.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "fifo-array": "^0.1.2",
     "hull": "^0.13.23",
     "json-stable-stringify": "^1.0.1",
